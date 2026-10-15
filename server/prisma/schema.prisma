@@ -1,0 +1,469 @@
+// Custodia CRM: dátový model.
+// Schéma pokrýva všetky fázy naraz (aj tie, ktoré ešte nemajú UI), aby sa
+// neskôr len pridávali stĺpce a nie prestavovali vzťahy.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Používatelia a roly
+// ---------------------------------------------------------------------------
+
+enum Role {
+  OWNER // majiteľ (Milan)
+  TECHNICIAN // brigádnik / technik
+  CUSTOMER // zákazník (portál, bonus)
+}
+
+model User {
+  id                 String   @id @default(uuid()) @db.Uuid
+  email              String   @unique
+  name               String
+  phone              String?
+  passwordHash       String
+  role               Role
+  isActive           Boolean  @default(true)
+  mustChangePassword Boolean  @default(true)
+  // Zákaznícky účet je naviazaný na kartu zákazníka už od začiatku,
+  // takže portál (bonus) je len nová obrazovka, nie zmena modelu.
+  customerId         String?  @unique @db.Uuid
+  customer           Customer? @relation(fields: [customerId], references: [id])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  assignedRequests ServiceRequest[]      @relation("AssignedTechnician")
+  createdRequests  ServiceRequest[]      @relation("CreatedBy")
+  statusChanges    RequestStatusChange[]
+  appointments     Appointment[]
+  workLogs         WorkLog[]
+  photos           Photo[]
+  auditLogs        AuditLog[]
+  notifications    Notification[]
+}
+
+// ---------------------------------------------------------------------------
+// Zákazníci a technická karta záhrady
+// ---------------------------------------------------------------------------
+
+enum CustomerStatus {
+  LEAD // dopyt, ešte nie zákazník
+  ACTIVE
+  INACTIVE
+}
+
+enum ContactChannel {
+  PHONE
+  EMAIL
+  SMS
+}
+
+enum Source {
+  WEB_FORM
+  CALCULATOR
+  EMAIL
+  PHONE
+  REFERRAL
+  CUSTOMER_PORTAL
+  MANUAL
+}
+
+model Customer {
+  id                String         @id @default(uuid()) @db.Uuid
+  firstName         String
+  lastName          String
+  companyName       String?
+  email             String?
+  phone             String?
+  preferredContact  ContactChannel @default(PHONE)
+  status            CustomerStatus @default(ACTIVE)
+  source            Source         @default(MANUAL)
+  // Fakturačná adresa, môže sa líšiť od adresy záhrady.
+  billingStreet     String?
+  billingCity       String?
+  billingPostalCode String?
+  notes             String?
+  marketingConsent  Boolean        @default(false)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  deletedAt         DateTime? // soft delete: nič sa nestratí
+
+  user            User?
+  gardens         Garden[]
+  serviceRequests ServiceRequest[]
+  notifications   Notification[]
+
+  @@index([lastName, firstName])
+  @@index([status])
+}
+
+enum WaterSource {
+  MAINS // vodovod
+  WELL // studňa
+  RAINWATER
+  OTHER
+}
+
+model Garden {
+  id                 String       @id @default(uuid()) @db.Uuid
+  customerId         String       @db.Uuid
+  customer           Customer     @relation(fields: [customerId], references: [id])
+  label              String       @default("Hlavná záhrada")
+  street             String
+  city               String
+  postalCode         String?
+  // GPS od začiatku: plánovanie podľa lokality a mapa trasy (bonus).
+  latitude           Float?
+  longitude          Float?
+  areaM2             Int?
+  // Zdroj vody
+  waterSource        WaterSource  @default(MAINS)
+  waterPressureBar   Decimal?     @db.Decimal(4, 2)
+  flowRateLpm        Decimal?     @db.Decimal(6, 2)
+  mainValveLocation  String?
+  // Riadiaca jednotka
+  controllerModel    String?
+  controllerLocation String?
+  isSmartController  Boolean      @default(false)
+  hasRainSensor      Boolean      @default(false)
+  // Staré systémy sa stavali inak, preto rok a verzia.
+  installedYear      Int?
+  systemVersion      String?
+  notes              String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  deletedAt          DateTime?
+
+  zones           Zone[]
+  photos          Photo[]
+  devices         Device[]
+  serviceRequests ServiceRequest[]
+  appointments    Appointment[]
+  workLogs        WorkLog[]
+
+  @@index([customerId])
+  @@index([city])
+}
+
+enum ZoneArea {
+  LAWN // trávnik
+  BED // záhon
+  HEDGE // živý plot
+  OTHER
+}
+
+enum IrrigationType {
+  SPRINKLER // postrekovače
+  DRIP // kvapková závlaha
+}
+
+model Zone {
+  id             String         @id @default(uuid()) @db.Uuid
+  gardenId       String         @db.Uuid
+  garden         Garden         @relation(fields: [gardenId], references: [id], onDelete: Cascade)
+  number         Int
+  name           String?
+  areaType       ZoneArea       @default(LAWN)
+  irrigationType IrrigationType @default(SPRINKLER)
+  areaM2         Int?
+  sprinklerType  String?
+  sprinklerBrand String?
+  sprinklerCount Int?
+  valveType      String?
+  valveLocation  String?
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@unique([gardenId, number])
+}
+
+model Photo {
+  id               String          @id @default(uuid()) @db.Uuid
+  // Úložisko je za rozhraním: storageKey funguje pre disk aj S3.
+  storageKey       String
+  mimeType         String
+  sizeBytes        Int
+  caption          String?
+  gardenId         String?         @db.Uuid
+  garden           Garden?         @relation(fields: [gardenId], references: [id])
+  serviceRequestId String?         @db.Uuid
+  serviceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
+  workLogId        String?         @db.Uuid
+  workLog          WorkLog?        @relation(fields: [workLogId], references: [id])
+  uploadedById     String?         @db.Uuid
+  uploadedBy       User?           @relation(fields: [uploadedById], references: [id])
+  createdAt        DateTime        @default(now())
+}
+
+// IoT (bonus): zariadenia z Packet Tracer / smart záhrady.
+enum DeviceType {
+  HOME_GATEWAY
+  SPRINKLER
+  HUMIDITY_SENSOR
+  WATER_LEVEL_SENSOR
+  TRIP_SENSOR
+  MOWER
+  OTHER
+}
+
+model Device {
+  id         String     @id @default(uuid()) @db.Uuid
+  gardenId   String     @db.Uuid
+  garden     Garden     @relation(fields: [gardenId], references: [id], onDelete: Cascade)
+  type       DeviceType
+  name       String
+  externalId String?
+  lastValue  Json?
+  lastSeenAt DateTime?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Servisné požiadavky
+// ---------------------------------------------------------------------------
+
+enum RequestType {
+  FAULT // porucha
+  SPRING_START // jarné spustenie
+  WINTERIZATION // zazimovanie
+  LAWN_CARE // starostlivosť o trávnik
+  INSTALLATION // nová inštalácia
+  INSPECTION // obhliadka
+  OTHER
+}
+
+enum RequestStatus {
+  NEW
+  SCHEDULED
+  IN_PROGRESS
+  DONE
+  CLOSED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  EMERGENCY
+}
+
+model ServiceRequest {
+  id           String        @id @default(uuid()) @db.Uuid
+  // Ľudsky čitateľné číslo pre zákazníka ("požiadavka č. 42").
+  number       Int           @unique @default(autoincrement())
+  customerId   String        @db.Uuid
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  gardenId     String?       @db.Uuid
+  garden       Garden?       @relation(fields: [gardenId], references: [id])
+  type         RequestType
+  status       RequestStatus @default(NEW)
+  priority     Priority      @default(NORMAL)
+  source       Source        @default(MANUAL)
+  title        String
+  description  String?
+  // Napr. výsledok kalkulačky z webu (počet zón, cena od do).
+  payload      Json?
+  createdById  String?       @db.Uuid
+  createdBy    User?         @relation("CreatedBy", fields: [createdById], references: [id])
+  assignedToId String?       @db.Uuid
+  assignedTo   User?         @relation("AssignedTechnician", fields: [assignedToId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  closedAt     DateTime?
+
+  statusChanges RequestStatusChange[]
+  appointments  Appointment[]
+  workLogs      WorkLog[]
+  photos        Photo[]
+
+  @@index([status, priority])
+  @@index([customerId])
+}
+
+model RequestStatusChange {
+  id               String         @id @default(uuid()) @db.Uuid
+  serviceRequestId String         @db.Uuid
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  fromStatus       RequestStatus?
+  toStatus         RequestStatus
+  note             String?
+  changedById      String?        @db.Uuid
+  changedBy        User?          @relation(fields: [changedById], references: [id])
+  createdAt        DateTime       @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Plánovanie
+// ---------------------------------------------------------------------------
+
+enum AppointmentStatus {
+  RESERVED // zákazník si rezervoval slot
+  CONFIRMED
+  DONE
+  CANCELLED
+}
+
+model Appointment {
+  id               String            @id @default(uuid()) @db.Uuid
+  serviceRequestId String?           @db.Uuid
+  serviceRequest   ServiceRequest?   @relation(fields: [serviceRequestId], references: [id])
+  gardenId         String            @db.Uuid
+  garden           Garden            @relation(fields: [gardenId], references: [id])
+  technicianId     String?           @db.Uuid
+  technician       User?             @relation(fields: [technicianId], references: [id])
+  startsAt         DateTime
+  endsAt           DateTime
+  status           AppointmentStatus @default(CONFIRMED)
+  // Poradie v trase dňa (bonus mapa trasy).
+  routeOrder       Int?
+  notes            String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  workLog WorkLog?
+
+  @@index([startsAt])
+  @@index([technicianId, startsAt])
+}
+
+// Výnimky kapacity pre konkrétny deň (napr. jarná špička, dovolenka).
+// Predvolená kapacita je v Setting "capacity.defaultVisitsPerDay".
+model DayCapacity {
+  date      DateTime @id @db.Date
+  maxVisits Int
+  note      String?
+}
+
+// ---------------------------------------------------------------------------
+// Výjazd, práca a materiál
+// ---------------------------------------------------------------------------
+
+model Material {
+  id         String   @id @default(uuid()) @db.Uuid
+  sku        String?  @unique
+  name       String
+  unit       String   @default("ks")
+  unitPrice  Decimal  @default(0) @db.Decimal(10, 2)
+  stockQty   Decimal  @default(0) @db.Decimal(10, 2)
+  minStock   Decimal  @default(0) @db.Decimal(10, 2)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  templates MaterialTemplate[]
+  usages    WorkLogMaterial[]
+}
+
+// Šablóna checklistu: čo brať so sebou na daný typ zásahu.
+model MaterialTemplate {
+  id          String      @id @default(uuid()) @db.Uuid
+  requestType RequestType
+  materialId  String      @db.Uuid
+  material    Material    @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  quantity    Decimal     @db.Decimal(10, 2)
+  // true = množstvo sa násobí počtom zón záhrady.
+  perZone     Boolean     @default(false)
+
+  @@unique([requestType, materialId])
+}
+
+model WorkLog {
+  id               String          @id @default(uuid()) @db.Uuid
+  appointmentId    String?         @unique @db.Uuid
+  appointment      Appointment?    @relation(fields: [appointmentId], references: [id])
+  serviceRequestId String?         @db.Uuid
+  serviceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
+  gardenId         String          @db.Uuid
+  garden           Garden          @relation(fields: [gardenId], references: [id])
+  technicianId     String?         @db.Uuid
+  technician       User?           @relation(fields: [technicianId], references: [id])
+  performedAt      DateTime        @default(now())
+  durationMin      Int?
+  description      String
+  createdAt        DateTime        @default(now())
+
+  materials WorkLogMaterial[]
+  photos    Photo[]
+
+  @@index([gardenId, performedAt])
+}
+
+model WorkLogMaterial {
+  id         String   @id @default(uuid()) @db.Uuid
+  workLogId  String   @db.Uuid
+  workLog    WorkLog  @relation(fields: [workLogId], references: [id], onDelete: Cascade)
+  materialId String   @db.Uuid
+  material   Material @relation(fields: [materialId], references: [id])
+  quantity   Decimal  @db.Decimal(10, 2)
+  // Cena v čase použitia, aby staré výkazy nesledovali zmenu cenníka.
+  unitPrice  Decimal  @db.Decimal(10, 2)
+}
+
+// ---------------------------------------------------------------------------
+// Notifikácie (outbox), nastavenia, audit
+// ---------------------------------------------------------------------------
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+// Každá notifikácia sa najprv zapíše sem a odošle ju worker.
+// Dnes cron, neskôr sa dá vymeniť za Redis/BullMQ bez zmeny zvyšku aplikácie.
+model Notification {
+  id           String              @id @default(uuid()) @db.Uuid
+  channel      NotificationChannel @default(EMAIL)
+  recipient    String
+  template     String
+  payload      Json?
+  status       NotificationStatus  @default(PENDING)
+  scheduledFor DateTime            @default(now())
+  sentAt       DateTime?
+  attempts     Int                 @default(0)
+  lastError    String?
+  // Zabraňuje dvojitému odoslaniu tej istej sezónnej pripomienky.
+  dedupeKey    String?             @unique
+  customerId   String?             @db.Uuid
+  customer     Customer?           @relation(fields: [customerId], references: [id])
+  userId       String?             @db.Uuid
+  user         User?               @relation(fields: [userId], references: [id])
+  createdAt    DateTime            @default(now())
+
+  @@index([status, scheduledFor])
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String?  @db.Uuid
+  user       User?    @relation(fields: [userId], references: [id])
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
