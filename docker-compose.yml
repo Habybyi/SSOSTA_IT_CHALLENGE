@@ -1,0 +1,25 @@
+# Lokálne prostredie: databáza + Mailpit (zachytáva odoslané e-maily, UI na http://localhost:8025).
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: custodia
+      POSTGRES_PASSWORD: custodia
+      POSTGRES_DB: custodia
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U custodia"]
+      interval: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  db-data:
