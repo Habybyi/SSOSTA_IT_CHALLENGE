@@ -12,6 +12,7 @@ import { enqueueNotification } from "../notifications/notifications.service.js";
 import { REQUEST_TYPE_LABELS } from "../notifications/labels.js";
 import { getPublicAvailability } from "../schedule/capacity.service.js";
 import { getScheduleSettings } from "../schedule/settings.service.js";
+import { RESERVATION_NOTE } from "../schedule/appointments.service.js";
 
 // Príjem požiadaviek zvonku: formulár a kalkulačka na webe, prichádzajúce e-maily.
 // Zákazníka spáruje podľa e-mailu alebo telefónu, neznámeho založí ako "dopyt" (LEAD).
@@ -233,7 +234,7 @@ export async function submitPublicBooking(body) {
       startsAt,
       endsAt: addMinutes(startsAt, settings.durations[data.type]),
       status: "RESERVED",
-      notes: "Rezervácia zo webu, presný čas treba potvrdiť.",
+      notes: RESERVATION_NOTE,
     },
   });
 

@@ -11,6 +11,10 @@ import { OPEN_STATUSES } from "../requests/requests.service.js";
 import { ACTIVE_APPOINTMENT_STATUSES, getDayCapacity, parseRange } from "./capacity.service.js";
 import { getScheduleSettings } from "./settings.service.js";
 
+// Automatická poznámka pri rezervácii zo webu. Po potvrdení času už neplatí, tak sa zmaže.
+export const RESERVATION_NOTE = "Rezervácia zo webu, presný čas treba potvrdiť.";
+const clearReservationNote = (notes) => (notes === RESERVATION_NOTE ? null : notes);
+
 const appointmentInclude = {
   technician: { select: { id: true, name: true } },
   garden: {
@@ -182,7 +186,13 @@ export async function createAppointment(actor, body) {
   const appointment = reserved
     ? await prisma.appointment.update({
         where: { id: reserved.id },
-        data: { startsAt, endsAt, technicianId: data.technicianId || null, notes: data.notes, status: "CONFIRMED" },
+        data: {
+          startsAt,
+          endsAt,
+          technicianId: data.technicianId || null,
+          notes: data.notes ?? clearReservationNote(reserved.notes),
+          status: "CONFIRMED",
+        },
         include: appointmentInclude,
       })
     : await prisma.appointment.create({
@@ -227,7 +237,7 @@ export async function updateAppointment(actor, id, body) {
       endsAt,
       technicianId,
       status: "CONFIRMED",
-      ...(data.notes !== undefined ? { notes: data.notes } : {}),
+      notes: data.notes !== undefined ? data.notes : clearReservationNote(existing.notes),
       ...(data.routeOrder !== undefined ? { routeOrder: data.routeOrder } : {}),
     },
     include: appointmentInclude,
@@ -408,7 +418,14 @@ export async function planDay(actor, body) {
     const appointment = reservation
       ? await prisma.appointment.update({
           where: { id: reservation.id },
-          data: { startsAt: cursor, endsAt, technicianId: data.technicianId || null, status: "CONFIRMED", routeOrder: planned.length + 1 },
+          data: {
+            startsAt: cursor,
+            endsAt,
+            technicianId: data.technicianId || null,
+            status: "CONFIRMED",
+            routeOrder: planned.length + 1,
+            notes: clearReservationNote(reservation.notes),
+          },
           include: appointmentInclude,
         })
       : await prisma.appointment.create({

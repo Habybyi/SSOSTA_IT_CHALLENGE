@@ -141,6 +141,94 @@ Tím Custodia`,
     ),
   }),
 
+  APPOINTMENT_REMINDER: ({ firstName, typeLabel, dayLabel, timeLabel, address }) => ({
+    subject: `Zajtra o ${timeLabel} prídeme: ${typeLabel}`,
+    text: `Dobrý deň${firstName ? ` ${firstName}` : ""},
+
+pripomíname zajtrajší termín: ${typeLabel}
+Kedy: ${dayLabel} o ${timeLabel}
+Kde: ${address}
+
+Prosíme, nechajte nám prístup k šachte s ventilmi a k riadiacej jednotke. Ak vám termín nevyhovuje, dajte nám vedieť.
+
+Tím Custodia`,
+    html: layout(
+      "Pripomienka termínu",
+      p(`Dobrý deň${firstName ? ` ${escape(firstName)}` : ""},`) +
+        p(`pripomíname zajtrajší termín: <strong>${escape(typeLabel)}</strong>`) +
+        p(`<strong>Kedy:</strong> ${escape(dayLabel)} o ${escape(timeLabel)}<br><strong>Kde:</strong> ${escape(address)}`) +
+        p("Prosíme, nechajte nám prístup k šachte s ventilmi a k riadiacej jednotke. Ak vám termín nevyhovuje, dajte nám vedieť.") +
+        p("Tím Custodia")
+    ),
+  }),
+
+  // Technikovi večer pred výjazdmi: kam, kedy, komu zavolať.
+  TECH_AGENDA: ({ name, dayLabel, items }) => {
+    const rows = (items || [])
+      .map((i) => `${i.time}  ${i.customer}, ${i.address} (${i.typeLabel})${i.phone ? `, tel. ${i.phone}` : ""}`)
+      .join("\n");
+    return {
+      subject: `Zajtra máš ${items.length} ${items.length === 1 ? "výjazd" : items.length < 5 ? "výjazdy" : "výjazdov"}`,
+      text: `Ahoj ${name},
+
+výjazdy na ${dayLabel}:
+${rows}
+
+Pred výjazdom si otvor kartu záhrady a checklist materiálu v aplikácii: ${config.appUrl}`,
+      html: layout(
+        "Zajtrajšie výjazdy",
+        p(`Ahoj ${escape(name)},`) +
+          p(`výjazdy na <strong>${escape(dayLabel)}</strong>:`) +
+          `<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:14px">${(items || [])
+            .map(
+              (i) =>
+                `<tr><td style="padding:6px 8px;font-weight:bold;color:${ACCENT};vertical-align:top">${escape(i.time)}</td><td style="padding:6px 8px">${escape(i.customer)}<br><span style="color:#6f7e69">${escape(i.address)} · ${escape(i.typeLabel)}${i.phone ? ` · ${escape(i.phone)}` : ""}</span></td></tr>`
+            )
+            .join("")}</table>` +
+          `<a href="${config.appUrl}/dashboard" style="display:inline-block;background:${ACCENT};color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:bold">Otvoriť výjazdy a checklist</a>`
+      ),
+    };
+  },
+
+  // Sezónna kampaň: na jeseň zazimovanie, na jar spustenie.
+  SEASONAL_REMINDER: ({ type, firstName }) => {
+    const winter = type === "WINTERIZATION";
+    const subject = winter ? "Blíži sa zima: je čas zazimovať závlahu" : "Jar je tu: spustíme vašu závlahu";
+    const body = winter
+      ? "Prvé mrazy dokážu poškodiť potrubie a postrekovače, ak v nich ostane voda. Zazimovanie (vyfúkanie systému a vypnutie jednotky) zaberie zvyčajne hodinu."
+      : "Po zime treba systém spustiť, skontrolovať tesnosť, postrekovače a nastaviť program. Nech je trávnik od začiatku sezóny v kondícii.";
+    return {
+      subject,
+      text: `Dobrý deň${firstName ? ` ${firstName}` : ""},
+
+${body}
+
+Termín si objednáte jednoducho: odpovedzte na tento e-mail alebo zavolajte na +421 900 123 456. V jesennej a jarnej špičke sú termíny rýchlo preč.
+
+Tím Custodia
+
+Nechcete dostávať servisné pripomienky? Stačí odpovedať "NIE".`,
+      html: layout(
+        subject,
+        p(`Dobrý deň${firstName ? ` ${escape(firstName)}` : ""},`) +
+          p(body) +
+          p("Termín si objednáte jednoducho: <strong>odpovedzte na tento e-mail</strong> alebo zavolajte na +421 900 123 456. V špičke sú termíny rýchlo preč.") +
+          p("Tím Custodia") +
+          `<p style="font-size:12px;color:#6f7e69;margin:18px 0 0">Nechcete dostávať servisné pripomienky? Stačí odpovedať „NIE“.</p>`
+      ),
+    };
+  },
+
+  LOW_STOCK: ({ materialName, stockQty, minStock, unit }) => ({
+    subject: `Dochádza materiál: ${materialName}`,
+    text: `Na sklade je už len ${stockQty} ${unit} (${materialName}), minimum je ${minStock} ${unit}. Je čas objednať vo veľkoobchode.`,
+    html: layout(
+      "Dochádza materiál",
+      p(`Na sklade je už len <strong>${escape(stockQty)} ${escape(unit)}</strong> (${escape(materialName)}), minimum je ${escape(minStock)} ${escape(unit)}.`) +
+        p("Je čas objednať vo veľkoobchode.")
+    ),
+  }),
+
   // Majiteľovi, keď príde požiadavka zvonku (web, e-mail), nech nemusí sledovať aplikáciu.
   STAFF_NEW_REQUEST: ({ number, customerName, typeLabel, priorityLabel, sourceLabel, requestId }) => {
     const url = `${config.appUrl}/requests/${requestId}`;
