@@ -76,6 +76,8 @@ export const api = {
   createCustomer: (token, data) => request("/customers", { method: "POST", token, body: data }),
   updateCustomer: (token, id, data) => request(`/customers/${id}`, { method: "PATCH", token, body: data }),
   deleteCustomer: (token, id) => request(`/customers/${id}`, { method: "DELETE", token }),
+  exportCustomer: (token, id) => fetchBlob(`/customers/${id}/export`, token),
+  anonymizeCustomer: (token, id) => request(`/customers/${id}/anonymize`, { method: "POST", token }),
 
   createGarden: (token, customerId, data) =>
     request(`/customers/${customerId}/gardens`, { method: "POST", token, body: data }),

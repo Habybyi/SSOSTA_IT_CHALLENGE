@@ -12,6 +12,8 @@ import {
   FiHome,
   FiInbox,
   FiChevronRight,
+  FiDownload,
+  FiShield,
 } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
 import { Section } from "../components/Section";
@@ -53,6 +55,40 @@ export const CustomerDetailPage = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // GDPR: export všetkých údajov (čl. 15 a 20) ako súbor JSON.
+  const handleExport = async () => {
+    try {
+      const blob = await api.exportCustomer(token, id);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `zakaznik-${customer.lastName || id}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // GDPR: právo na vymazanie. Osobné údaje zmiznú, servisná história ostane anonymne.
+  const handleAnonymize = async () => {
+    const expected = customer.lastName;
+    const typed = window.prompt(
+      `Anonymizácia je nevratná. Zmaže meno, kontakty, adresu, poznámky a fotky. História zásahov ostane bez osobných údajov.\n\nNa potvrdenie napíš priezvisko: ${expected}`
+    );
+    if (typed === null) return;
+    if (typed.trim().toLowerCase() !== expected.toLowerCase()) {
+      setError("Priezvisko nesedí, anonymizácia sa nevykonala.");
+      return;
+    }
+    try {
+      await api.anonymizeCustomer(token, id);
+      navigate("/customers");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   const handleDelete = async () => {
     if (!window.confirm(`Naozaj odstrániť zákazníka ${fullName(customer)}? História zostane uložená.`)) return;
@@ -120,7 +156,22 @@ export const CustomerDetailPage = () => {
 
       <div className={styles.tabPanel}>
         {tab === "contact" && (
-          <Section title="Kontakt" icon={FiUser}>
+          <Section
+            title="Kontakt"
+            icon={FiUser}
+            actions={
+              user.role === "OWNER" && (
+                <>
+                  <button type="button" className={styles.secondaryButton} onClick={handleExport} title="Export všetkých údajov (GDPR)">
+                    <FiDownload /> Export údajov
+                  </button>
+                  <button type="button" className={styles.dangerButton} onClick={handleAnonymize} title="Právo na vymazanie (GDPR)">
+                    <FiShield /> Anonymizovať
+                  </button>
+                </>
+              )
+            }
+          >
             <div className={styles.infoGrid}>
               <InfoItem label="Telefón">{customer.phone}</InfoItem>
               <InfoItem label="E-mail">{customer.email}</InfoItem>
