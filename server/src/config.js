@@ -13,4 +13,18 @@ export const config = {
   jwtSecret: required("JWT_SECRET"),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "12h",
   clientOrigin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+  // Web firmy volá verejné API (/public) z inej domény.
+  websiteOrigins: (process.env.WEBSITE_ORIGINS || "").split(",").map((o) => o.trim()).filter(Boolean),
+  appUrl: process.env.APP_URL || process.env.CLIENT_ORIGIN || "http://localhost:5173",
+  smtp: {
+    host: process.env.SMTP_HOST || "localhost",
+    port: Number(process.env.SMTP_PORT || 1025),
+    secure: process.env.SMTP_SECURE === "true",
+    user: process.env.SMTP_USER || "",
+    pass: process.env.SMTP_PASS || "",
+  },
+  mailFrom: process.env.MAIL_FROM || "Custodia <servis@custodia.sk>",
+  inboundEmailSecret: process.env.INBOUND_EMAIL_SECRET || "",
+  // Vypnutie workera napr. pri testoch alebo keď beží samostatne.
+  notificationsWorker: process.env.NOTIFICATIONS_WORKER !== "false",
 };
