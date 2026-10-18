@@ -65,7 +65,11 @@ export const AppShell = ({ children }) => {
             {collapsed ? <FiMenu /> : <FiX />}
           </button>
 
-          {!collapsed && <img src="/logo.png" alt="Custodia" className={styles.sidebarLogo} />}
+          {collapsed ? (
+            <img src="/brand/mark_dark.svg" alt="Custodia" className={styles.sidebarMark} />
+          ) : (
+            <img src="/brand/primary_dark.svg" alt="Custodia" className={styles.sidebarLogo} />
+          )}
 
           {visibleItems.map((item) => {
             const Icon = item.icon;
@@ -102,7 +106,7 @@ export const AppShell = ({ children }) => {
 
         <main className={styles.main}>
           <div className={styles.mobileHeader}>
-            <img src="/logo.png" alt="Custodia" style={{ width: 140, mixBlendMode: "multiply" }} />
+            <img src="/brand/secondary_dark.svg" alt="Custodia" className={styles.mobileLogo} />
           </div>
           {children}
         </main>

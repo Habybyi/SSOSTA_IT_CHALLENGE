@@ -3,8 +3,8 @@ import { config } from "../../config.js";
 // Texty e-mailov. Každá šablóna dostane payload a vráti predmet, text a HTML.
 // Zámerne jednoduché HTML bez externých obrázkov, aby sa zobrazilo v každom klientovi.
 
-const BRAND = "#15380a";
-const ACCENT = "#4ea537";
+const BRAND = "#0a2e0f"; // Secondary zo style guide
+const ACCENT = "#28861c"; // Primary zo style guide
 
 const escape = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -15,7 +15,7 @@ const layout = (title, bodyHtml) => `<!doctype html>
   <div style="max-width:560px;margin:0 auto;padding:24px">
     <div style="background:#ffffff;border-radius:16px;padding:28px">
       <div style="font-size:22px;font-weight:bold;color:${BRAND};letter-spacing:2px">CUSTODIA</div>
-      <div style="font-size:11px;color:${ACCENT};letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">Kráľovský trávnik bez starostí</div>
+      <div style="font-size:11px;color:${ACCENT};letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">Kráľovsky bez starostí</div>
       ${bodyHtml}
     </div>
     <p style="font-size:12px;color:#6f7e69;text-align:center;margin-top:16px">

@@ -1,12 +1,12 @@
 import styles from "../styles/neumorphic.module.css";
 
-export const SLOGAN = "Kráľovský trávnik bez starostí";
+// Slogan je súčasťou loga (lockup) od grafikov.
+export const SLOGAN = "Kráľovsky bez starostí";
 
 export const BrandHeader = () => {
   return (
     <div className={styles.brand}>
-      <img src="/logo.png" alt="Custodia" className={styles.brandLogo} />
-      <span className={styles.brandSlogan}>{SLOGAN}</span>
+      <img src="/brand/lockup_dark.svg" alt={`Custodia: ${SLOGAN}`} className={styles.brandLogo} />
     </div>
   );
 };

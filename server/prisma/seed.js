@@ -22,7 +22,7 @@ async function main() {
   const defaults = {
     "capacity.defaultVisitsPerDay": 6,
     "company.name": "Custodia",
-    "company.slogan": "Kráľovský trávnik bez starostí",
+    "company.slogan": "Kráľovsky bez starostí",
     "company.phone": "+421 900 123 456",
     "company.email": "milan.kovac@custodia.sk",
     "company.address": "Ul. 29. augusta 4812, 058 01 Poprad",

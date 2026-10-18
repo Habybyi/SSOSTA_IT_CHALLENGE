@@ -1,6 +1,6 @@
 # Custodia CRM
 
-**Kráľovský trávnik bez starostí.**
+<p align="center"><img src="docs/brand/svg/lockup_dark.svg" alt="Custodia: Kráľovsky bez starostí" width="320"></p>
 
 Systém na správu zákazníkov a servisu pre firmu Custodia (návrh a inštalácia smart závlahy, sezónny servis, starostlivosť o trávnik). Vznikol v rámci **SSOSTA IT Challenge 2026**, časť *Programovanie: Systém na správu zákazníkov*.
 
@@ -71,6 +71,7 @@ Odoslané e-maily (od Fázy 2) uvidíš v Mailpite na http://localhost:8025.
 - [Analýza: problém → funkcia → rola](docs/analyza.md)
 - [Architektúra a rozhodnutia](docs/architektura.md)
 - [API pre web firmy (formulár, kalkulačka, e-maily)](docs/api-pre-web.md)
+- [Značka: logá (SVG) a style guide farieb](docs/brand/)
 
 ## Tím
 
