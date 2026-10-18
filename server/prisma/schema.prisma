@@ -91,6 +91,8 @@ model Customer {
   billingPostalCode String?
   notes             String?
   marketingConsent  Boolean        @default(false)
+  // Servisné pripomienky (zazimovanie, spustenie, termín zajtra). Zákazník sa môže odhlásiť.
+  serviceReminders  Boolean        @default(true)
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
   deletedAt         DateTime? // soft delete: nič sa nestratí

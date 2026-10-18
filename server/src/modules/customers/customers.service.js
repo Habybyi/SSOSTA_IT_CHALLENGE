@@ -24,6 +24,7 @@ const customerFields = {
   billingPostalCode: optionalText(20),
   notes: optionalText(5000),
   marketingConsent: optionalBoolean,
+  serviceReminders: optionalBoolean,
 };
 
 const needsContact = (data) => Boolean(data.phone || data.email);
