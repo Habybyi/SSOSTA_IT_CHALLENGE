@@ -80,6 +80,8 @@ model Customer {
   companyName       String?
   email             String?
   phone             String?
+  // Len číslice v medzinárodnom tvare (421905...), na spárovanie príchodzích požiadaviek.
+  phoneNormalized   String?
   preferredContact  ContactChannel @default(PHONE)
   status            CustomerStatus @default(ACTIVE)
   source            Source         @default(MANUAL)
@@ -100,6 +102,8 @@ model Customer {
 
   @@index([lastName, firstName])
   @@index([status])
+  @@index([phoneNormalized])
+  @@index([email])
 }
 
 enum WaterSource {

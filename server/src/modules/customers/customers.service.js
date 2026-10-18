@@ -4,6 +4,7 @@ import { badRequest, notFound } from "../../lib/httpError.js";
 import { parse } from "../../lib/validate.js";
 import { getPagination, paginated } from "../../lib/pagination.js";
 import { optionalBoolean, optionalEmail, optionalText, requiredText } from "../../lib/fields.js";
+import { normalizePhone } from "../../lib/phone.js";
 import { logAudit } from "../audit/audit.service.js";
 import { gardenCreateSchema } from "../gardens/gardens.service.js";
 
@@ -69,7 +70,8 @@ export async function listCustomers(query) {
           { lastName: contains },
           { companyName: contains },
           { email: contains },
-          { phone: { contains: word.replace(/\s/g, "") } },
+          { phone: { contains: word } },
+          ...(/\d{3,}/.test(word) ? [{ phoneNormalized: { contains: normalizePhone(word).replace(/^421/, "") } }] : []),
           { gardens: { some: { deletedAt: null, OR: [{ street: contains }, { city: contains }] } } },
         ],
       });
@@ -127,7 +129,11 @@ export async function getCustomer(id) {
 export async function createCustomer(actorId, body) {
   const { garden, ...data } = parse(createSchema, body);
   const customer = await prisma.customer.create({
-    data: { ...data, ...(garden ? { gardens: { create: garden } } : {}) },
+    data: {
+      ...data,
+      phoneNormalized: normalizePhone(data.phone),
+      ...(garden ? { gardens: { create: garden } } : {}),
+    },
   });
   await logAudit({ userId: actorId, action: "CUSTOMER_CREATED", entityType: "Customer", entityId: customer.id });
   return getCustomer(customer.id);
@@ -142,7 +148,10 @@ export async function updateCustomer(actorId, id, body) {
     throw badRequest("Skontroluj vyplnené údaje.", { fields: { phone: CONTACT_MESSAGE } });
   }
 
-  await prisma.customer.update({ where: { id }, data });
+  await prisma.customer.update({
+    where: { id },
+    data: { ...data, ...(data.phone !== undefined ? { phoneNormalized: normalizePhone(data.phone) } : {}) },
+  });
   await logAudit({ userId: actorId, action: "CUSTOMER_UPDATED", entityType: "Customer", entityId: id, details: data });
   return getCustomer(id);
 }
