@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { FiCamera, FiTrash2, FiX } from "react-icons/fi";
 import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { Portal } from "./Portal";
 import styles from "../styles/neumorphic.module.css";
 
 // Fotky sú za prihlásením, preto sa načítajú cez fetch s tokenom, nie priamo cez <img src>.
@@ -109,18 +110,20 @@ export const PhotoGallery = ({ gardenId, photos, onChange }) => {
       )}
 
       {open && (
-        <div className={styles.lightbox} onClick={() => setOpen(null)}>
-          {open.url && <img src={open.url} alt={open.photo.caption || "Fotka záhrady"} />}
-          {open.photo.caption && <span className={styles.lightboxCaption}>{open.photo.caption}</span>}
-          <div className={styles.buttonRow} onClick={(e) => e.stopPropagation()}>
-            <button type="button" className={styles.secondaryButton} onClick={() => setOpen(null)}>
-              <FiX /> Zavrieť
-            </button>
-            <button type="button" className={styles.dangerButton} onClick={handleDelete}>
-              <FiTrash2 /> Zmazať
-            </button>
+        <Portal>
+          <div className={styles.lightbox} onClick={() => setOpen(null)}>
+            {open.url && <img src={open.url} alt={open.photo.caption || "Fotka záhrady"} />}
+            {open.photo.caption && <span className={styles.lightboxCaption}>{open.photo.caption}</span>}
+            <div className={styles.buttonRow} onClick={(e) => e.stopPropagation()}>
+              <button type="button" className={styles.secondaryButton} onClick={() => setOpen(null)}>
+                <FiX /> Zavrieť
+              </button>
+              <button type="button" className={styles.dangerButton} onClick={handleDelete}>
+                <FiTrash2 /> Zmazať
+              </button>
+            </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );
