@@ -7,6 +7,11 @@ import { parse } from "../../lib/validate.js";
 import { normalizePhone } from "../../lib/phone.js";
 import { optionalEmail, optionalText, requiredText } from "../../lib/fields.js";
 import { createRequestRecord, REQUEST_TYPES } from "../requests/requests.service.js";
+import { addMinutes, atTime, formatDaySk, isDay } from "../../lib/dates.js";
+import { enqueueNotification } from "../notifications/notifications.service.js";
+import { REQUEST_TYPE_LABELS } from "../notifications/labels.js";
+import { getPublicAvailability } from "../schedule/capacity.service.js";
+import { getScheduleSettings } from "../schedule/settings.service.js";
 
 // Príjem požiadaviek zvonku: formulár a kalkulačka na webe, prichádzajúce e-maily.
 // Zákazníka spáruje podľa e-mailu alebo telefónu, neznámeho založí ako "dopyt" (LEAD).
@@ -176,4 +181,76 @@ export async function receiveInboundEmail(body) {
     notifyStaff: true,
   });
   return { number: request.number };
+}
+
+// ---- Rezervácia dňa zo webu (jarné spustenie, zazimovanie...) ----
+
+const bookingSchema = z
+  .object({
+    type: z.enum(["SPRING_START", "WINTERIZATION", "LAWN_CARE", "INSPECTION"], { message: "Vyber službu." }),
+    date: z.string().refine(isDay, "Vyber deň."),
+    name: requiredText("Zadaj meno.", 150),
+    email: optionalEmail,
+    phone: optionalText(40),
+    street: requiredText("Zadaj ulicu záhrady.", 200),
+    city: requiredText("Zadaj obec.", 100),
+    postalCode: optionalText(20),
+    description: optionalText(3000),
+    gdprConsent: z.literal(true, { message: "Potrebujeme súhlas so spracovaním údajov." }),
+    marketingConsent: z.boolean().default(false),
+    website: z.string().max(0).optional().or(z.literal("")),
+  })
+  .refine((d) => d.email || d.phone, { message: "Zadaj telefón alebo e-mail.", path: ["phone"] });
+
+export async function submitPublicBooking(body) {
+  if (body && typeof body.website === "string" && body.website.length > 0) return { number: null };
+  const data = parse(bookingSchema, body);
+
+  // Zákazník si rezervuje deň, presný čas doplní Milan pri plánovaní trasy.
+  const available = await getPublicAvailability(60);
+  if (!available.some((d) => d.date === data.date)) {
+    throw badRequest("Tento deň je už obsadený. Vyber iný.", { fields: { date: "Deň je obsadený." } });
+  }
+
+  const settings = await getScheduleSettings();
+  const { customer, gardenId } = await findOrCreateCustomer({ ...data, source: "WEB_FORM" });
+  const request = await createRequestRecord({
+    customer,
+    gardenId,
+    type: data.type,
+    source: "WEB_FORM",
+    description: data.description,
+    payload: { preferredDate: data.date },
+    notifyCustomer: false,
+    notifyStaff: true,
+  });
+
+  const startsAt = atTime(data.date, settings.workdayStart);
+  await prisma.appointment.create({
+    data: {
+      serviceRequestId: request.id,
+      gardenId,
+      startsAt,
+      endsAt: addMinutes(startsAt, settings.durations[data.type]),
+      status: "RESERVED",
+      notes: "Rezervácia zo webu, presný čas treba potvrdiť.",
+    },
+  });
+
+  if (customer.email) {
+    await enqueueNotification({
+      template: "BOOKING_RECEIVED",
+      recipient: customer.email,
+      customerId: customer.id,
+      payload: {
+        requestId: request.id,
+        number: request.number,
+        firstName: customer.firstName,
+        typeLabel: REQUEST_TYPE_LABELS[data.type],
+        dayLabel: formatDaySk(startsAt),
+        address: `${data.street}, ${data.city}`,
+      },
+    });
+  }
+  return { number: request.number, date: data.date };
 }
