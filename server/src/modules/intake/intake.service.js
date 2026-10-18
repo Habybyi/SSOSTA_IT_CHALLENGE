@@ -141,7 +141,7 @@ const parseFrom = (from) => {
 };
 
 // Typ požiadavky odhadneme z predmetu a textu, Milan ho môže zmeniť.
-const guessType = (text) => {
+export const guessType = (text) => {
   const t = text.toLowerCase();
   if (/(porucha|nefunguj|nejde|te[cč]ie|kvapk|pokazen|prasknut|havari)/.test(t)) return "FAULT";
   if (/zazimov/.test(t)) return "WINTERIZATION";
@@ -151,7 +151,7 @@ const guessType = (text) => {
   return "OTHER";
 };
 
-const isUrgent = (text) => /(havari|te[cč]ie|zaplav|urgent|s[uú]rne)/i.test(text);
+export const isUrgent = (text) => /(havari|te[cč]ie|zaplav|urgent|s[uú]rne)/i.test(text);
 
 export function verifyInboundSecret(provided) {
   const expected = config.inboundEmailSecret;
