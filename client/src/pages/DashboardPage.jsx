@@ -15,7 +15,7 @@ const TILES = [
   { icon: FiUsers, title: "Zákazníci", text: "Kontakty, adresy a technická karta každej záhrady.", phase: 1, to: "/customers" },
   { icon: FiInbox, title: "Požiadavky", text: "Poruchy, spustenia a zazimovania na jednom mieste.", phase: 2, to: "/requests" },
   { icon: FiCalendar, title: "Kalendár", text: "Termíny podľa lokality a kapacity na deň.", phase: 3, to: "/calendar" },
-  { icon: FiPackage, title: "Materiál", text: "Čo zobrať na výjazd a čo sa minulo.", phase: 4 },
+  { icon: FiPackage, title: "Materiál", text: "Čo zobrať na výjazd a čo sa minulo.", phase: 4, to: "/materials" },
 ];
 
 export const DashboardPage = () => {
@@ -23,6 +23,7 @@ export const DashboardPage = () => {
   const firstName = user?.name?.split(" ")[0];
   const [stats, setStats] = useState(null);
   const [today, setToday] = useState([]);
+  const [lowStock, setLowStock] = useState([]);
 
   useEffect(() => {
     api.getRequestStats(token).then(setStats).catch(() => {});
@@ -32,6 +33,9 @@ export const DashboardPage = () => {
       .listAppointments(token, day, day, user.role === "TECHNICIAN" ? user.id : undefined)
       .then((d) => setToday(d.appointments))
       .catch(() => {});
+    if (user.role === "OWNER") {
+      api.listMaterials(token, { lowOnly: "true" }).then((d) => setLowStock(d.materials)).catch(() => {});
+    }
   }, [token, user.id, user.role]);
 
   const STAT_TILES = [
@@ -63,6 +67,12 @@ export const DashboardPage = () => {
         </div>
       )}
 
+      {lowStock.length > 0 && (
+        <Link to="/materials" className={styles.calloutWarning} style={{ display: "block", marginBottom: "1.5rem", textDecoration: "none" }}>
+          Dochádza materiál: {lowStock.map((m) => `${m.name} (${m.stockQty} ${m.unit})`).join(", ")}
+        </Link>
+      )}
+
       <Section title={`Dnešné výjazdy (${today.length})`} icon={FiCalendar}>
         {today.length === 0 ? (
           <p className={styles.emptyState}>Dnes žiadne výjazdy.</p>
@@ -71,10 +81,10 @@ export const DashboardPage = () => {
             {today.map((a) => (
               <div key={a.id} className={styles.listCard}>
                 <span className={styles.apptTime} style={{ minWidth: 48 }}>
-                  {a.status === "RESERVED" ? "?" : formatTime(a.startsAt)}
+                  {a.status === "DONE" ? "✓" : a.status === "RESERVED" ? "?" : formatTime(a.startsAt)}
                 </span>
                 <Link
-                  to={a.serviceRequest ? `/requests/${a.serviceRequest.id}` : `/gardens/${a.garden.id}`}
+                  to={`/visits/${a.id}`}
                   className={styles.listCardMain}
                   style={{ color: "inherit", textDecoration: "none" }}
                 >

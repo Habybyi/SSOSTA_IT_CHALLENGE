@@ -15,6 +15,8 @@ import { NewRequestPage } from "./pages/NewRequestPage";
 import { RequestDetailPage } from "./pages/RequestDetailPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { PlannerPage } from "./pages/PlannerPage";
+import { MaterialsPage } from "./pages/MaterialsPage";
+import { VisitPage } from "./pages/VisitPage";
 
 const STAFF_PAGES = [
   ["/customers", CustomersPage],
@@ -29,6 +31,8 @@ const STAFF_PAGES = [
   ["/requests/:id", RequestDetailPage],
   ["/calendar", CalendarPage],
   ["/calendar/planner", PlannerPage],
+  ["/materials", MaterialsPage],
+  ["/visits/:id", VisitPage],
 ];
 
 export const App = () => {

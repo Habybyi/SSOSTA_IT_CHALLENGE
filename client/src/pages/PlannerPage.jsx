@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { FiArrowLeft, FiMapPin, FiCalendar, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
 import { PriorityBadge } from "../components/RequestCard";
+import { RemindersPanel } from "../components/RemindersPanel";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import { REQUEST_TYPE_LABELS } from "../utils/labels";
@@ -88,6 +89,8 @@ export const PlannerPage = () => {
       <p className={styles.muted} style={{ margin: "0 0 1.25rem" }}>
         Vyber požiadavky z jednej alebo susedných obcí a naplánuj ich na jeden deň. Časy sa rozložia za sebou aj s presunom.
       </p>
+
+      <RemindersPanel />
 
       <div className={styles.tabs}>
         {SEASON_TYPES.map((t) => (

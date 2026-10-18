@@ -21,13 +21,15 @@ const NAV_ITEMS = [
   { to: "/customers", label: "Zákazníci", short: "Zákazníci", icon: FiUsers, enabled: true },
   { to: "/requests", label: "Požiadavky", short: "Požiadavky", icon: FiInbox, enabled: true, countKey: "new" },
   { to: "/calendar", label: "Kalendár", short: "Kalendár", icon: FiCalendar, enabled: true },
-  { to: "/materials", label: "Materiál a sklad", short: "Sklad", icon: FiPackage, enabled: false },
+  { to: "/materials", label: "Materiál a sklad", short: "Sklad", icon: FiPackage, enabled: true },
   { to: "/team", label: "Tím", short: "Tím", icon: FiUserCheck, enabled: true, requireRole: "OWNER" },
 ];
 
 // Technická karta záhrady patrí pod Zákazníkov.
 const isItemActive = (item, pathname) =>
-  pathname.startsWith(item.to) || (item.to === "/customers" && pathname.startsWith("/gardens"));
+  pathname.startsWith(item.to) ||
+  (item.to === "/customers" && pathname.startsWith("/gardens")) ||
+  (item.to === "/calendar" && pathname.startsWith("/visits"));
 
 // Spoločný rám pre všetky obrazovky po prihlásení.
 export const AppShell = ({ children }) => {

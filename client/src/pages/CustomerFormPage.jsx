@@ -24,6 +24,7 @@ const EMPTY_CUSTOMER = {
   billingPostalCode: "",
   notes: "",
   marketingConsent: false,
+  serviceReminders: true,
 };
 
 // Nový zákazník (aj s prvou záhradou) alebo úprava existujúceho.
@@ -124,7 +125,8 @@ export const CustomerFormPage = () => {
           <div style={{ marginTop: "1rem" }}>
             <TextAreaField name="notes" label="Poznámky" {...props} />
           </div>
-          <CheckboxField name="marketingConsent" label="Súhlasí so zasielaním noviniek a pripomienok" {...props} />
+          <CheckboxField name="serviceReminders" label="Posielať servisné pripomienky (zazimovanie, spustenie, termín zajtra)" {...props} />
+          <CheckboxField name="marketingConsent" label="Súhlasí so zasielaním noviniek a akcií" {...props} />
         </div>
 
         <div className={styles.actionRow}>

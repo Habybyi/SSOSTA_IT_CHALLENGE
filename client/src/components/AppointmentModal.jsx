@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FiX, FiPhone, FiMapPin, FiInbox, FiHome, FiTrash2, FiEdit2, FiCheck } from "react-icons/fi";
+import { FiX, FiPhone, FiMapPin, FiInbox, FiHome, FiTrash2, FiEdit2, FiCheck, FiPlayCircle } from "react-icons/fi";
 import { ScheduleForm } from "./ScheduleForm";
 import { PriorityBadge } from "./RequestCard";
 import { Portal } from "./Portal";
@@ -88,15 +88,27 @@ export const AppointmentModal = ({ appointment, onClose, onChanged }) => {
 
           {error && <div className={styles.errorMessage} style={{ marginBottom: "1rem" }}>{error}</div>}
 
-          {mode === "view" && (
+          {mode === "view" && a.status !== "DONE" && (
+            <Link to={`/visits/${a.id}`} className={styles.primaryButton} style={{ textDecoration: "none", marginBottom: "0.85rem" }}>
+              <FiPlayCircle /> OTVORIŤ VÝJAZD (karta a materiál)
+            </Link>
+          )}
+
+          {mode === "view" && a.status !== "DONE" && (
             <div className={styles.buttonRow} style={{ justifyContent: "flex-end" }}>
               <button type="button" className={styles.dangerButton} onClick={() => setMode("cancel")}>
                 <FiTrash2 /> Zrušiť termín
               </button>
-              <button type="button" className={styles.primaryButtonInline} onClick={() => setMode("edit")}>
-                <FiEdit2 /> PRESUNÚŤ
+              <button type="button" className={styles.secondaryButton} onClick={() => setMode("edit")}>
+                <FiEdit2 /> Presunúť
               </button>
             </div>
+          )}
+
+          {a.status === "DONE" && (
+            <Link to={`/visits/${a.id}`} className={styles.secondaryButton} style={{ textDecoration: "none" }}>
+              <FiCheck /> Výjazd je hotový, zobraziť zápis
+            </Link>
           )}
 
           {(mode === "edit" || mode === "confirm") && (

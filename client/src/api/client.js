@@ -121,4 +121,23 @@ export const api = {
   createAppointment: (token, data) => request("/appointments", { method: "POST", token, body: data }),
   updateAppointment: (token, id, data) => request(`/appointments/${id}`, { method: "PATCH", token, body: data }),
   cancelAppointment: (token, id, data) => request(`/appointments/${id}/cancel`, { method: "POST", token, body: data }),
+
+  listMaterials: (token, query) => request("/materials", { token, query }),
+  createMaterial: (token, data) => request("/materials", { method: "POST", token, body: data }),
+  updateMaterial: (token, id, data) => request(`/materials/${id}`, { method: "PATCH", token, body: data }),
+  receiveMaterial: (token, id, data) => request(`/materials/${id}/receive`, { method: "POST", token, body: data }),
+  listTemplates: (token) => request("/materials/templates", { token }),
+  saveTemplate: (token, data) => request("/materials/templates", { method: "POST", token, body: data }),
+  deleteTemplate: (token, id) => request(`/materials/templates/${id}`, { method: "DELETE", token }),
+
+  getVisit: (token, appointmentId) => request(`/visits/${appointmentId}`, { token }),
+  completeVisit: (token, appointmentId, data) =>
+    request(`/visits/${appointmentId}/complete`, { method: "POST", token, body: data }),
+
+  getReminderSettings: (token) => request("/reminders/settings", { token }),
+  updateReminderSettings: (token, data) => request("/reminders/settings", { method: "PUT", token, body: data }),
+  getSeasonalCampaigns: (token) => request("/reminders/seasonal", { token }),
+  getSeasonalRecipients: (token, type) => request("/reminders/seasonal/recipients", { token, query: { type } }),
+  runSeasonalCampaign: (token, type) => request("/reminders/seasonal/run", { method: "POST", token, body: { type } }),
+  runTomorrowReminders: (token) => request("/reminders/tomorrow/run", { method: "POST", token }),
 };

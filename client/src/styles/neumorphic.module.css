@@ -1365,3 +1365,77 @@
     max-height: 92vh;
   }
 }
+
+/* ==========================================================================
+   Fáza 4: výjazd a materiál
+   ========================================================================== */
+
+.checkItem {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 14px;
+  cursor: pointer;
+  background: var(--neu-bg);
+  box-shadow:
+    3px 3px 7px var(--neu-bg-dark),
+    -3px -3px 7px var(--neu-bg-light);
+}
+
+.checkItem input {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  accent-color: var(--neu-accent-dark);
+}
+
+.checkItemDone {
+  composes: checkItem;
+  opacity: 0.55;
+  box-shadow:
+    inset 2px 2px 5px var(--neu-bg-dark),
+    inset -2px -2px 5px var(--neu-bg-light);
+}
+
+.checkItemDone .checkName {
+  text-decoration: line-through;
+}
+
+.checkName {
+  font-weight: 600;
+}
+
+.qtyInput {
+  width: 5.5rem;
+  flex: none;
+}
+
+.materialRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.materialRow > :first-child {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.progressText {
+  font-weight: 700;
+  color: var(--neu-accent-dark);
+}
+
+.stickyAction {
+  position: sticky;
+  bottom: 0.75rem;
+  z-index: 5;
+}
+
+@media (max-width: 768px) {
+  .stickyAction {
+    bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+}
