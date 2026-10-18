@@ -49,6 +49,22 @@ Vďaka tomu sa dá vymeniť napríklad spôsob odosielania notifikácií bez zme
 | Trvanie zásahu | Podľa typu z nastavení (napr. zazimovanie 60 min), dá sa zmeniť pri termíne |
 | Plánovač dňa | Rozloží požiadavky za sebou s rezervou na presun, preskočí obsadené časy technika a to, čo sa nezmestí |
 
+## Výjazd a sklad
+
+- Dokončenie výjazdu je jedna transakcia: zápis práce, materiál s cenou v čase použitia, odpis zo skladu a uzavretie termínu. Buď prejde všetko, alebo nič.
+- Checklist = šablóna pre typ zásahu (`MaterialTemplate`), položky "na zónu" sa násobia počtom zón záhrady.
+- Pri poklese pod minimum dostane majiteľ e-mail najviac raz denne za položku.
+
+## Pripomienky
+
+| Pripomienka | Kedy | Ochrana proti duplicite |
+|---|---|---|
+| Termín zajtra (zákazník) | Od nastavenej hodiny (predvolene 17:00) | `dedupeKey` obsahuje ID a čas termínu, po presune príde nová |
+| Zoznam výjazdov (technik) | Rovnako | Kľúč podľa technika, dňa a zoznamu výjazdov |
+| Zazimovanie / spustenie | Automaticky v nastavený deň (+30 dní, ak server nebežal), alebo ručne | Raz za rok na zákazníka, nedostane ju ten, kto už má zásah v tejto sezóne |
+
+Plánovač beží každých 5 minút v API serveri. Pri viacerých serveroch duplicity zastaví `dedupeKey` v databáze.
+
 ## Notifikácie
 
 ```

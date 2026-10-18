@@ -14,7 +14,7 @@ Nahrádza zošit a súkromný mobil majiteľa: žiadna požiadavka sa nestratí,
 | 1 | Zákazníci a technická karta záhrady | ✅ |
 | 2 | Servisné požiadavky | ✅ |
 | 3 | Plánovanie a kalendár | ✅ |
-| 4 | Výjazd, materiál a notifikácie | ⏳ |
+| 4 | Výjazd, materiál a notifikácie | ✅ |
 | 5 | Doladenie (mobil, UX, bezpečnosť, testy) | ⏳ |
 | 6 | Bonus (portál zákazníka, prehľady, mapa trasy, IoT) | ⏳ |
 
@@ -32,6 +32,11 @@ Nahrádza zošit a súkromný mobil majiteľa: žiadna požiadavka sa nestratí,
 - **Plánovanie s kontrolou:** pri termíne vidno, koľko je v ten deň voľných miest a kam sa už ide. Systém upozorní na plný deň alebo obsadeného technika a Milan sa rozhodne, či aj tak.
 - **Plánovač sezóny:** nenaplánované zazimovania alebo spustenia zoskupené podľa obce. Vyberie celú obec, deň a technika, systém rozloží časy za sebou aj s presunom.
 - **Rezervácie zo webu:** zákazník si vyberie voľný deň, Milan potom potvrdí presný čas. Zrušený termín vráti požiadavku medzi nové, aby sa nestratila.
+- **Výjazd pre technika:** jedna obrazovka s kartou záhrady (zóny, voda, jednotka, čo sa robilo naposledy), checklistom materiálu a tlačidlami zavolať a navigovať. Odškrtnutý checklist sa nestratí ani po zatvorení appky.
+- **Checklist materiálu:** podľa typu zásahu a počtu zón (zazimovanie s 5 zónami = 5 konektorov). Ukáže aj, čo chýba na sklade.
+- **Dokončenie výjazdu:** čo sa urobilo, ako dlho, minutý materiál (predvyplnený z checklistu). Odpíše sa zo skladu, zapíše do histórie záhrady a požiadavka sa uzavrie alebo ostane „v riešení“, ak treba prísť znova.
+- **Sklad:** katalóg s cenami, príjem tovaru, upozornenie e-mailom, keď niečo dochádza.
+- **Pripomienky:** na jeseň zazimovanie, na jar spustenie (automaticky v nastavený deň, nikto ich nedostane dvakrát ani po zásahu), deň pred termínom zákazníkovi a technikovi zoznam výjazdov. Zákazník sa dá z pripomienok odhlásiť.
 - **Dnešné výjazdy** na prehľade (technik vidí svoje) s tlačidlami zavolať a navigovať.
 - **Potvrdenia e-mailom:** zákazník dostane číslo požiadavky správu s termínom, pri presune alebo zrušení termínu a keď je hotovo. Majiteľ dostane upozornenie na novú požiadavku zvonku.
 
