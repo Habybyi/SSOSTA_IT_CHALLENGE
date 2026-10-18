@@ -21,3 +21,19 @@ export const toFormValues = (source, defaults) =>
       return [key, value === null || value === undefined ? fallback : typeof fallback === "string" ? String(value) : value];
     })
   );
+
+export const formatDateTime = (value) =>
+  value
+    ? new Date(value).toLocaleString("sk-SK", { day: "numeric", month: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
+    : "";
+
+// "pred 5 min", "pred 3 h", "pred 2 dňami": Milan hneď vidí, ako dlho niekto čaká.
+export const timeAgo = (value) => {
+  const minutes = Math.round((Date.now() - new Date(value).getTime()) / 60000);
+  if (minutes < 1) return "práve teraz";
+  if (minutes < 60) return `pred ${minutes} min`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `pred ${hours} h`;
+  const days = Math.round(hours / 24);
+  return days === 1 ? "včera" : `pred ${days} dňami`;
+};

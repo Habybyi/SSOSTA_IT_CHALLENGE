@@ -65,4 +65,38 @@ export const REQUEST_STATUS_LABELS = {
   CANCELLED: "Zrušená",
 };
 
+export const PRIORITY_LABELS = {
+  LOW: "Nízka",
+  NORMAL: "Normálna",
+  HIGH: "Vysoká",
+  EMERGENCY: "Havária",
+};
+
+export const NOTIFICATION_LABELS = {
+  REQUEST_RECEIVED: "Potvrdenie prijatia",
+  REQUEST_DONE: "Oznámenie o vybavení",
+  STAFF_NEW_REQUEST: "Upozornenie pre majiteľa",
+};
+
+export const NOTIFICATION_STATUS_LABELS = {
+  PENDING: "čaká na odoslanie",
+  SENT: "odoslané",
+  FAILED: "zlyhalo",
+  CANCELLED: "zrušené",
+};
+
+// Hodnoty z kalkulačky na webe (payload požiadavky).
+export const PAYLOAD_LABELS = {
+  areaM2: "Plocha (m²)",
+  lawnM2: "Trávnik (m²)",
+  bedsM2: "Záhony (m²)",
+  hedgeM: "Živý plot (m)",
+  zones: "Odhad zón",
+  priceFrom: "Cena od (€)",
+  priceTo: "Cena do (€)",
+  waterSource: "Zdroj vody",
+  rainSensor: "Dažďový senzor",
+  mobileControl: "Ovládanie z mobilu",
+};
+
 export const toOptions = (labels) => Object.entries(labels).map(([value, label]) => ({ value, label }));

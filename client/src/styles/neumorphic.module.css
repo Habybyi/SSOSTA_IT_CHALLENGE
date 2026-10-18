@@ -999,3 +999,142 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ==========================================================================
+   Fáza 2: požiadavky
+   ========================================================================== */
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  composes: secondaryButton;
+  padding: 0.55rem 0.95rem;
+}
+
+.tabActive {
+  composes: secondaryButton;
+  padding: 0.55rem 0.95rem;
+  color: var(--neu-accent-dark);
+  box-shadow:
+    inset 3px 3px 7px var(--neu-bg-dark),
+    inset -3px -3px 7px var(--neu-bg-light);
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--neu-accent-dark);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.countAlert {
+  composes: count;
+  background: var(--neu-error);
+}
+
+/* Farebný pás vľavo podľa priority. */
+.priorityStripe {
+  width: 6px;
+  align-self: stretch;
+  border-radius: 6px;
+  flex: none;
+  background: var(--neu-bg-dark);
+}
+
+.priorityLOW {
+  background: #b9c4b5;
+}
+
+.priorityNORMAL {
+  background: var(--neu-accent);
+}
+
+.priorityHIGH {
+  background: var(--neu-warning);
+}
+
+.priorityEMERGENCY {
+  background: var(--neu-error);
+}
+
+.badgeEmergency {
+  composes: badge;
+  background: var(--neu-error);
+  color: #ffffff;
+}
+
+.badgeHigh {
+  composes: badge;
+  background: rgba(201, 138, 18, 0.2);
+  color: #8a5d00;
+}
+
+.choiceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.choice {
+  composes: secondaryButton;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1rem 0.75rem;
+  font-size: 0.9rem;
+  white-space: normal;
+  text-align: center;
+}
+
+.choice svg {
+  font-size: 1.4rem;
+}
+
+.choiceActive {
+  composes: choice;
+  color: var(--neu-accent-dark);
+  box-shadow:
+    inset 3px 3px 7px var(--neu-bg-dark),
+    inset -3px -3px 7px var(--neu-bg-light),
+    0 0 0 2px rgba(78, 165, 55, 0.45);
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.stat {
+  composes: tile;
+  gap: 0.2rem;
+}
+
+.statValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--neu-brand);
+  line-height: 1.1;
+}
+
+.statValueAlert {
+  composes: statValue;
+  color: var(--neu-error);
+}
+
+.navCount {
+  margin-left: auto;
+}

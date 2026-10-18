@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FiMenu,
@@ -12,13 +12,14 @@ import {
   FiLogOut,
 } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
+import { api } from "../api/client";
 import styles from "../styles/neumorphic.module.css";
 
 // enabled: false = funkcia príde v ďalšej fáze, v menu je už vidno, kam aplikácia smeruje.
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Prehľad", short: "Prehľad", icon: FiHome, enabled: true },
   { to: "/customers", label: "Zákazníci", short: "Zákazníci", icon: FiUsers, enabled: true },
-  { to: "/requests", label: "Požiadavky", short: "Požiadavky", icon: FiInbox, enabled: false },
+  { to: "/requests", label: "Požiadavky", short: "Požiadavky", icon: FiInbox, enabled: true, countKey: "new" },
   { to: "/calendar", label: "Kalendár", short: "Kalendár", icon: FiCalendar, enabled: false },
   { to: "/materials", label: "Materiál a sklad", short: "Sklad", icon: FiPackage, enabled: false },
   { to: "/team", label: "Tím", short: "Tím", icon: FiUserCheck, enabled: true, requireRole: "OWNER" },
@@ -30,10 +31,17 @@ const isItemActive = (item, pathname) =>
 
 // Spoločný rám pre všetky obrazovky po prihlásení.
 export const AppShell = ({ children }) => {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const [counts, setCounts] = useState(null);
+
+  // Počet nových požiadaviek v menu, obnoví sa pri každej zmene stránky.
+  useEffect(() => {
+    if (user?.role === "CUSTOMER") return;
+    api.getRequestStats(token).then(setCounts).catch(() => {});
+  }, [token, user?.role, location.pathname]);
 
   const visibleItems = NAV_ITEMS.filter((item) => !item.requireRole || item.requireRole === user?.role);
 
@@ -74,6 +82,11 @@ export const AppShell = ({ children }) => {
               <Link key={item.to} to={item.to} className={isActive ? styles.navItemActive : styles.navItem}>
                 <Icon />
                 {!collapsed && item.label}
+                {item.countKey && counts?.[item.countKey] > 0 && (
+                  <span className={`${counts.emergency > 0 ? styles.countAlert : styles.count} ${styles.navCount}`}>
+                    {counts[item.countKey]}
+                  </span>
+                )}
               </Link>
             );
           })}

@@ -31,7 +31,8 @@ async function request(path, { method = "GET", body, token, query } = {}) {
   if (response.status === 204) return null;
   const data = await response.json().catch(() => null);
   if (!response.ok) {
-    if (response.status === 401 && token && onUnauthorized) onUnauthorized();
+    const mustRelogin = response.status === 401 || data?.code === "PASSWORD_CHANGE_REQUIRED";
+    if (mustRelogin && token && onUnauthorized) onUnauthorized();
     throw new ApiError(data?.error || "Niečo sa pokazilo. Skús to znova.", response.status, data?.fields);
   }
   return data;
@@ -96,4 +97,12 @@ export const api = {
   },
   getPhotoBlob: (token, photoId) => fetchBlob(`/photos/${photoId}/file`, token),
   deletePhoto: (token, photoId) => request(`/photos/${photoId}`, { method: "DELETE", token }),
+
+  listRequests: (token, query) => request("/requests", { token, query }),
+  getRequestStats: (token) => request("/requests/stats", { token }),
+  listAssignees: (token) => request("/requests/assignees", { token }),
+  getRequest: (token, id) => request(`/requests/${id}`, { token }),
+  createRequest: (token, data) => request("/requests", { method: "POST", token, body: data }),
+  updateRequest: (token, id, data) => request(`/requests/${id}`, { method: "PATCH", token, body: data }),
+  changeRequestStatus: (token, id, data) => request(`/requests/${id}/status`, { method: "POST", token, body: data }),
 };

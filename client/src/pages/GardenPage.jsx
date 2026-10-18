@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { FiArrowLeft, FiEdit2, FiMapPin, FiPhone, FiTrash2, FiDroplet, FiCpu, FiCamera, FiInfo } from "react-icons/fi";
+import { FiArrowLeft, FiEdit2, FiMapPin, FiPhone, FiTrash2, FiDroplet, FiCpu, FiCamera, FiInfo, FiInbox } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
 import { Section } from "../components/Section";
 import { InfoItem } from "../components/InfoItem";
@@ -81,6 +81,13 @@ export const GardenPage = () => {
               <FiPhone /> Zavolať
             </a>
           )}
+          <Link
+            to={`/requests/new?customerId=${garden.customer.id}&gardenId=${id}`}
+            className={styles.secondaryButton}
+            style={{ textDecoration: "none" }}
+          >
+            <FiInbox /> Požiadavka
+          </Link>
           <Link to={`/gardens/${id}/edit`} className={styles.secondaryButton} style={{ textDecoration: "none" }}>
             <FiEdit2 /> Upraviť
           </Link>

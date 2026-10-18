@@ -10,6 +10,9 @@ import { CustomerFormPage } from "./pages/CustomerFormPage";
 import { CustomerDetailPage } from "./pages/CustomerDetailPage";
 import { GardenPage } from "./pages/GardenPage";
 import { GardenFormPage } from "./pages/GardenFormPage";
+import { RequestsPage } from "./pages/RequestsPage";
+import { NewRequestPage } from "./pages/NewRequestPage";
+import { RequestDetailPage } from "./pages/RequestDetailPage";
 
 const STAFF_PAGES = [
   ["/customers", CustomersPage],
@@ -19,6 +22,9 @@ const STAFF_PAGES = [
   ["/customers/:customerId/gardens/new", GardenFormPage],
   ["/gardens/:id", GardenPage],
   ["/gardens/:id/edit", GardenFormPage],
+  ["/requests", RequestsPage],
+  ["/requests/new", NewRequestPage],
+  ["/requests/:id", RequestDetailPage],
 ];
 
 export const App = () => {

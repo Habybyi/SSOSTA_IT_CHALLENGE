@@ -16,13 +16,12 @@ import {
 import { AppShell } from "../components/AppShell";
 import { Section } from "../components/Section";
 import { InfoItem } from "../components/InfoItem";
+import { RequestCard } from "../components/RequestCard";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import {
   CONTACT_LABELS,
   CUSTOMER_STATUS_LABELS,
-  REQUEST_STATUS_LABELS,
-  REQUEST_TYPE_LABELS,
   SOURCE_LABELS,
   WATER_SOURCE_LABELS,
 } from "../utils/labels";
@@ -162,23 +161,21 @@ export const CustomerDetailPage = () => {
         )}
       </Section>
 
-      <Section title="Posledné požiadavky" icon={FiInbox}>
+      <Section
+        title="Posledné požiadavky"
+        icon={FiInbox}
+        actions={
+          <Link to={`/requests/new?customerId=${id}`} className={styles.secondaryButton} style={{ textDecoration: "none" }}>
+            <FiPlus /> Nová požiadavka
+          </Link>
+        }
+      >
         {customer.serviceRequests.length === 0 ? (
-          <p className={styles.emptyState}>Žiadne požiadavky. Evidencia požiadaviek príde vo Fáze 2.</p>
+          <p className={styles.emptyState}>Žiadne požiadavky.</p>
         ) : (
           <div className={styles.list}>
             {customer.serviceRequests.map((r) => (
-              <div key={r.id} className={styles.listCard}>
-                <span className={styles.listCardMain}>
-                  <span className={styles.listCardTitle}>
-                    #{r.number} {r.title}
-                  </span>
-                  <span className={styles.listCardMeta}>
-                    {REQUEST_TYPE_LABELS[r.type]} · {formatDate(r.createdAt)}
-                  </span>
-                </span>
-                <span className={styles.badge}>{REQUEST_STATUS_LABELS[r.status]}</span>
-              </div>
+              <RequestCard key={r.id} request={r} showCustomer={false} />
             ))}
           </div>
         )}
