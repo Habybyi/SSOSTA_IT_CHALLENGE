@@ -28,12 +28,32 @@ async function request(path, { method = "GET", body, token, query } = {}) {
     body: body ? JSON.stringify(body) : undefined,
   });
 
+  if (response.status === 204) return null;
   const data = await response.json().catch(() => null);
   if (!response.ok) {
     if (response.status === 401 && token && onUnauthorized) onUnauthorized();
     throw new ApiError(data?.error || "Niečo sa pokazilo. Skús to znova.", response.status, data?.fields);
   }
   return data;
+}
+
+async function upload(path, { token, formData }) {
+  const response = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new ApiError(data?.error || "Nahrávanie zlyhalo. Skús to znova.", response.status, data?.fields);
+  }
+  return data;
+}
+
+async function fetchBlob(path, token) {
+  const response = await fetch(`${API_URL}${path}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!response.ok) throw new ApiError("Nepodarilo sa načítať súbor.", response.status);
+  return response.blob();
 }
 
 export const api = {
@@ -46,4 +66,34 @@ export const api = {
   createUser: (token, data) => request("/users", { method: "POST", token, body: data }),
   updateUser: (token, id, data) => request(`/users/${id}`, { method: "PATCH", token, body: data }),
   resetPassword: (token, id) => request(`/users/${id}/reset-password`, { method: "POST", token }),
+
+  listCustomers: (token, query) => request("/customers", { token, query }),
+  listCities: (token) => request("/customers/cities", { token }),
+  getCustomer: (token, id) => request(`/customers/${id}`, { token }),
+  createCustomer: (token, data) => request("/customers", { method: "POST", token, body: data }),
+  updateCustomer: (token, id, data) => request(`/customers/${id}`, { method: "PATCH", token, body: data }),
+  deleteCustomer: (token, id) => request(`/customers/${id}`, { method: "DELETE", token }),
+
+  createGarden: (token, customerId, data) =>
+    request(`/customers/${customerId}/gardens`, { method: "POST", token, body: data }),
+  getGarden: (token, id) => request(`/gardens/${id}`, { token }),
+  updateGarden: (token, id, data) => request(`/gardens/${id}`, { method: "PATCH", token, body: data }),
+  deleteGarden: (token, id) => request(`/gardens/${id}`, { method: "DELETE", token }),
+
+  createZone: (token, gardenId, data) => request(`/gardens/${gardenId}/zones`, { method: "POST", token, body: data }),
+  updateZone: (token, gardenId, zoneId, data) =>
+    request(`/gardens/${gardenId}/zones/${zoneId}`, { method: "PATCH", token, body: data }),
+  deleteZone: (token, gardenId, zoneId) => request(`/gardens/${gardenId}/zones/${zoneId}`, { method: "DELETE", token }),
+
+  getHistory: (token, gardenId) => request(`/gardens/${gardenId}/history`, { token }),
+  addWorkLog: (token, gardenId, data) => request(`/gardens/${gardenId}/work-logs`, { method: "POST", token, body: data }),
+
+  uploadGardenPhotos: (token, gardenId, files, caption) => {
+    const formData = new FormData();
+    for (const file of files) formData.append("photos", file);
+    if (caption) formData.append("caption", caption);
+    return upload(`/gardens/${gardenId}/photos`, { token, formData });
+  },
+  getPhotoBlob: (token, photoId) => fetchBlob(`/photos/${photoId}/file`, token),
+  deletePhoto: (token, photoId) => request(`/photos/${photoId}`, { method: "DELETE", token }),
 };

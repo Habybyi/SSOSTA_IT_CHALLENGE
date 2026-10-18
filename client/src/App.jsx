@@ -5,6 +5,21 @@ import { LoginPage } from "./pages/LoginPage";
 import { ChangePasswordPage } from "./pages/ChangePasswordPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { TeamPage } from "./pages/TeamPage";
+import { CustomersPage } from "./pages/CustomersPage";
+import { CustomerFormPage } from "./pages/CustomerFormPage";
+import { CustomerDetailPage } from "./pages/CustomerDetailPage";
+import { GardenPage } from "./pages/GardenPage";
+import { GardenFormPage } from "./pages/GardenFormPage";
+
+const STAFF_PAGES = [
+  ["/customers", CustomersPage],
+  ["/customers/new", CustomerFormPage],
+  ["/customers/:id", CustomerDetailPage],
+  ["/customers/:id/edit", CustomerFormPage],
+  ["/customers/:customerId/gardens/new", GardenFormPage],
+  ["/gardens/:id", GardenPage],
+  ["/gardens/:id/edit", GardenFormPage],
+];
 
 export const App = () => {
   return (
@@ -37,6 +52,17 @@ export const App = () => {
               </ProtectedRoute>
             }
           />
+          {STAFF_PAGES.map(([path, Page]) => (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <ProtectedRoute>
+                  <Page />
+                </ProtectedRoute>
+              }
+            />
+          ))}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>

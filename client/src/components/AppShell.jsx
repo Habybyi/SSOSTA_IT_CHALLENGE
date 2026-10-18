@@ -17,12 +17,16 @@ import styles from "../styles/neumorphic.module.css";
 // enabled: false = funkcia príde v ďalšej fáze, v menu je už vidno, kam aplikácia smeruje.
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Prehľad", short: "Prehľad", icon: FiHome, enabled: true },
-  { to: "/customers", label: "Zákazníci", short: "Zákazníci", icon: FiUsers, enabled: false },
+  { to: "/customers", label: "Zákazníci", short: "Zákazníci", icon: FiUsers, enabled: true },
   { to: "/requests", label: "Požiadavky", short: "Požiadavky", icon: FiInbox, enabled: false },
   { to: "/calendar", label: "Kalendár", short: "Kalendár", icon: FiCalendar, enabled: false },
   { to: "/materials", label: "Materiál a sklad", short: "Sklad", icon: FiPackage, enabled: false },
   { to: "/team", label: "Tím", short: "Tím", icon: FiUserCheck, enabled: true, requireRole: "OWNER" },
 ];
+
+// Technická karta záhrady patrí pod Zákazníkov.
+const isItemActive = (item, pathname) =>
+  pathname.startsWith(item.to) || (item.to === "/customers" && pathname.startsWith("/gardens"));
 
 // Spoločný rám pre všetky obrazovky po prihlásení.
 export const AppShell = ({ children }) => {
@@ -55,7 +59,7 @@ export const AppShell = ({ children }) => {
 
           {visibleItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname.startsWith(item.to);
+            const isActive = isItemActive(item, location.pathname);
 
             if (!item.enabled) {
               return (
@@ -93,7 +97,7 @@ export const AppShell = ({ children }) => {
             .filter((item) => item.enabled)
             .map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname.startsWith(item.to);
+              const isActive = isItemActive(item, location.pathname);
               return (
                 <Link
                   key={item.to}
