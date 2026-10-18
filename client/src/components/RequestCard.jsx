@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { FiChevronRight } from "react-icons/fi";
 import { PRIORITY_LABELS, REQUEST_STATUS_LABELS, REQUEST_TYPE_LABELS } from "../utils/labels";
-import { fullName, timeAgo } from "../utils/format";
+import { formatDayShort, formatTime, fullName, timeAgo, toDayKey } from "../utils/format";
 import styles from "../styles/neumorphic.module.css";
 
 export const PriorityBadge = ({ priority }) => {
@@ -30,7 +30,11 @@ export const RequestCard = ({ request, showCustomer = true }) => {
             showCustomer && r.customer && fullName(r.customer),
             r.garden?.city,
             REQUEST_TYPE_LABELS[r.type],
-            timeAgo(r.createdAt),
+            r.appointments?.[0]
+              ? `termín ${formatDayShort(toDayKey(r.appointments[0].startsAt))}${
+                  r.appointments[0].status === "RESERVED" ? " (rezervácia)" : ` ${formatTime(r.appointments[0].startsAt)}`
+                }`
+              : timeAgo(r.createdAt),
             r.assignedTo && `→ ${r.assignedTo.name}`,
           ]
             .filter(Boolean)

@@ -13,6 +13,8 @@ import { GardenFormPage } from "./pages/GardenFormPage";
 import { RequestsPage } from "./pages/RequestsPage";
 import { NewRequestPage } from "./pages/NewRequestPage";
 import { RequestDetailPage } from "./pages/RequestDetailPage";
+import { CalendarPage } from "./pages/CalendarPage";
+import { PlannerPage } from "./pages/PlannerPage";
 
 const STAFF_PAGES = [
   ["/customers", CustomersPage],
@@ -25,6 +27,8 @@ const STAFF_PAGES = [
   ["/requests", RequestsPage],
   ["/requests/new", NewRequestPage],
   ["/requests/:id", RequestDetailPage],
+  ["/calendar", CalendarPage],
+  ["/calendar/planner", PlannerPage],
 ];
 
 export const App = () => {

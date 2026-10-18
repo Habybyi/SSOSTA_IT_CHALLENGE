@@ -20,7 +20,7 @@ const NAV_ITEMS = [
   { to: "/dashboard", label: "Prehľad", short: "Prehľad", icon: FiHome, enabled: true },
   { to: "/customers", label: "Zákazníci", short: "Zákazníci", icon: FiUsers, enabled: true },
   { to: "/requests", label: "Požiadavky", short: "Požiadavky", icon: FiInbox, enabled: true, countKey: "new" },
-  { to: "/calendar", label: "Kalendár", short: "Kalendár", icon: FiCalendar, enabled: false },
+  { to: "/calendar", label: "Kalendár", short: "Kalendár", icon: FiCalendar, enabled: true },
   { to: "/materials", label: "Materiál a sklad", short: "Sklad", icon: FiPackage, enabled: false },
   { to: "/team", label: "Tím", short: "Tím", icon: FiUserCheck, enabled: true, requireRole: "OWNER" },
 ];

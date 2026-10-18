@@ -14,14 +14,19 @@ import {
   FiSave,
   FiX,
   FiBarChart2,
+  FiCalendar,
+  FiPlus,
 } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
 import { Section } from "../components/Section";
 import { InfoItem } from "../components/InfoItem";
 import { PriorityBadge, StatusBadge } from "../components/RequestCard";
+import { ScheduleForm } from "../components/ScheduleForm";
+import { AppointmentModal } from "../components/AppointmentModal";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import {
+  APPOINTMENT_STATUS_LABELS,
   NOTIFICATION_LABELS,
   NOTIFICATION_STATUS_LABELS,
   PAYLOAD_LABELS,
@@ -31,7 +36,7 @@ import {
   SOURCE_LABELS,
   WATER_SOURCE_LABELS,
 } from "../utils/labels";
-import { formatDateTime, fullName, gardenAddress, mapsUrl, timeAgo } from "../utils/format";
+import { capitalize, formatDateTime, formatDayLong, formatTime, fullName, gardenAddress, mapsUrl, timeAgo, toDayKey } from "../utils/format";
 import styles from "../styles/neumorphic.module.css";
 
 // Ďalšie logické kroky podľa aktuálneho stavu, aby Milan nemusel premýšľať nad zoznamom stavov.
@@ -76,6 +81,13 @@ export const RequestDetailPage = () => {
   const [textForm, setTextForm] = useState({ title: "", description: "" });
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [openAppointment, setOpenAppointment] = useState(null);
+  const [durations, setDurations] = useState(null);
+
+  useEffect(() => {
+    api.getScheduleSettings(token).then((d) => setDurations(d.settings.durations)).catch(() => {});
+  }, [token]);
 
   const load = useCallback(() => {
     api
@@ -233,6 +245,59 @@ export const RequestDetailPage = () => {
       </Section>
 
       <Section
+        title="Termín"
+        icon={FiCalendar}
+        actions={
+          !isScheduling &&
+          ["NEW", "SCHEDULED", "IN_PROGRESS"].includes(r.status) && (
+            <button type="button" className={styles.secondaryButton} onClick={() => setIsScheduling(true)}>
+              <FiPlus /> {r.appointments.length ? "Ďalší termín" : "Naplánovať"}
+            </button>
+          )
+        }
+      >
+        {r.appointments.length > 0 && (
+          <div className={styles.list} style={{ marginBottom: isScheduling ? "1.25rem" : 0 }}>
+            {r.appointments.map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                className={styles.listCard}
+                style={{ border: "none", textAlign: "left", cursor: "pointer", font: "inherit" }}
+                onClick={() => setOpenAppointment({ ...a, garden: { ...r.garden, customer: r.customer }, serviceRequest: r })}
+              >
+                <span className={styles.listCardMain}>
+                  <span className={styles.listCardTitle}>
+                    {capitalize(formatDayLong(toDayKey(a.startsAt)))}
+                    {a.status === "RESERVED" ? ", čas treba potvrdiť" : `, ${formatTime(a.startsAt)} až ${formatTime(a.endsAt)}`}
+                  </span>
+                  <span className={styles.listCardMeta}>{a.technician ? a.technician.name : "bez technika"}</span>
+                </span>
+                <span className={a.status === "RESERVED" ? styles.badgeHigh : styles.badgeGreen}>
+                  {APPOINTMENT_STATUS_LABELS[a.status]}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+        {r.appointments.length === 0 && !isScheduling && <p className={styles.emptyState}>Zatiaľ bez termínu.</p>}
+        {isScheduling &&
+          (r.garden ? (
+            <ScheduleForm
+              request={r}
+              defaultDuration={durations?.[r.type]}
+              onSaved={() => {
+                setIsScheduling(false);
+                load();
+              }}
+              onCancel={() => setIsScheduling(false)}
+            />
+          ) : (
+            <p className={styles.errorMessage}>Najprv doplň záhradu (adresu) zákazníka, termín potrebuje miesto.</p>
+          ))}
+      </Section>
+
+      <Section
         title="Popis"
         icon={FiFileText}
         actions={
@@ -373,6 +438,16 @@ export const RequestDetailPage = () => {
           )}
         </div>
       </Section>
+      {openAppointment && (
+        <AppointmentModal
+          appointment={openAppointment}
+          onClose={() => setOpenAppointment(null)}
+          onChanged={() => {
+            setOpenAppointment(null);
+            load();
+          }}
+        />
+      )}
     </AppShell>
   );
 };

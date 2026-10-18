@@ -99,4 +99,13 @@ export const PAYLOAD_LABELS = {
   mobileControl: "Ovládanie z mobilu",
 };
 
+export const APPOINTMENT_STATUS_LABELS = {
+  RESERVED: "Rezervácia (čas treba potvrdiť)",
+  CONFIRMED: "Potvrdený",
+  DONE: "Hotový",
+  CANCELLED: "Zrušený",
+};
+
+export const WEEKDAY_LABELS = { 1: "Po", 2: "Ut", 3: "St", 4: "Št", 5: "Pi", 6: "So", 7: "Ne" };
+
 export const toOptions = (labels) => Object.entries(labels).map(([value, label]) => ({ value, label }));

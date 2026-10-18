@@ -3,10 +3,12 @@
 const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:3001/api/v1`;
 
 export class ApiError extends Error {
-  constructor(message, status, fields) {
+  constructor(message, status, fields, code) {
     super(message);
     this.status = status;
     this.fields = fields || {};
+    // Napr. CAPACITY_FULL alebo TECHNICIAN_BUSY: UI sa opýta, či naplánovať aj tak.
+    this.code = code;
   }
 }
 
@@ -33,7 +35,7 @@ async function request(path, { method = "GET", body, token, query } = {}) {
   if (!response.ok) {
     const mustRelogin = response.status === 401 || data?.code === "PASSWORD_CHANGE_REQUIRED";
     if (mustRelogin && token && onUnauthorized) onUnauthorized();
-    throw new ApiError(data?.error || "Niečo sa pokazilo. Skús to znova.", response.status, data?.fields);
+    throw new ApiError(data?.error || "Niečo sa pokazilo. Skús to znova.", response.status, data?.fields, data?.code);
   }
   return data;
 }
@@ -105,4 +107,18 @@ export const api = {
   createRequest: (token, data) => request("/requests", { method: "POST", token, body: data }),
   updateRequest: (token, id, data) => request(`/requests/${id}`, { method: "PATCH", token, body: data }),
   changeRequestStatus: (token, id, data) => request(`/requests/${id}/status`, { method: "POST", token, body: data }),
+
+  getScheduleSettings: (token) => request("/schedule/settings", { token }),
+  updateScheduleSettings: (token, data) => request("/schedule/settings", { method: "PUT", token, body: data }),
+  getCapacity: (token, from, to) => request("/schedule/capacity", { token, query: { from, to } }),
+  setDayCapacity: (token, date, data) => request(`/schedule/capacity/${date}`, { method: "PUT", token, body: data }),
+  resetDayCapacity: (token, date) => request(`/schedule/capacity/${date}`, { method: "DELETE", token }),
+  getPlanner: (token, type) => request("/schedule/planner", { token, query: { type } }),
+  planDay: (token, data) => request("/schedule/plan-day", { method: "POST", token, body: data }),
+
+  listAppointments: (token, from, to, technicianId) =>
+    request("/appointments", { token, query: { from, to, technicianId } }),
+  createAppointment: (token, data) => request("/appointments", { method: "POST", token, body: data }),
+  updateAppointment: (token, id, data) => request(`/appointments/${id}`, { method: "PATCH", token, body: data }),
+  cancelAppointment: (token, id, data) => request(`/appointments/${id}/cancel`, { method: "POST", token, body: data }),
 };

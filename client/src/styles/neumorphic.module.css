@@ -1138,3 +1138,230 @@
 .navCount {
   margin-left: auto;
 }
+
+/* ==========================================================================
+   Fáza 3: kalendár a plánovanie
+   ========================================================================== */
+
+/* Rozloženie podľa šírky samotného kalendára (nie okna): s otvoreným menu je plocha užšia. */
+.weekWrap {
+  container-type: inline-size;
+}
+
+.weekGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+@container (max-width: 760px) {
+  .weekGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .dayColumn,
+  .dayColumnToday,
+  .dayColumnOff {
+    min-height: 0;
+  }
+}
+
+.dayColumn {
+  border-radius: 16px;
+  padding: 0.6rem;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--neu-bg);
+  box-shadow:
+    inset 2px 2px 6px var(--neu-bg-dark),
+    inset -2px -2px 6px var(--neu-bg-light);
+}
+
+.dayColumnToday {
+  composes: dayColumn;
+  box-shadow:
+    inset 2px 2px 6px var(--neu-bg-dark),
+    inset -2px -2px 6px var(--neu-bg-light),
+    0 0 0 2px rgba(78, 165, 55, 0.5);
+}
+
+.dayColumnOff {
+  composes: dayColumn;
+  opacity: 0.55;
+}
+
+.dayHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--neu-text);
+  text-transform: capitalize;
+}
+
+.capacityButton {
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.capacityButton:disabled {
+  cursor: default;
+}
+
+.capacityText {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--neu-text-muted);
+}
+
+.capacityBar {
+  height: 5px;
+  border-radius: 5px;
+  background: var(--neu-bg-dark);
+  overflow: hidden;
+}
+
+.capacityFill {
+  height: 100%;
+  background: var(--neu-accent);
+  border-radius: 5px;
+}
+
+.capacityFillFull {
+  composes: capacityFill;
+  background: var(--neu-error);
+}
+
+.apptChip {
+  border: none;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 12px;
+  padding: 0.5rem 0.55rem;
+  background: var(--neu-bg);
+  color: var(--neu-text);
+  box-shadow:
+    3px 3px 7px var(--neu-bg-dark),
+    -3px -3px 7px var(--neu-bg-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  border-left: 4px solid var(--neu-accent);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.apptChipReserved {
+  composes: apptChip;
+  border-left: 4px dashed var(--neu-warning);
+  background: rgba(201, 138, 18, 0.06);
+}
+
+.apptChipEmergency {
+  composes: apptChip;
+  border-left-color: var(--neu-error);
+}
+
+.apptTime {
+  font-weight: 700;
+  color: var(--neu-accent-dark);
+}
+
+.apptMeta {
+  color: var(--neu-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 25, 6, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 40;
+}
+
+.modal {
+  composes: card;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.75rem;
+}
+
+.cityGroup {
+  composes: section;
+  margin-bottom: 1rem;
+}
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.4rem;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.checkRow:hover {
+  background: var(--neu-row-alt);
+}
+
+.checkRow input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  accent-color: var(--neu-accent-dark);
+}
+
+.plannerLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.stickyPanel {
+  composes: section;
+  position: sticky;
+  top: 1rem;
+}
+
+@media (max-width: 1100px) {
+  .plannerLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .stickyPanel {
+    position: static;
+  }
+}
+
+@media (max-width: 900px) {
+  .modalBackdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    border-radius: 24px 24px 0 0;
+    min-height: 0;
+    max-height: 92vh;
+  }
+}

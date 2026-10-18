@@ -37,3 +37,42 @@ export const timeAgo = (value) => {
   const days = Math.round(hours / 24);
   return days === 1 ? "včera" : `pred ${days} dňami`;
 };
+
+// Dni v kalendári: "YYYY-MM-DD" v lokálnom čase prehliadača.
+export const toDayKey = (date) => {
+  const d = new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+export const fromDayKey = (key) => {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(y, m - 1, d);
+};
+
+export const addDaysKey = (key, count) => {
+  const d = fromDayKey(key);
+  d.setDate(d.getDate() + count);
+  return toDayKey(d);
+};
+
+export const mondayOf = (key) => {
+  const d = fromDayKey(key);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return toDayKey(d);
+};
+
+export const formatTime = (value) =>
+  new Date(value).toLocaleTimeString("sk-SK", { hour: "2-digit", minute: "2-digit" });
+
+export const timeOfDay = (value) => {
+  const d = new Date(value);
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};
+
+export const formatDayShort = (key) =>
+  fromDayKey(key).toLocaleDateString("sk-SK", { weekday: "short", day: "numeric", month: "numeric" });
+
+export const formatDayLong = (key) =>
+  fromDayKey(key).toLocaleDateString("sk-SK", { weekday: "long", day: "numeric", month: "long" });
+
+export const capitalize = (text) => (text ? text.charAt(0).toUpperCase() + text.slice(1) : text);
