@@ -11,12 +11,21 @@ Nahrádza zošit a súkromný mobil majiteľa: žiadna požiadavka sa nestratí,
 | Fáza | Obsah | Stav |
 |---|---|---|
 | 0 | Základ: databáza, prihlásenie, roly, správa tímu, dizajn | ✅ |
-| 1 | Zákazníci a technická karta záhrady | ⏳ |
+| 1 | Zákazníci a technická karta záhrady | ✅ |
 | 2 | Servisné požiadavky | ⏳ |
 | 3 | Plánovanie a kalendár | ⏳ |
 | 4 | Výjazd, materiál a notifikácie | ⏳ |
 | 5 | Doladenie (mobil, UX, bezpečnosť, testy) | ⏳ |
 | 6 | Bonus (portál zákazníka, prehľady, mapa trasy, IoT) | ⏳ |
+
+## Čo už vie
+
+- **Prihlásenie a roly:** majiteľ, technik (brigádnik), zákazník. Nové účty majú dočasné heslo.
+- **Tím:** majiteľ pridá brigádnika, deaktivuje účet alebo vygeneruje nové heslo.
+- **Zákazníci:** vyhľadávanie (meno, telefón, e-mail, adresa), filter podľa stavu a obce, kontakt jedným ťuknutím (zavolať, e-mail).
+- **Technická karta záhrady:** zdroj vody, riadiaca jednotka, rok a verzia systému, zóny (postrekovače, ventily), fotky z mobilu, navigácia na adresu.
+- **História zásahov:** časová os všetkých zásahov, dá sa do nej prepísať aj stará história zo zošita.
+- Upozornenie na starší systém (staršie inštalácie mali iné diely).
 
 ## Technológie
 
