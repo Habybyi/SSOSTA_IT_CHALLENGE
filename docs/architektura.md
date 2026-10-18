@@ -38,10 +38,23 @@ Vďaka tomu sa dá vymeniť napríklad spôsob odosielania notifikácií bez zme
 | Soft delete (`deletedAt`) a audit log | Nič sa nestratí, dá sa dohľadať kto čo zmenil |
 | Cena materiálu uložená pri použití | Staré výkazy sa nezmenia, keď sa zmení cenník |
 
+## Notifikácie
+
+```
+akcia (nová požiadavka, hotovo)  →  tabuľka Notification (PENDING)  →  worker každých 10 s  →  SMTP
+```
+
+- Uloženie požiadavky nikdy nezlyhá kvôli výpadku e-mailu.
+- Neúspešné odoslanie sa skúša znova o 1, 4, 9 a 16 minút, potom FAILED.
+- Worker si notifikáciu "zarezervuje" podmieneným updatom, takže ani viac bežiacich serverov nepošle e-mail dvakrát.
+- V detaile požiadavky je vidno, čo a komu odišlo.
+
 ## Bezpečnosť
 
 - Heslá hashované cez bcrypt (12 kôl), nové účty majú dočasné heslo a musia si ho zmeniť.
 - Limit pokusov o prihlásenie (10 za 15 minút z jednej IP).
 - Používateľ sa pri každej požiadavke načíta z DB, deaktivácia platí okamžite.
 - Rovnaká chybová hláška pri zlom e-maile aj hesle.
-- Helmet (bezpečnostné HTTP hlavičky), CORS len pre adresu klienta.
+- Helmet (bezpečnostné HTTP hlavičky), CORS len pre adresu klienta a povolený web firmy.
+- Verejný formulár: limit 5 odoslaní za 15 minút, skryté pole proti robotom, povinný súhlas GDPR, verejnosti sa vracia len číslo požiadavky.
+- E-mailový webhook chránený tajným kľúčom (porovnanie odolné voči časovým útokom).

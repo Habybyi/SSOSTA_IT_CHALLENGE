@@ -12,7 +12,7 @@ Nahrádza zošit a súkromný mobil majiteľa: žiadna požiadavka sa nestratí,
 |---|---|---|
 | 0 | Základ: databáza, prihlásenie, roly, správa tímu, dizajn | ✅ |
 | 1 | Zákazníci a technická karta záhrady | ✅ |
-| 2 | Servisné požiadavky | ⏳ |
+| 2 | Servisné požiadavky | ✅ |
 | 3 | Plánovanie a kalendár | ⏳ |
 | 4 | Výjazd, materiál a notifikácie | ⏳ |
 | 5 | Doladenie (mobil, UX, bezpečnosť, testy) | ⏳ |
@@ -26,6 +26,9 @@ Nahrádza zošit a súkromný mobil majiteľa: žiadna požiadavka sa nestratí,
 - **Technická karta záhrady:** zdroj vody, riadiaca jednotka, rok a verzia systému, zóny (postrekovače, ventily), fotky z mobilu, navigácia na adresu.
 - **História zásahov:** časová os všetkých zásahov, dá sa do nej prepísať aj stará história zo zošita.
 - Upozornenie na starší systém (staršie inštalácie mali iné diely).
+- **Servisné požiadavky:** stavy (nová, naplánovaná, v riešení, hotová, uzavretá), priorita s haváriami navrchu, priradenie technikovi, história každej zmeny.
+- **Jednotný príjem:** ručne počas telefonátu (nájde zákazníka aj podľa čísla v inom tvare), z webu (formulár, kalkulačka) a z e-mailu. Neznámy človek sa založí ako dopyt.
+- **Potvrdenia e-mailom:** zákazník dostane číslo požiadavky a správu, keď je hotovo. Majiteľ dostane upozornenie na novú požiadavku zvonku.
 
 ## Technológie
 
@@ -57,6 +60,7 @@ Odoslané e-maily (od Fázy 2) uvidíš v Mailpite na http://localhost:8025.
 
 - [Analýza: problém → funkcia → rola](docs/analyza.md)
 - [Architektúra a rozhodnutia](docs/architektura.md)
+- [API pre web firmy (formulár, kalkulačka, e-maily)](docs/api-pre-web.md)
 
 ## Tím
 
