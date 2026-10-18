@@ -1,0 +1,14 @@
+{
+  "name": "custodia-crm",
+  "private": true,
+  "description": "Custodia CRM: správa zákazníkov a servisu (SSOSTA IT Challenge 2026).",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "concurrently -k -n api,web -c green,cyan \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "test": "npm --prefix server test",
+    "demo:reset": "npm --prefix server run db:demo -- --reset"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.5"
+  }
+}
