@@ -65,6 +65,15 @@ Vďaka tomu sa dá vymeniť napríklad spôsob odosielania notifikácií bez zme
 
 Plánovač beží každých 5 minút v API serveri. Pri viacerých serveroch duplicity zastaví `dedupeKey` v databáze.
 
+## GDPR
+
+| Právo | Riešenie |
+|---|---|
+| Prístup a prenosnosť (čl. 15, 20) | Export všetkých údajov zákazníka do JSON (karta zákazníka → Export údajov) |
+| Vymazanie (čl. 17) | Anonymizácia: meno, kontakty, ulica, poznámky, fotky a texty požiadaviek sa zmažú, čakajúce e-maily sa zrušia. Servisná história (čo sa robilo, kedy, s akým materiálom) ostane bez osobných údajov kvôli záruke a účtovníctvu |
+| Námietka (čl. 21) | Zákazník sa môže odhlásiť zo servisných pripomienok, marketing vyžaduje samostatný súhlas |
+| Minimalizácia | Verejný formulár vracia len číslo požiadavky, audit po anonymizácii neobsahuje obsah zmien |
+
 ## Notifikácie
 
 ```

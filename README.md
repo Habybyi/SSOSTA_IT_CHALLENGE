@@ -6,6 +6,50 @@ Systém na správu zákazníkov a servisu pre firmu Custodia (návrh a inštalá
 
 Nahrádza zošit a súkromný mobil majiteľa: žiadna požiadavka sa nestratí, o každej záhrade je jasné, čo je na nej nainštalované, a servis sa dá plánovať vopred.
 
+## Rýchly štart
+
+Potrebuješ **Node.js 20+** a **Docker Desktop** (zapnutý).
+
+```bash
+npm run setup
+```
+
+```bash
+npm run dev
+```
+
+`setup` pripraví všetko naraz: `.env` s náhodnými kľúčmi, databázu v Dockeri, balíčky, tabuľky a ukážkové dáta. Stačí ho spustiť raz.
+
+| Čo | Kde |
+|---|---|
+| Aplikácia | http://localhost:5173 |
+| Odoslané e-maily (Mailpit) | http://localhost:8025 |
+| API | http://localhost:3001/api/v1 |
+
+| Účet | E-mail | Heslo |
+|---|---|---|
+| Majiteľ | `milan.kovac@custodia.sk` | `ZmenMa123!` (pri prvom prihlásení si ho zmení) |
+| Brigádnik | `peter.brigadnik@custodia.sk` | `Brigadnik123` |
+
+Pred ukážkou môžeš demo vrátiť do pôvodného stavu príkazom `npm run demo:reset` (zmaže zákazníkov, požiadavky a termíny a nahrá demo znova, účty a materiál ostanú).
+
+## Scenár na prezentáciu (5 minút)
+
+Každý krok ukazuje riešenie jedného problému z príbehu firmy.
+
+| # | Ukáž | Problém zo zadania |
+|---|---|---|
+| 1 | **Prehľad**: havária navrchu, mesačný kalendár s bodkami podľa priority | Nič sa nestratí, Milan hneď vidí, čo horí |
+| 2 | **Požiadavky → Nová požiadavka**: napíš „0905 301 113“, nájde Novotného, klikni Porucha, ulož | Telefonát už nejde do zošita |
+| 3 | **Mailpit**: zákazník dostal potvrdenie s číslom požiadavky | Zákazník vie, že sa na neho nezabudlo |
+| 4 | **Zákazníci → Hudák → Záhrady → technická karta**: zóny, postrekovače, história od roku 2021, upozornenie na starší systém | Milan si nepamätá, čo kde je |
+| 5 | **Kalendár → Plánovač sezóny**: vyber obec, deň a technika, systém rozloží časy | Jarná a jesenná špička |
+| 6 | **Kalendár**: plný deň alebo obsadený technik, systém upozorní | Brigádnik nie je vždy k dispozícii |
+| 7 | Prihlás sa ako **brigádnik**, otvor výjazd: checklist materiálu podľa zón, navigácia, dokonči výjazd | Brigádnik ide bez materiálu a vracia sa |
+| 8 | **Materiál a sklad**: zásoba sa odpísala, upozornenie na nízky stav | Prehľad o nákladoch |
+| 9 | **Plánovač → Pripomienky zákazníkom**: kampaň „Blíži sa zima“ | Zadanie výslovne chce pripomienku zazimovania |
+| 10 | Zmenši okno alebo otvor na mobile | Milan nie je informatik a brigádnik je v teréne |
+
 ## Stav
 
 | Fáza | Obsah | Stav |
@@ -15,7 +59,7 @@ Nahrádza zošit a súkromný mobil majiteľa: žiadna požiadavka sa nestratí,
 | 2 | Servisné požiadavky | ✅ |
 | 3 | Plánovanie a kalendár | ✅ |
 | 4 | Výjazd, materiál a notifikácie | ✅ |
-| 5 | Doladenie (mobil, UX, bezpečnosť, testy) | ⏳ |
+| 5 | Doladenie: rozloženie bez skrolovania, GDPR, demo dáta, testy, spúšťanie jedným príkazom | ✅ |
 | 6 | Bonus (portál zákazníka, prehľady, mapa trasy, IoT) | ⏳ |
 
 ## Čo už vie
@@ -37,6 +81,9 @@ Nahrádza zošit a súkromný mobil majiteľa: žiadna požiadavka sa nestratí,
 - **Dokončenie výjazdu:** čo sa urobilo, ako dlho, minutý materiál (predvyplnený z checklistu). Odpíše sa zo skladu, zapíše do histórie záhrady a požiadavka sa uzavrie alebo ostane „v riešení“, ak treba prísť znova.
 - **Sklad:** katalóg s cenami, príjem tovaru, upozornenie e-mailom, keď niečo dochádza.
 - **Pripomienky:** na jeseň zazimovanie, na jar spustenie (automaticky v nastavený deň, nikto ich nedostane dvakrát ani po zásahu), deň pred termínom zákazníkovi a technikovi zoznam výjazdov. Zákazník sa dá z pripomienok odhlásiť.
+- **Bez skrolovania na počítači:** obrazovka sa vždy zmestí, zoznamy majú stránkovanie podľa výšky okna, detaily sú v záložkách. Na mobile sa skroluje normálne a dole je lišta.
+- **Mesačný kalendár na prehľade:** bodka = výjazd vo farbe priority, klik na deň otvorí ten týždeň.
+- **GDPR:** export všetkých údajov zákazníka (JSON) a anonymizácia na žiadosť. Servisná história ostane bez osobných údajov.
 - **Dnešné výjazdy** na prehľade (technik vidí svoje) s tlačidlami zavolať a navigovať.
 - **Potvrdenia e-mailom:** zákazník dostane číslo požiadavky správu s termínom, pri presune alebo zrušení termínu a keď je hotovo. Majiteľ dostane upozornenie na novú požiadavku zvonku.
 
@@ -44,27 +91,13 @@ Nahrádza zošit a súkromný mobil majiteľa: žiadna požiadavka sa nestratí,
 
 React 19 + Vite · Node.js + Express 5 · PostgreSQL 16 + Prisma · Docker Compose
 
-## Spustenie lokálne
-
-Potrebuješ Node.js 20+ a Docker.
+## Testy
 
 ```bash
-docker compose up -d
+npm test
 ```
 
-```bash
-cd server && cp .env.example .env && npm install && npx prisma migrate deploy && npm run db:seed && npm run dev
-```
-
-```bash
-cd client && npm install && npm run dev
-```
-
-Aplikácia beží na http://localhost:5173, API na http://localhost:3001/api/v1.
-
-**Prvé prihlásenie:** `milan.kovac@custodia.sk` / `ZmenMa123!` (pri prvom prihlásení si heslo zmeníš). Pred nasadením zmeň `JWT_SECRET` v `server/.env`.
-
-Odoslané e-maily (od Fázy 2) uvidíš v Mailpite na http://localhost:8025.
+Overujú logiku, na ktorej stojí najviac: párovanie telefónnych čísel, dni a časy cez zmenu letného času, validáciu formulárov, e-mailové šablóny (aj ochranu proti vloženému kódu) a odhad typu požiadavky z e-mailu.
 
 ## Dokumentácia
 
