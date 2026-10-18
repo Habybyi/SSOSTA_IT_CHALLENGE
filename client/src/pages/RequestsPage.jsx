@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { FiPlus, FiSearch } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
 import { RequestCard } from "../components/RequestCard";
+import { Pager } from "../components/Pager";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
-import { useDebouncedValue } from "../hooks";
+import { useDebouncedValue, useServerPaging } from "../hooks";
 import { PRIORITY_LABELS, REQUEST_TYPE_LABELS } from "../utils/labels";
 import styles from "../styles/neumorphic.module.css";
 
@@ -25,34 +26,29 @@ export const RequestsPage = () => {
   const [priority, setPriority] = useState("");
   const [type, setType] = useState("");
   const [stats, setStats] = useState(null);
-  const [data, setData] = useState({ items: [], total: 0, page: 1, pageCount: 1 });
+  const [data, setData] = useState({ items: [], total: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const debouncedQ = useDebouncedValue(q);
-
-  const load = useCallback(
-    async (page = 1) => {
-      setIsLoading(true);
-      setError("");
-      try {
-        const [result, nextStats] = await Promise.all([
-          api.listRequests(token, { view, q: debouncedQ, priority, type, page, pageSize: 25 }),
-          api.getRequestStats(token),
-        ]);
-        setData((prev) => (page === 1 ? result : { ...result, items: [...prev.items, ...result.items] }));
-        setStats(nextStats);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [token, view, debouncedQ, priority, type]
-  );
+  const listRef = useRef(null);
+  const { page, setPage, pageSize } = useServerPaging(listRef, `${view}|${debouncedQ}|${priority}|${type}`);
 
   useEffect(() => {
-    load(1);
-  }, [load]);
+    let cancelled = false;
+    setIsLoading(true);
+    setError("");
+    Promise.all([api.listRequests(token, { view, q: debouncedQ, priority, type, page, pageSize }), api.getRequestStats(token)])
+      .then(([result, nextStats]) => {
+        if (cancelled) return;
+        setData(result);
+        setStats(nextStats);
+      })
+      .catch((err) => !cancelled && setError(err.message))
+      .finally(() => !cancelled && setIsLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [token, view, debouncedQ, priority, type, page, pageSize]);
 
   return (
     <AppShell>
@@ -72,7 +68,11 @@ export const RequestsPage = () => {
             onClick={() => setSearchParams(v.key === "open" ? {} : { view: v.key })}
           >
             {v.label}
-            {v.stat && stats?.[v.stat] > 0 && <span className={styles.count}>{stats[v.stat]}</span>}
+            {v.stat && stats?.[v.stat] > 0 && (
+              <span className={v.key === "open" && stats.emergency > 0 ? styles.countAlert : styles.count} title={v.key === "open" && stats.emergency ? `Havárie: ${stats.emergency}` : undefined}>
+                {stats[v.stat]}
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -109,31 +109,20 @@ export const RequestsPage = () => {
         </div>
       </div>
 
-      {stats?.emergency > 0 && view !== "done" && (
-        <div className={styles.calloutWarning} style={{ marginBottom: "1rem" }}>
-          <strong>Havárie: {stats.emergency}.</strong> Sú zoradené navrchu.
-        </div>
-      )}
+
 
       {error && <div className={styles.errorMessage} style={{ marginBottom: "1rem" }}>{error}</div>}
 
-      {!isLoading && data.items.length === 0 ? (
-        <p className={styles.emptyState}>{view === "open" ? "Nič otvorené. Všetko vybavené. 🌱" : "Žiadne požiadavky."}</p>
-      ) : (
-        <div className={styles.list}>
-          {data.items.map((r) => (
-            <RequestCard key={r.id} request={r} />
-          ))}
+      <div className={styles.fill}>
+        <div ref={listRef} className={styles.viewport}>
+          {!isLoading && data.items.length === 0 ? (
+            <p className={styles.emptyState}>{view === "open" ? "Nič otvorené. Všetko vybavené. 🌱" : "Žiadne požiadavky."}</p>
+          ) : (
+            data.items.map((r) => <RequestCard key={r.id} request={r} fixed />)
+          )}
         </div>
-      )}
-
-      {data.page < data.pageCount && (
-        <div style={{ display: "flex", justifyContent: "center", marginTop: "1.25rem" }}>
-          <button type="button" className={styles.secondaryButton} onClick={() => load(data.page + 1)} disabled={isLoading}>
-            Načítať ďalšie
-          </button>
-        </div>
-      )}
+        <Pager page={page} pageSize={pageSize} total={data.total} onChange={setPage} />
+      </div>
     </AppShell>
   );
 };

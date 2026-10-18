@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiClock, FiPlus, FiSave, FiX } from "react-icons/fi";
-import { Section } from "./Section";
+import { Modal } from "./Modal";
+import { PagedList } from "./PagedList";
 import { TextField, TextAreaField } from "./FormFields";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
@@ -52,70 +53,74 @@ export const HistorySection = ({ gardenId }) => {
 
   const props = { form, setForm, errors };
 
-  return (
-    <Section
-      title="História zásahov"
-      icon={FiClock}
-      actions={
-        !isAdding && (
-          <button type="button" className={styles.secondaryButton} onClick={() => setIsAdding(true)}>
-            <FiPlus /> Zapísať zásah
-          </button>
-        )
-      }
-    >
-      {isAdding && (
-        <form onSubmit={handleSubmit} className={styles.formPanel} style={{ marginBottom: "1rem" }}>
-          <div className={styles.formRow}>
-            <TextField name="performedAt" label="Dátum" type="date" {...props} />
-            <TextField name="durationMin" label="Trvanie (min.)" inputMode="numeric" {...props} />
-          </div>
-          <div style={{ marginTop: "1rem" }}>
-            <TextAreaField name="description" label="Čo sa robilo" placeholder="napr. zazimovanie, vyfúkanie všetkých zón" {...props} />
-          </div>
-          {error && <div className={styles.errorMessage} style={{ marginTop: "0.75rem" }}>{error}</div>}
-          <div className={styles.actionRow}>
-            <button type="button" className={styles.secondaryButton} onClick={() => setIsAdding(false)}>
-              <FiX /> Zrušiť
-            </button>
-            <button type="submit" className={styles.primaryButtonInline} disabled={isSaving}>
-              <FiSave /> {isSaving ? "UKLADÁM…" : "ULOŽIŤ"}
-            </button>
-          </div>
-        </form>
-      )}
+  const Row = ({ item }) =>
+    item.kind === "WORK" ? (
+      <div className={`${styles.listCard} ${styles.fixedRow}`} title={item.description}>
+        <span className={styles.listCardMain}>
+          <span className={styles.listCardTitle}>{item.description}</span>
+          <span className={styles.listCardMeta}>
+            {formatDate(item.date)}
+            {item.technician && ` · ${item.technician.name}`}
+            {item.durationMin ? ` · ${item.durationMin} min.` : ""}
+            {item.materials?.length > 0 &&
+              ` · ${item.materials.map((m) => `${m.material.name} ${Number(m.quantity)} ${m.material.unit}`).join(", ")}`}
+          </span>
+        </span>
+        <span className={styles.badgeGreen}>zásah</span>
+      </div>
+    ) : (
+      <div className={`${styles.listCard} ${styles.fixedRow}`}>
+        <span className={styles.listCardMain}>
+          <span className={styles.listCardTitle}>
+            {REQUEST_TYPE_LABELS[item.type]}: {item.title}
+          </span>
+          <span className={styles.listCardMeta}>
+            {formatDate(item.date)} · požiadavka #{item.number}
+          </span>
+        </span>
+        <span className={styles.badge}>{REQUEST_STATUS_LABELS[item.status]}</span>
+      </div>
+    );
 
-      {items.length === 0 ? (
-        <p className={styles.emptyState}>Zatiaľ žiadne zásahy.</p>
-      ) : (
-        <div className={styles.timeline}>
-          {items.map((item) =>
-            item.kind === "WORK" ? (
-              <div key={`w-${item.id}`} className={styles.timelineItem}>
-                <span className={styles.timelineDate}>
-                  {formatDate(item.date)}
-                  {item.technician && ` · ${item.technician.name}`}
-                  {item.durationMin ? ` · ${item.durationMin} min.` : ""}
-                </span>
-                <span style={{ whiteSpace: "pre-wrap" }}>{item.description}</span>
-                {item.materials?.length > 0 && (
-                  <span className={styles.muted}>
-                    Materiál: {item.materials.map((m) => `${m.material.name} ${Number(m.quantity)} ${m.material.unit}`).join(", ")}
-                  </span>
-                )}
-              </div>
-            ) : (
-              <div key={`r-${item.id}`} className={styles.timelineItem}>
-                <span className={styles.timelineDate}>{formatDate(item.date)} · požiadavka #{item.number}</span>
-                <span>
-                  {REQUEST_TYPE_LABELS[item.type]}: {item.title}{" "}
-                  <span className={styles.badge}>{REQUEST_STATUS_LABELS[item.status]}</span>
-                </span>
-              </div>
-            )
-          )}
-        </div>
+  return (
+    <section className={styles.panelFill}>
+      <div className={styles.sectionHeader}>
+        <h2 className={styles.sectionTitle}>
+          <FiClock /> História zásahov
+        </h2>
+        <button type="button" className={styles.secondaryButton} onClick={() => setIsAdding(true)}>
+          <FiPlus /> Zapísať zásah
+        </button>
+      </div>
+      {error && !isAdding && <div className={styles.errorMessage} style={{ marginBottom: "0.75rem" }}>{error}</div>}
+
+      <PagedList
+        items={items}
+        getKey={(item) => `${item.kind}-${item.id}`}
+        renderItem={(item) => <Row item={item} />}
+        empty={<p className={styles.emptyState}>Zatiaľ žiadne zásahy.</p>}
+      />
+
+      {isAdding && (
+        <Modal title="Zapísať zásah do histórie" onClose={() => setIsAdding(false)}>
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.formRow}>
+              <TextField name="performedAt" label="Dátum" type="date" {...props} />
+              <TextField name="durationMin" label="Trvanie (min.)" inputMode="numeric" {...props} />
+            </div>
+            <TextAreaField name="description" label="Čo sa robilo" placeholder="napr. zazimovanie, vyfúkanie všetkých zón" {...props} />
+            {error && <div className={styles.errorMessage}>{error}</div>}
+            <div className={styles.buttonRow} style={{ justifyContent: "flex-end" }}>
+              <button type="button" className={styles.secondaryButton} onClick={() => setIsAdding(false)}>
+                <FiX /> Zrušiť
+              </button>
+              <button type="submit" className={styles.primaryButtonInline} disabled={isSaving}>
+                <FiSave /> {isSaving ? "UKLADÁM…" : "ULOŽIŤ"}
+              </button>
+            </div>
+          </form>
+        </Modal>
       )}
-    </Section>
+    </section>
   );
 };

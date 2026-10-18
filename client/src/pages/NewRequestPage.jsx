@@ -100,10 +100,12 @@ export const NewRequestPage = () => {
       <Link to="/requests" className={styles.backLink}>
         <FiArrowLeft /> Požiadavky
       </Link>
-      <h1 className={styles.pageTitle} style={{ marginBottom: "1.25rem" }}>Nová požiadavka</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>Nová požiadavka</h1>
+      </div>
 
-      <div className={styles.formPanel}>
-        <h2 className={styles.formPanelTitle}>1. Zákazník</h2>
+      <div className={styles.formPanel} style={{ marginBottom: "0.85rem", flex: "none", padding: customer ? "0.75rem" : undefined }}>
+        {!customer && <h2 className={styles.formPanelTitle}>1. Zákazník</h2>}
         {customer ? (
           <div className={styles.listCard}>
             <span className={styles.listCardMain}>
@@ -121,7 +123,7 @@ export const NewRequestPage = () => {
 
       {customer && (
         <form onSubmit={handleSubmit}>
-          <div className={styles.formPanel}>
+          <div className={styles.formPanel} style={{ marginBottom: 0 }}>
             <h2 className={styles.formPanelTitle}>2. Čo potrebuje</h2>
             <div className={styles.choiceGrid}>
               {Object.entries(REQUEST_TYPE_LABELS).map(([value, label]) => {
@@ -141,7 +143,7 @@ export const NewRequestPage = () => {
             </div>
             {errors.type && <p className={styles.fieldError}>{errors.type}</p>}
 
-            <h3 className={styles.formPanelTitle} style={{ marginTop: "1.5rem" }}>Priorita</h3>
+            <h3 className={styles.formPanelTitle} style={{ marginTop: "1rem" }}>Priorita</h3>
             <div className={styles.tabs}>
               {Object.entries(PRIORITY_LABELS).map(([value, label]) => (
                 <button
@@ -173,7 +175,7 @@ export const NewRequestPage = () => {
               />
             </div>
             <div style={{ marginTop: "1rem" }}>
-              <TextAreaField name="description" label="Popis" placeholder="Čo presne hovoril zákazník" {...props} />
+              <TextAreaField name="description" label="Popis" rows={2} placeholder="Čo presne hovoril zákazník" {...props} />
             </div>
             {customer.email ? (
               <CheckboxField name="notifyCustomer" label={`Poslať potvrdenie na ${customer.email}`} {...props} />

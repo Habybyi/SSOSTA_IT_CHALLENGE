@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { Pager } from "./Pager";
+import { useElementSize, useIsMobile } from "../hooks";
 import { FiCamera, FiTrash2, FiX } from "react-icons/fi";
 import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
@@ -45,6 +47,20 @@ export const PhotoGallery = ({ gardenId, photos, onChange }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
   const [open, setOpen] = useState(null);
+  const [page, setPage] = useState(1);
+  const gridRef = useRef(null);
+  const { width, height } = useElementSize(gridRef);
+  const isMobile = useIsMobile();
+  // Koľko fotiek sa zmestí: stĺpce po min. 130 px, pomer 4:3, medzera 13,6 px.
+  const gap = 13.6;
+  const cols = Math.max(1, Math.floor((width + gap) / (130 + gap)));
+  const thumbH = ((width - gap * (cols - 1)) / cols) * 0.75;
+  const rows = Math.max(1, Math.floor((height + gap) / (thumbH + gap)));
+  const perPage = isMobile ? 12 : Math.max(1, cols * rows);
+  const pageCount = Math.max(1, Math.ceil(photos.length / perPage));
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
 
   const handleFiles = async (e) => {
     const files = Array.from(e.target.files || []);
@@ -75,7 +91,7 @@ export const PhotoGallery = ({ gardenId, photos, onChange }) => {
   };
 
   return (
-    <div>
+    <div className={styles.fill}>
       <div className={styles.toolbar}>
         <div className={`${styles.inputWrapper} ${styles.toolbarSearch}`}>
           <input
@@ -99,15 +115,18 @@ export const PhotoGallery = ({ gardenId, photos, onChange }) => {
 
       {error && <div className={styles.errorMessage} style={{ marginBottom: "1rem" }}>{error}</div>}
 
-      {photos.length === 0 ? (
-        <p className={styles.emptyState}>Zatiaľ žiadne fotky. Odfoť šachtu, riadiacu jednotku a plán zón.</p>
-      ) : (
-        <div className={styles.photoGrid}>
-          {photos.map((photo) => (
-            <PhotoThumb key={photo.id} photo={photo} onOpen={(p, url) => setOpen({ photo: p, url })} />
-          ))}
-        </div>
-      )}
+      <div ref={gridRef} className={styles.viewport} style={{ display: "block" }}>
+        {photos.length === 0 ? (
+          <p className={styles.emptyState}>Zatiaľ žiadne fotky. Odfoť šachtu, riadiacu jednotku a plán zón.</p>
+        ) : (
+          <div className={styles.photoGrid} style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+            {photos.slice((page - 1) * perPage, page * perPage).map((photo) => (
+              <PhotoThumb key={photo.id} photo={photo} onOpen={(p, url) => setOpen({ photo: p, url })} />
+            ))}
+          </div>
+        )}
+      </div>
+      <Pager page={page} pageSize={perPage} total={photos.length} onChange={setPage} />
 
       {open && (
         <Portal>

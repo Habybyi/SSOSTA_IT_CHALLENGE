@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useStoredState } from "../hooks";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FiMenu,
@@ -36,7 +37,8 @@ export const AppShell = ({ children }) => {
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
+  // Zbalené/rozbalené menu si pamätá aj po prekliknutí na inú stránku a obnovení.
+  const [collapsed, setCollapsed] = useStoredState("sidebarCollapsed", false);
   const [counts, setCounts] = useState(null);
 
   // Počet nových požiadaviek v menu, obnoví sa pri každej zmene stránky.
@@ -53,7 +55,7 @@ export const AppShell = ({ children }) => {
   };
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${styles.appPage}`}>
       <div className={styles.cardWide}>
         <nav className={collapsed ? styles.sidebarCollapsed : styles.sidebar}>
           <button
@@ -108,7 +110,7 @@ export const AppShell = ({ children }) => {
           <div className={styles.mobileHeader}>
             <img src="/brand/secondary_dark.svg" alt="Custodia" className={styles.mobileLogo} />
           </div>
-          {children}
+          <div className={styles.screen}>{children}</div>
         </main>
 
         <nav className={styles.bottomNav}>

@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight, FiSettings, FiMap } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
 import { AppointmentModal } from "../components/AppointmentModal";
 import { ScheduleSettingsPanel } from "../components/ScheduleSettingsPanel";
+import { Modal } from "../components/Modal";
+import { PagedList } from "../components/PagedList";
+import { useElementSize, useIsMobile } from "../hooks";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import { REQUEST_TYPE_LABELS } from "../utils/labels";
@@ -16,6 +19,30 @@ const initialsOf = (name) =>
     .map((p) => p[0])
     .join("")
     .toUpperCase();
+
+const AppointmentChip = ({ a, onClick }) => {
+  const chipClass =
+    a.status === "RESERVED"
+      ? styles.apptChipReserved
+      : a.serviceRequest?.priority === "EMERGENCY"
+        ? styles.apptChipEmergency
+        : styles.apptChip;
+  return (
+    <button type="button" className={chipClass} onClick={onClick} style={{ height: 64, flex: "none" }}>
+      <span className={styles.apptTime}>
+        {a.status === "DONE" ? "✓ " : ""}
+        {a.status === "RESERVED" ? "čas ?" : formatTime(a.startsAt)}
+        {a.technician && ` · ${initialsOf(a.technician.name)}`}
+      </span>
+      <span className={styles.apptMeta} style={{ color: "var(--neu-text)" }}>
+        {a.garden.customer.lastName}, {a.garden.city}
+      </span>
+      <span className={styles.apptMeta}>
+        {a.serviceRequest ? `#${a.serviceRequest.number} ${REQUEST_TYPE_LABELS[a.serviceRequest.type]}` : a.notes}
+      </span>
+    </button>
+  );
+};
 
 // Týždenný kalendár výjazdov. Pri každom dni je kapacita (obsadené/max), majiteľ ju vie zmeniť kliknutím.
 export const CalendarPage = () => {
@@ -33,6 +60,15 @@ export const CalendarPage = () => {
   const [selected, setSelected] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [error, setError] = useState("");
+  const [dayList, setDayList] = useState(null);
+  const [focusDay, setFocusDay] = useState(today);
+  const areaRef = useRef(null);
+  const { width: areaWidth, height: areaHeight } = useElementSize(areaRef);
+  const isMobile = useIsMobile();
+  // Týždeň v 7 stĺpcoch len ak je na to šírka, inak pohľad jedného dňa.
+  const dayMode = isMobile || (areaWidth > 0 && areaWidth < 760);
+  // Koľko výjazdov sa zmestí do stĺpca dňa (hlavička dňa ~70 px, výjazd 64 px + medzera).
+  const chipsPerDay = Math.max(1, Math.floor((areaHeight - 90) / 71));
 
   useEffect(() => {
     api.listAssignees(token).then((d) => setAssignees(d.users)).catch(() => {});
@@ -96,13 +132,15 @@ export const CalendarPage = () => {
       </div>
 
       {showSettings && (
-        <ScheduleSettingsPanel
-          onClose={() => setShowSettings(false)}
-          onSaved={() => {
-            setShowSettings(false);
-            load();
-          }}
-        />
+        <Modal title="Nastavenia plánovania" wide onClose={() => setShowSettings(false)}>
+          <ScheduleSettingsPanel
+            onClose={() => setShowSettings(false)}
+            onSaved={() => {
+              setShowSettings(false);
+              load();
+            }}
+          />
+        </Modal>
       )}
 
       <div className={styles.toolbar} style={{ alignItems: "center" }}>
@@ -131,68 +169,122 @@ export const CalendarPage = () => {
       </div>
 
       {reservedCount > 0 && (
-        <div className={styles.calloutWarning} style={{ marginBottom: "1rem" }}>
-          Rezervácie zo webu bez presného času: <strong>{reservedCount}</strong>. Klikni na ne a potvrď čas.
-        </div>
+        <p className={styles.muted} style={{ margin: "0 0 0.75rem", flex: "none" }}>
+          <span className={styles.badgeHigh}>{reservedCount} na potvrdenie</span> Rezervácie zo webu bez presného času (žltý okraj). Klikni a potvrď čas.
+        </p>
       )}
       {error && <div className={styles.errorMessage} style={{ marginBottom: "1rem" }}>{error}</div>}
 
-      <div className={styles.weekWrap}>
-        <div className={styles.weekGrid}>
-          {capacity.map((day) => {
-            const items = appointments.filter((a) => toDayKey(a.startsAt) === day.date);
-            const isToday = day.date === today;
-            const columnClass = isToday ? styles.dayColumnToday : day.max === 0 ? styles.dayColumnOff : styles.dayColumn;
-            const fill = day.max ? Math.min(100, (day.booked / day.max) * 100) : 100;
-            return (
-              <div key={day.date} className={columnClass}>
-                <div className={styles.dayHeader}>
-                  <span>{formatDayShort(day.date)}</span>
+      <div ref={areaRef} className={styles.weekArea}>
+        {dayMode ? (
+          <>
+            <div className={styles.dayStrip}>
+              {capacity.map((day) => {
+                const count = appointments.filter((a) => toDayKey(a.startsAt) === day.date).length;
+                const active = (capacity.some((d) => d.date === focusDay) ? focusDay : weekStart) === day.date;
+                return (
                   <button
+                    key={day.date}
                     type="button"
-                    className={styles.capacityButton}
-                    onClick={() => editCapacity(day)}
-                    disabled={!isOwner}
-                    title={isOwner ? "Zmeniť kapacitu dňa" : undefined}
+                    className={active ? styles.dayStripButtonActive : styles.dayStripButton}
+                    onClick={() => setFocusDay(day.date)}
+                    style={day.max === 0 ? { opacity: 0.5 } : undefined}
                   >
-                    <span className={styles.capacityText}>
-                      {day.max === 0 ? "voľno" : `${day.booked}/${day.max} výjazdov`}
-                      {day.note ? ` · ${day.note}` : ""}
-                    </span>
-                    {day.max > 0 && (
-                      <span className={styles.capacityBar}>
-                        <span className={day.booked >= day.max ? styles.capacityFillFull : styles.capacityFill} style={{ width: `${fill}%`, display: "block" }} />
-                      </span>
-                    )}
+                    <strong>{formatDayShort(day.date)}</strong>
+                    <span>{day.max === 0 ? "voľno" : `${count}/${day.max}`}</span>
                   </button>
-                </div>
-                {items.map((a) => {
-                  const chipClass =
-                    a.status === "RESERVED"
-                      ? styles.apptChipReserved
-                      : a.serviceRequest?.priority === "EMERGENCY"
-                        ? styles.apptChipEmergency
-                        : styles.apptChip;
-                  return (
-                    <button key={a.id} type="button" className={chipClass} onClick={() => setSelected(a)}>
-                      <span className={styles.apptTime}>
-                        {a.status === "RESERVED" ? "čas ?" : formatTime(a.startsAt)}
-                        {a.technician && ` · ${initialsOf(a.technician.name)}`}
+                );
+              })}
+            </div>
+            {(() => {
+              const dayKey = capacity.some((d) => d.date === focusDay) ? focusDay : weekStart;
+              const day = capacity.find((d) => d.date === dayKey);
+              const items = appointments.filter((a) => toDayKey(a.startsAt) === dayKey);
+              return (
+                <section className={styles.panelFill}>
+                  <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>{formatDayShort(dayKey)}</h2>
+                    {day && (
+                      <button type="button" className={styles.linkButton} onClick={() => editCapacity(day)} disabled={!isOwner}>
+                        {day.max === 0 ? "voľno" : `${day.booked}/${day.max} výjazdov`}
+                        {day.note ? ` · ${day.note}` : ""}
+                      </button>
+                    )}
+                  </div>
+                  <PagedList
+                    items={items}
+                    rowHeight={64}
+                    empty={<p className={styles.emptyState}>V tento deň nie sú výjazdy.</p>}
+                    renderItem={(a) => <AppointmentChip a={a} onClick={() => setSelected(a)} />}
+                  />
+                </section>
+              );
+            })()}
+          </>
+        ) : (
+          <div className={styles.weekGrid}>
+            {capacity.map((day) => {
+              const items = appointments.filter((a) => toDayKey(a.startsAt) === day.date);
+              const isToday = day.date === today;
+              const columnClass = isToday ? styles.dayColumnToday : day.max === 0 ? styles.dayColumnOff : styles.dayColumn;
+              const fill = day.max ? Math.min(100, (day.booked / day.max) * 100) : 100;
+              const overflow = items.length > chipsPerDay;
+              const visible = overflow ? items.slice(0, Math.max(0, chipsPerDay - 1)) : items;
+              return (
+                <div key={day.date} className={columnClass}>
+                  <div className={styles.dayHeader}>
+                    <span>{formatDayShort(day.date)}</span>
+                    <button
+                      type="button"
+                      className={styles.capacityButton}
+                      onClick={() => editCapacity(day)}
+                      disabled={!isOwner}
+                      title={isOwner ? "Zmeniť kapacitu dňa" : undefined}
+                    >
+                      <span className={styles.capacityText}>
+                        {day.max === 0 ? "voľno" : `${day.booked}/${day.max} výjazdov`}
+                        {day.note ? ` · ${day.note}` : ""}
                       </span>
-                      <span>
-                        {a.garden.customer.lastName}, {a.garden.city}
-                      </span>
-                      <span className={styles.apptMeta}>
-                        {a.serviceRequest ? `#${a.serviceRequest.number} ${REQUEST_TYPE_LABELS[a.serviceRequest.type]}` : a.notes}
-                      </span>
+                      {day.max > 0 && (
+                        <span className={styles.capacityBar}>
+                          <span className={day.booked >= day.max ? styles.capacityFillFull : styles.capacityFill} style={{ width: `${fill}%`, display: "block" }} />
+                        </span>
+                      )}
                     </button>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </div>
+                  </div>
+                  <div className={styles.chipArea}>
+                    {visible.map((a) => (
+                      <AppointmentChip key={a.id} a={a} onClick={() => setSelected(a)} />
+                    ))}
+                    {overflow && (
+                      <button type="button" className={styles.moreButton} onClick={() => setDayList({ day: day.date, items })}>
+                        +{items.length - visible.length} ďalšie
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
+
+      {dayList && (
+        <Modal title={`Výjazdy: ${formatDayShort(dayList.day)}`} onClose={() => setDayList(null)}>
+          <div className={styles.list}>
+            {dayList.items.map((a) => (
+              <AppointmentChip
+                key={a.id}
+                a={a}
+                onClick={() => {
+                  setDayList(null);
+                  setSelected(a);
+                }}
+              />
+            ))}
+          </div>
+        </Modal>
+      )}
 
       {selected && (
         <AppointmentModal

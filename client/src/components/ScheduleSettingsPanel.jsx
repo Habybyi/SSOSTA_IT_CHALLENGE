@@ -48,8 +48,7 @@ export const ScheduleSettingsPanel = ({ onClose, onSaved }) => {
   );
 
   return (
-    <div className={styles.formPanel}>
-      <h2 className={styles.formPanelTitle}>Nastavenia plánovania</h2>
+    <div>
       <div className={styles.formRow}>
         <label className={styles.field}>
           <span className={styles.label}>Začiatok dňa</span>

@@ -16,10 +16,10 @@ export const StatusBadge = ({ status }) => {
 };
 
 // Jedna požiadavka v zozname: priorita farbou, číslo, zákazník, ako dlho čaká.
-export const RequestCard = ({ request, showCustomer = true }) => {
+export const RequestCard = ({ request, showCustomer = true, fixed = false }) => {
   const r = request;
   return (
-    <Link to={`/requests/${r.id}`} className={styles.listCard}>
+    <Link to={`/requests/${r.id}`} className={fixed ? `${styles.listCard} ${styles.fixedRow}` : styles.listCard}>
       <span className={`${styles.priorityStripe} ${styles[`priority${r.priority}`]}`} />
       <span className={styles.listCardMain}>
         <span className={styles.listCardTitle}>
@@ -41,7 +41,7 @@ export const RequestCard = ({ request, showCustomer = true }) => {
             .join(" · ")}
         </span>
       </span>
-      <span className={styles.chipRow} style={{ justifyContent: "flex-end" }}>
+      <span className={styles.chipRow} style={{ justifyContent: "flex-end", flexWrap: "nowrap" }}>
         <PriorityBadge priority={r.priority} />
         <StatusBadge status={r.status} />
       </span>

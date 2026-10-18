@@ -17,6 +17,8 @@ import {
 import { AppShell } from "../components/AppShell";
 import { Section } from "../components/Section";
 import { InfoItem } from "../components/InfoItem";
+import { PagedList } from "../components/PagedList";
+import { TabBar, useTab } from "../components/Tabs";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import { IRRIGATION_LABELS, REQUEST_TYPE_LABELS, WATER_SOURCE_LABELS, ZONE_AREA_LABELS } from "../utils/labels";
@@ -46,6 +48,15 @@ export const VisitPage = () => {
   const [errors, setErrors] = useState({});
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const checklistDone = visit ? visit.checklist.filter((c) => checked.includes(c.materialId)).length : 0;
+  const tabs = [
+    { key: "materials", label: `Materiál${visit?.checklist.length ? ` ${checklistDone}/${visit.checklist.length}` : ""}`, icon: FiCheckSquare },
+    { key: "zones", label: "Zóny", icon: FiDroplet, count: visit?.appointment.garden.zones.length },
+    { key: "card", label: "Karta záhrady", icon: FiCpu },
+    { key: "last", label: "Naposledy", icon: FiClock, count: visit?.lastWorkLogs.length },
+    { key: "finish", label: visit?.appointment.status === "DONE" ? "Zápis" : "Dokončiť", icon: FiCheckCircle },
+  ];
+  const [tab, setTab] = useTab(tabs);
 
   const load = useCallback(() => {
     api
@@ -104,7 +115,7 @@ export const VisitPage = () => {
   const g = a.garden;
   const customer = g.customer;
   const isDone = a.status === "DONE";
-  const doneCount = checklist.filter((c) => checked.includes(c.materialId)).length;
+  const info = [a.serviceRequest?.description, a.notes && `Termín: ${a.notes}`, g.notes && `Záhrada: ${g.notes}`].filter(Boolean);
 
   return (
     <AppShell>
@@ -112,13 +123,13 @@ export const VisitPage = () => {
         <FiArrowLeft /> Prehľad
       </Link>
 
-      <div className={styles.splitHeader}>
-        <div>
+      <div className={styles.pageHeader}>
+        <div style={{ minWidth: 0 }}>
           <h1 className={styles.pageTitle}>{fullName(customer)}</h1>
-          <p className={styles.muted} style={{ margin: "0.3rem 0 0" }}>
-            {g.street}, {g.city}
-          </p>
-          <div className={styles.chipRow} style={{ marginTop: "0.5rem" }}>
+          <div className={styles.chipRow} style={{ marginTop: "0.4rem", alignItems: "center" }}>
+            <span className={styles.muted}>
+              {g.street}, {g.city}
+            </span>
             <span className={styles.badgeGreen}>
               {capitalize(formatDayLong(toDayKey(a.startsAt)))}, {formatTime(a.startsAt)}
             </span>
@@ -138,226 +149,236 @@ export const VisitPage = () => {
         </div>
       </div>
 
-      {(a.serviceRequest?.description || a.notes || g.notes) && (
-        <Section title="Čo treba vedieť" icon={FiInfo}>
-          {a.serviceRequest?.description && <p className={styles.infoValue} style={{ whiteSpace: "pre-wrap" }}>{a.serviceRequest.description}</p>}
-          {a.notes && <p className={styles.muted} style={{ whiteSpace: "pre-wrap" }}>Termín: {a.notes}</p>}
-          {g.notes && <p className={styles.muted} style={{ whiteSpace: "pre-wrap" }}>Záhrada: {g.notes}</p>}
-        </Section>
-      )}
-
-      <Section
-        title={`Materiál so sebou ${checklist.length ? `(${doneCount}/${checklist.length})` : ""}`}
-        icon={FiCheckSquare}
-      >
-        {checklist.length === 0 ? (
-          <p className={styles.emptyState}>Pre tento typ zásahu nie je nastavený checklist. Majiteľ ho doplní v časti Materiál.</p>
-        ) : (
-          <div className={styles.list}>
-            {checklist.map((c) => (
-              <label key={c.materialId} className={checked.includes(c.materialId) ? styles.checkItemDone : styles.checkItem}>
-                <input type="checkbox" checked={checked.includes(c.materialId)} onChange={() => toggle(c.materialId)} />
-                <span className={styles.listCardMain}>
-                  <span className={styles.checkName}>
-                    {c.quantity} {c.unit} · {c.name}
-                  </span>
-                  <span className={styles.listCardMeta}>
-                    {c.perZone
-                      ? g.zones.length
-                        ? `${c.quantity / g.zones.length} na zónu × ${g.zones.length} zón · `
-                        : "na zónu, zóny nie sú zapísané (počíta sa 1) · "
-                      : ""}
-                    na sklade {c.stockQty} {c.unit}
-                  </span>
-                </span>
-                {!c.enoughStock && <span className={styles.badgeEmergency}>málo na sklade</span>}
-              </label>
-            ))}
-          </div>
-        )}
-      </Section>
-
-      <Section title={`Zóny (${g.zones.length})`} icon={FiDroplet}>
-        {g.zones.length === 0 ? (
-          <p className={styles.emptyState}>Zóny nie sú zapísané. Po výjazde ich doplň do technickej karty.</p>
-        ) : (
-          <div className={styles.list}>
-            {g.zones.map((z) => (
-              <div key={z.id} className={styles.zoneCard}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                  <span className={styles.zoneNumber}>{z.number}</span>
-                  <strong>{z.name || `Zóna ${z.number}`}</strong>
-                  <span className={styles.muted}>
-                    {ZONE_AREA_LABELS[z.areaType]} · {IRRIGATION_LABELS[z.irrigationType]}
-                  </span>
-                </div>
-                <span className={styles.muted}>
-                  {[z.sprinklerCount && `${z.sprinklerCount} ks`, z.sprinklerType, z.sprinklerBrand, z.valveLocation && `ventil: ${z.valveLocation}`]
-                    .filter(Boolean)
-                    .join(" · ") || "bez detailov"}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </Section>
-
-      <Section title="Voda a riadiaca jednotka" icon={FiCpu}>
-        <div className={styles.infoGrid}>
-          <InfoItem label="Zdroj vody">{WATER_SOURCE_LABELS[g.waterSource]}</InfoItem>
-          <InfoItem label="Hlavný uzáver">{g.mainValveLocation}</InfoItem>
-          <InfoItem label="Jednotka">{g.controllerModel}</InfoItem>
-          <InfoItem label="Umiestnenie jednotky">{g.controllerLocation}</InfoItem>
-          <InfoItem label="Inštalované">{g.installedYear ? `${g.installedYear}${g.systemVersion ? `, ${g.systemVersion}` : ""}` : ""}</InfoItem>
-          <InfoItem label="Fotky">{g.photos.length ? `${g.photos.length} v technickej karte` : ""}</InfoItem>
+      {info.length > 0 && (
+        <div className={styles.calloutBox} style={{ marginBottom: "0.85rem", flex: "none", maxHeight: "5.5rem", overflow: "hidden" }} title={info.join("\n")}>
+          <FiInfo style={{ verticalAlign: "-2px" }} /> {info.join(" · ")}
         </div>
-        <Link to={`/gardens/${g.id}`} className={styles.linkButton} style={{ marginTop: "1rem" }}>
-          <FiHome /> Celá technická karta s fotkami
-        </Link>
-      </Section>
-
-      {lastWorkLogs.length > 0 && (
-        <Section title="Naposledy sa robilo" icon={FiClock}>
-          <div className={styles.timeline}>
-            {lastWorkLogs.map((w) => (
-              <div key={w.id} className={styles.timelineItem}>
-                <span className={styles.timelineDate}>
-                  {formatDate(w.performedAt)}
-                  {w.technician && ` · ${w.technician.name}`}
-                </span>
-                <span>{w.description}</span>
-              </div>
-            ))}
-          </div>
-        </Section>
       )}
 
-      {isDone ? (
-        <Section title="Výjazd je zapísaný" icon={FiCheckCircle}>
-          <p className={styles.infoValue}>{a.workLog?.description}</p>
-          {a.workLog?.materials?.length > 0 && (
-            <p className={styles.muted}>
-              Materiál: {a.workLog.materials.map((m) => `${m.material.name} ${Number(m.quantity)} ${m.material.unit}`).join(", ")}
-            </p>
-          )}
-        </Section>
-      ) : (
-        <Section title="Dokončiť výjazd" icon={FiCheckCircle}>
-          <div className={styles.form}>
-            <label className={styles.field}>
-              <span className={styles.label}>Čo sa urobilo *</span>
-              <span className={styles.inputWrapper}>
-                <textarea
-                  className={styles.textarea}
-                  value={form.description}
-                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                  placeholder="napr. vyfúkané všetky zóny, jednotka vypnutá, vymenená batéria"
-                />
-              </span>
-              {errors.description && <span className={styles.fieldError}>{errors.description}</span>}
-            </label>
-            <label className={styles.field} style={{ maxWidth: 220 }}>
-              <span className={styles.label}>Trvanie (min.)</span>
-              <span className={styles.inputWrapper}>
-                <input
-                  type="number"
-                  min="0"
-                  step="5"
-                  className={styles.input}
-                  value={form.durationMin}
-                  onChange={(e) => setForm((f) => ({ ...f, durationMin: e.target.value }))}
-                />
-              </span>
-            </label>
+      <TabBar tabs={tabs} active={tab} onChange={setTab} />
 
-            <span className={styles.label}>Minutý materiál</span>
-            {used.map((u, index) => (
-              <div key={index} className={styles.materialRow}>
-                <span className={styles.inputWrapper}>
-                  <select
-                    className={styles.select}
-                    value={u.materialId}
-                    onChange={(e) => setUsed((list) => list.map((x, i) => (i === index ? { ...x, materialId: e.target.value } : x)))}
-                  >
-                    <option value="">Vyber materiál</option>
-                    {allMaterials.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.name} ({m.unit})
-                      </option>
-                    ))}
-                  </select>
-                </span>
-                <span className={`${styles.inputWrapper} ${styles.qtyInput}`}>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    className={styles.input}
-                    value={u.quantity}
-                    onChange={(e) => setUsed((list) => list.map((x, i) => (i === index ? { ...x, quantity: e.target.value } : x)))}
-                  />
-                </span>
-                <button
-                  type="button"
-                  className={styles.iconButton}
-                  onClick={() => setUsed((list) => list.filter((_, i) => i !== index))}
-                  title="Odobrať"
-                >
-                  <FiTrash2 />
-                </button>
+      <div className={styles.tabPanel}>
+        {tab === "materials" && (
+          <section className={styles.panelFill}>
+            <PagedList
+              items={checklist}
+              getKey={(c) => c.materialId}
+              empty={<p className={styles.emptyState}>Pre tento typ zásahu nie je nastavený checklist. Majiteľ ho doplní v časti Materiál.</p>}
+              renderItem={(c) => (
+                <label className={`${checked.includes(c.materialId) ? styles.checkItemDone : styles.checkItem} ${styles.fixedRow}`}>
+                  <input type="checkbox" checked={checked.includes(c.materialId)} onChange={() => toggle(c.materialId)} />
+                  <span className={styles.listCardMain}>
+                    <span className={`${styles.checkName} ${styles.listCardTitle}`}>
+                      {c.quantity} {c.unit} · {c.name}
+                    </span>
+                    <span className={styles.listCardMeta}>
+                      {c.perZone
+                        ? g.zones.length
+                          ? `${c.quantity / g.zones.length} na zónu × ${g.zones.length} zón · `
+                          : "na zónu, zóny nie sú zapísané (počíta sa 1) · "
+                        : ""}
+                      na sklade {c.stockQty} {c.unit}
+                    </span>
+                  </span>
+                  {!c.enoughStock && <span className={styles.badgeEmergency}>málo na sklade</span>}
+                </label>
+              )}
+            />
+          </section>
+        )}
+
+        {tab === "zones" && (
+          <section className={styles.panelFill}>
+            <PagedList
+              items={g.zones}
+              empty={<p className={styles.emptyState}>Zóny nie sú zapísané. Po výjazde ich doplň do technickej karty.</p>}
+              renderItem={(z) => (
+                <div className={`${styles.listCard} ${styles.fixedRow}`}>
+                  <span className={styles.zoneNumber}>{z.number}</span>
+                  <span className={styles.listCardMain}>
+                    <span className={styles.listCardTitle}>
+                      {z.name || `Zóna ${z.number}`}
+                      <span className={styles.muted}>
+                        {" "}
+                        · {ZONE_AREA_LABELS[z.areaType]} · {IRRIGATION_LABELS[z.irrigationType]}
+                      </span>
+                    </span>
+                    <span className={styles.listCardMeta}>
+                      {[z.sprinklerCount && `${z.sprinklerCount} ks`, z.sprinklerType, z.sprinklerBrand, z.valveLocation && `ventil: ${z.valveLocation}`]
+                        .filter(Boolean)
+                        .join(" · ") || "bez detailov"}
+                    </span>
+                  </span>
+                </div>
+              )}
+            />
+          </section>
+        )}
+
+        {tab === "card" && (
+            <Section title="Voda a riadiaca jednotka" icon={FiCpu}>
+              <div className={styles.infoGrid}>
+                <InfoItem label="Zdroj vody">{WATER_SOURCE_LABELS[g.waterSource]}</InfoItem>
+                <InfoItem label="Hlavný uzáver">{g.mainValveLocation}</InfoItem>
+                <InfoItem label="Jednotka">{g.controllerModel}</InfoItem>
+                <InfoItem label="Umiestnenie jednotky">{g.controllerLocation}</InfoItem>
+                <InfoItem label="Inštalované">{g.installedYear ? `${g.installedYear}${g.systemVersion ? `, ${g.systemVersion}` : ""}` : ""}</InfoItem>
+                <InfoItem label="Fotky">{g.photos.length ? `${g.photos.length} v technickej karte` : ""}</InfoItem>
               </div>
-            ))}
-            <button
-              type="button"
-              className={styles.linkButton}
-              style={{ alignSelf: "flex-start" }}
-              onClick={() => setUsed((list) => [...list, { materialId: "", quantity: "1" }])}
-            >
-              <FiPlus /> Pridať materiál
-            </button>
-            {estimatedCost > 0 && <span className={styles.muted}>Materiál spolu: {estimatedCost.toFixed(2)} €</span>}
+              <Link to={`/gardens/${g.id}?tab=photos`} className={styles.linkButton} style={{ marginTop: "1rem" }}>
+                <FiHome /> Technická karta s fotkami
+              </Link>
+            </Section>
+        )}
 
-            {a.serviceRequest && (
-              <>
-                <span className={styles.label}>Výsledok</span>
-                <div className={styles.tabs}>
-                  <button
-                    type="button"
-                    className={form.outcome === "DONE" ? styles.tabActive : styles.tab}
-                    onClick={() => setForm((f) => ({ ...f, outcome: "DONE" }))}
-                  >
-                    Hotovo, vybavené
-                  </button>
-                  <button
-                    type="button"
-                    className={form.outcome === "FOLLOW_UP" ? styles.tabActive : styles.tab}
-                    onClick={() => setForm((f) => ({ ...f, outcome: "FOLLOW_UP" }))}
-                  >
-                    Treba prísť znova
+        {tab === "last" && (
+            <section className={styles.panelFill}>
+              <PagedList
+                items={lastWorkLogs}
+                empty={<p className={styles.emptyState}>Zatiaľ bez histórie.</p>}
+                renderItem={(w) => (
+                  <div className={`${styles.listCard} ${styles.fixedRow}`} title={w.description}>
+                    <span className={styles.listCardMain}>
+                      <span className={styles.listCardTitle}>{w.description}</span>
+                      <span className={styles.listCardMeta}>
+                        {formatDate(w.performedAt)}
+                        {w.technician && ` · ${w.technician.name}`}
+                      </span>
+                    </span>
+                  </div>
+                )}
+              />
+            </section>
+        )}
+
+        {tab === "finish" &&
+          (isDone ? (
+            <Section title="Výjazd je zapísaný" icon={FiCheckCircle}>
+              <p className={styles.infoValue}>{a.workLog?.description}</p>
+              {a.workLog?.materials?.length > 0 && (
+                <p className={styles.muted}>
+                  Materiál: {a.workLog.materials.map((m) => `${m.material.name} ${Number(m.quantity)} ${m.material.unit}`).join(", ")}
+                </p>
+              )}
+            </Section>
+          ) : (
+            <div className={styles.splitColumns}>
+              <section className={styles.panelFill}>
+                <div className={styles.form}>
+                  <label className={styles.field}>
+                    <span className={styles.label}>Čo sa urobilo *</span>
+                    <span className={styles.inputWrapper}>
+                      <textarea
+                        className={styles.textarea}
+                        rows={3}
+                        value={form.description}
+                        onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                        placeholder="napr. vyfúkané všetky zóny, jednotka vypnutá, vymenená batéria"
+                      />
+                    </span>
+                    {errors.description && <span className={styles.fieldError}>{errors.description}</span>}
+                  </label>
+                  <label className={styles.field} style={{ maxWidth: 200 }}>
+                    <span className={styles.label}>Trvanie (min.)</span>
+                    <span className={styles.inputWrapper}>
+                      <input
+                        type="number"
+                        min="0"
+                        step="5"
+                        className={styles.input}
+                        value={form.durationMin}
+                        onChange={(e) => setForm((f) => ({ ...f, durationMin: e.target.value }))}
+                      />
+                    </span>
+                  </label>
+                  {a.serviceRequest && (
+                    <div className={styles.tabs} style={{ marginBottom: 0 }}>
+                      <button
+                        type="button"
+                        className={form.outcome === "DONE" ? styles.tabActive : styles.tab}
+                        onClick={() => setForm((f) => ({ ...f, outcome: "DONE" }))}
+                      >
+                        Hotovo, vybavené
+                      </button>
+                      <button
+                        type="button"
+                        className={form.outcome === "FOLLOW_UP" ? styles.tabActive : styles.tab}
+                        onClick={() => setForm((f) => ({ ...f, outcome: "FOLLOW_UP" }))}
+                      >
+                        Treba prísť znova
+                      </button>
+                    </div>
+                  )}
+                  {a.serviceRequest && form.outcome === "DONE" && customer.email && (
+                    <label className={styles.checkboxLabel} style={{ padding: 0 }}>
+                      <input
+                        type="checkbox"
+                        checked={form.notifyCustomer}
+                        onChange={(e) => setForm((f) => ({ ...f, notifyCustomer: e.target.checked }))}
+                      />
+                      Poslať zákazníkovi e-mail, že je hotovo
+                    </label>
+                  )}
+                  {error && <div className={styles.errorMessage}>{error}</div>}
+                  <button type="button" className={styles.primaryButton} onClick={handleComplete} disabled={isSaving}>
+                    <FiCheckCircle /> {isSaving ? "UKLADÁM…" : "DOKONČIŤ VÝJAZD"}
                   </button>
                 </div>
-                {form.outcome === "DONE" && customer.email && (
-                  <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      checked={form.notifyCustomer}
-                      onChange={(e) => setForm((f) => ({ ...f, notifyCustomer: e.target.checked }))}
-                    />
-                    Poslať zákazníkovi e-mail, že je hotovo
-                  </label>
-                )}
-              </>
-            )}
+              </section>
 
-            {error && <div className={styles.errorMessage}>{error}</div>}
-            <div className={styles.stickyAction}>
-              <button type="button" className={styles.primaryButton} onClick={handleComplete} disabled={isSaving}>
-                <FiCheckCircle /> {isSaving ? "UKLADÁM…" : "DOKONČIŤ VÝJAZD"}
-              </button>
+              <section className={styles.panelFill}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>Minutý materiál</h2>
+                  <button type="button" className={styles.linkButton} onClick={() => setUsed((list) => [...list, { materialId: "", quantity: "1", key: Date.now() }])}>
+                    <FiPlus /> Pridať
+                  </button>
+                </div>
+                <PagedList
+                  items={used.map((u, index) => ({ ...u, index }))}
+                  rowHeight={56}
+                  getKey={(u) => u.key || `${u.materialId}-${u.index}`}
+                  empty={<p className={styles.emptyState}>Žiadny materiál.</p>}
+                  renderItem={(u) => (
+                    <div className={styles.materialRow} style={{ height: 56, flexWrap: "nowrap" }}>
+                      <span className={styles.inputWrapper}>
+                        <select
+                          className={styles.select}
+                          value={u.materialId}
+                          onChange={(e) => setUsed((list) => list.map((x, i) => (i === u.index ? { ...x, materialId: e.target.value } : x)))}
+                        >
+                          <option value="">Vyber materiál</option>
+                          {allMaterials.map((m) => (
+                            <option key={m.id} value={m.id}>
+                              {m.name} ({m.unit})
+                            </option>
+                          ))}
+                        </select>
+                      </span>
+                      <span className={`${styles.inputWrapper} ${styles.qtyInput}`}>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.5"
+                          className={styles.input}
+                          value={u.quantity}
+                          onChange={(e) => setUsed((list) => list.map((x, i) => (i === u.index ? { ...x, quantity: e.target.value } : x)))}
+                        />
+                      </span>
+                      <button type="button" className={styles.iconButton} onClick={() => setUsed((list) => list.filter((_, i) => i !== u.index))} title="Odobrať">
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  )}
+                />
+                {estimatedCost > 0 && (
+                  <span className={styles.muted} style={{ flex: "none" }}>
+                    Materiál spolu: {estimatedCost.toFixed(2)} €
+                  </span>
+                )}
+              </section>
             </div>
-          </div>
-        </Section>
-      )}
+          ))}
+      </div>
     </AppShell>
   );
 };

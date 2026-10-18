@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
-import { EMPTY_GARDEN, GardenAddressFields, GardenTechFields } from "../components/GardenFields";
+import { EMPTY_GARDEN, GARDEN_ADDRESS_FIELDS, GardenAddressFields, GardenTechFields } from "../components/GardenFields";
+import { TabBar } from "../components/Tabs";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import { toFormValues } from "../utils/format";
@@ -20,6 +21,7 @@ export const GardenFormPage = () => {
   const [errors, setErrors] = useState({});
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [step, setStep] = useState("address");
 
   useEffect(() => {
     if (!isEdit) return;
@@ -43,30 +45,45 @@ export const GardenFormPage = () => {
     } catch (err) {
       setError(err.message);
       setErrors(err.fields || {});
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      const fields = Object.keys(err.fields || {});
+      if (fields.some((f) => GARDEN_ADDRESS_FIELDS.includes(f))) setStep("address");
+      else if (fields.length) setStep("tech");
     } finally {
       setIsSaving(false);
     }
   };
+
+  const tabs = [
+    { key: "address", label: "Adresa a prístup", error: Object.keys(errors).some((f) => GARDEN_ADDRESS_FIELDS.includes(f)) },
+    { key: "tech", label: "Voda a jednotka", error: Object.keys(errors).some((f) => !GARDEN_ADDRESS_FIELDS.includes(f)) },
+  ];
 
   return (
     <AppShell>
       <Link to={backTo} className={styles.backLink}>
         <FiArrowLeft /> Späť
       </Link>
-      <h1 className={styles.pageTitle} style={{ marginBottom: "1.25rem" }}>
-        {isEdit ? "Upraviť technickú kartu" : "Nová záhrada"}
-      </h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>{isEdit ? "Upraviť technickú kartu" : "Nová záhrada"}</h1>
+      </div>
 
-      {error && <div className={styles.errorMessage} style={{ marginBottom: "1rem" }}>{error}</div>}
+      <TabBar tabs={tabs} active={step} onChange={setStep} />
 
-      <form onSubmit={handleSubmit}>
-        <div className={styles.formPanel}>
-          <h2 className={styles.formPanelTitle}>Adresa</h2>
-          <GardenAddressFields form={form} setForm={setForm} errors={errors} />
-          <GardenTechFields form={form} setForm={setForm} errors={errors} />
+      <form onSubmit={handleSubmit} className={styles.tabPanel}>
+        <div className={styles.formPanel} style={{ marginBottom: 0 }}>
+          {step === "address" ? (
+            <GardenAddressFields form={form} setForm={setForm} errors={errors} />
+          ) : (
+            <GardenTechFields form={form} setForm={setForm} errors={errors} />
+          )}
         </div>
-        <div className={styles.actionRow}>
+        {error && <div className={styles.errorMessage} style={{ marginTop: "0.75rem" }}>{error}</div>}
+        <div className={styles.actionRow} style={{ flex: "none" }}>
+          {step === "address" && (
+            <button type="button" className={styles.secondaryButton} onClick={() => setStep("tech")}>
+              Ďalej
+            </button>
+          )}
           <button type="submit" className={styles.primaryButtonInline} disabled={isSaving}>
             <FiSave /> {isSaving ? "UKLADÁM…" : "ULOŽIŤ"}
           </button>

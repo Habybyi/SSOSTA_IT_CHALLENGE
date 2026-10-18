@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { FiUserPlus, FiKey, FiUserX, FiUserCheck, FiCopy } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
 import { Field } from "../components/Field";
+import { Modal } from "../components/Modal";
+import { PagedList } from "../components/PagedList";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import { ROLE_LABELS } from "../utils/labels";
@@ -18,6 +20,7 @@ export const TeamPage = () => {
   const [error, setError] = useState("");
   const [credentials, setCredentials] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -43,6 +46,7 @@ export const TeamPage = () => {
       const data = await api.createUser(token, form);
       setCredentials({ name: data.user.name, email: data.user.email, password: data.tempPassword });
       setForm(EMPTY_FORM);
+      setIsAdding(false);
       load();
     } catch (err) {
       setError(err.message);
@@ -77,112 +81,90 @@ export const TeamPage = () => {
     navigator.clipboard?.writeText(`E-mail: ${credentials.email}\nDočasné heslo: ${credentials.password}`);
   };
 
+  const UserRow = ({ u }) => (
+    <div className={`${styles.listCard} ${styles.fixedRow}`} style={u.isActive ? undefined : { opacity: 0.55 }}>
+      <span className={styles.listCardMain}>
+        <span className={styles.listCardTitle}>{u.name}</span>
+        <span className={styles.listCardMeta}>
+          {u.email} · {!u.isActive ? "neaktívny" : u.mustChangePassword ? "čaká na prvé prihlásenie" : "aktívny"}
+        </span>
+      </span>
+      <span className={u.role === "OWNER" ? styles.badgeBrand : styles.badgeGreen}>{ROLE_LABELS[u.role]}</span>
+      {u.id !== me.id && (
+        <>
+          <button type="button" className={styles.iconButton} onClick={() => handleReset(u)} title="Nové dočasné heslo">
+            <FiKey />
+          </button>
+          <button type="button" className={styles.iconButton} onClick={() => handleToggleActive(u)} title={u.isActive ? "Deaktivovať" : "Aktivovať"}>
+            {u.isActive ? <FiUserX /> : <FiUserCheck />}
+          </button>
+        </>
+      )}
+    </div>
+  );
+
   return (
     <AppShell>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Tím</h1>
+        <button type="button" className={styles.primaryButtonInline} onClick={() => setIsAdding(true)}>
+          <FiUserPlus /> PRIDAŤ ČLENA
+        </button>
       </div>
 
-      <form onSubmit={handleCreate} className={styles.formPanel}>
-        <h2 className={styles.formPanelTitle}>Pridať člena tímu</h2>
-        <div className={styles.formRow}>
-          <Field label="Meno a priezvisko" error={fieldErrors.name}>
-            <input className={styles.input} value={form.name} onChange={updateForm("name")} required />
-          </Field>
-          <Field label="E-mail (prihlasovacie meno)" error={fieldErrors.email}>
-            <input type="email" className={styles.input} value={form.email} onChange={updateForm("email")} required />
-          </Field>
-          <Field label="Telefón" error={fieldErrors.phone}>
-            <input type="tel" className={styles.input} value={form.phone} onChange={updateForm("phone")} />
-          </Field>
-          <Field label="Rola" error={fieldErrors.role}>
-            <select className={styles.select} value={form.role} onChange={updateForm("role")}>
-              <option value="TECHNICIAN">Technik / brigádnik</option>
-              <option value="OWNER">Majiteľ</option>
-            </select>
-          </Field>
-        </div>
-        <div style={{ marginTop: "1.25rem", display: "flex", justifyContent: "flex-end" }}>
-          <button type="submit" className={styles.primaryButtonInline} disabled={isSubmitting}>
-            <FiUserPlus /> {isSubmitting ? "PRIDÁVAM…" : "PRIDAŤ"}
-          </button>
-        </div>
-      </form>
+      {error && <div className={styles.errorMessage} style={{ marginBottom: "1rem" }}>{error}</div>}
+
+      <PagedList items={users} renderItem={(u) => <UserRow u={u} />} empty={<p className={styles.emptyState}>Žiadni používatelia.</p>} />
+
+      {isAdding && (
+        <Modal title="Pridať člena tímu" onClose={() => setIsAdding(false)}>
+          <form onSubmit={handleCreate} className={styles.form}>
+            <div className={styles.formRow}>
+              <Field label="Meno a priezvisko" error={fieldErrors.name}>
+                <input className={styles.input} value={form.name} onChange={updateForm("name")} required autoFocus />
+              </Field>
+              <Field label="E-mail (prihlasovacie meno)" error={fieldErrors.email}>
+                <input type="email" className={styles.input} value={form.email} onChange={updateForm("email")} required />
+              </Field>
+            </div>
+            <div className={styles.formRow}>
+              <Field label="Telefón" error={fieldErrors.phone}>
+                <input type="tel" className={styles.input} value={form.phone} onChange={updateForm("phone")} />
+              </Field>
+              <Field label="Rola" error={fieldErrors.role}>
+                <select className={styles.select} value={form.role} onChange={updateForm("role")}>
+                  <option value="TECHNICIAN">Technik / brigádnik</option>
+                  <option value="OWNER">Majiteľ</option>
+                </select>
+              </Field>
+            </div>
+            <div className={styles.buttonRow} style={{ justifyContent: "flex-end" }}>
+              <button type="submit" className={styles.primaryButtonInline} disabled={isSubmitting}>
+                <FiUserPlus /> {isSubmitting ? "PRIDÁVAM…" : "PRIDAŤ"}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
 
       {credentials && (
-        <div className={styles.calloutBox} style={{ marginBottom: "1.5rem" }}>
-          <strong>Prihlasovacie údaje pre {credentials.name}</strong>
-          <br />
-          E-mail: {credentials.email}
-          <br />
-          Dočasné heslo: <code style={{ fontSize: "1.05rem" }}>{credentials.password}</code>
-          <br />
-          <span className={styles.muted}>
-            Heslo sa zobrazí len teraz. Pri prvom prihlásení si ho technik zmení.
-          </span>
-          <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.75rem", flexWrap: "wrap" }}>
+        <Modal title={`Prihlasovacie údaje: ${credentials.name}`} onClose={() => setCredentials(null)}>
+          <div className={styles.calloutBox}>
+            E-mail: <strong>{credentials.email}</strong>
+            <br />
+            Dočasné heslo: <code style={{ fontSize: "1.1rem" }}>{credentials.password}</code>
+          </div>
+          <p className={styles.muted}>Heslo sa zobrazí len teraz. Pri prvom prihlásení si ho technik zmení.</p>
+          <div className={styles.buttonRow} style={{ justifyContent: "flex-end" }}>
             <button type="button" className={styles.secondaryButton} onClick={copyCredentials}>
               <FiCopy /> Kopírovať
             </button>
-            <button type="button" className={styles.secondaryButton} onClick={() => setCredentials(null)}>
-              Hotovo
+            <button type="button" className={styles.primaryButtonInline} onClick={() => setCredentials(null)}>
+              HOTOVO
             </button>
           </div>
-        </div>
+        </Modal>
       )}
-
-      {error && (
-        <div className={styles.errorMessage} style={{ marginBottom: "1rem" }}>
-          {error}
-        </div>
-      )}
-
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Meno</th>
-              <th>E-mail</th>
-              <th>Rola</th>
-              <th>Stav</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.id} style={u.isActive ? undefined : { opacity: 0.55 }}>
-                <td>{u.name}</td>
-                <td>{u.email}</td>
-                <td>
-                  <span className={u.role === "OWNER" ? styles.badgeBrand : styles.badgeGreen}>
-                    {ROLE_LABELS[u.role]}
-                  </span>
-                </td>
-                <td>
-                  {!u.isActive ? "Neaktívny" : u.mustChangePassword ? "Čaká na prvé prihlásenie" : "Aktívny"}
-                </td>
-                <td>
-                  {u.id !== me.id && (
-                    <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-                      <button type="button" className={styles.secondaryButton} onClick={() => handleReset(u)} title="Nové dočasné heslo">
-                        <FiKey />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.secondaryButton}
-                        onClick={() => handleToggleActive(u)}
-                        title={u.isActive ? "Deaktivovať" : "Aktivovať"}
-                      >
-                        {u.isActive ? <FiUserX /> : <FiUserCheck />}
-                      </button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </AppShell>
   );
 };

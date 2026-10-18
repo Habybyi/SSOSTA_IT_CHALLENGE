@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { FiBell, FiSend, FiUsers, FiSave, FiChevronDown, FiChevronUp } from "react-icons/fi";
-import { Section } from "./Section";
+import { FiSend, FiUsers, FiSave } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import { REQUEST_TYPE_LABELS } from "../utils/labels";
@@ -17,7 +16,6 @@ export const RemindersPanel = () => {
   const [settings, setSettings] = useState(null);
   const [recipients, setRecipients] = useState({});
   const [message, setMessage] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState("");
 
   const load = useCallback(() => {
@@ -82,31 +80,8 @@ export const RemindersPanel = () => {
 
   if (!settings) return null;
 
-  const toggle = (
-    <button type="button" className={styles.secondaryButton} onClick={() => setIsOpen((v) => !v)}>
-      {isOpen ? <FiChevronUp /> : <FiChevronDown />} {isOpen ? "Skryť" : "Zobraziť"}
-    </button>
-  );
-
-  if (!isOpen) {
-    return (
-      <Section title="Pripomienky zákazníkom" icon={FiBell} actions={toggle}>
-        <p className={styles.muted} style={{ margin: 0 }}>
-          {campaigns
-            .map((c) =>
-              c.lastRun
-                ? `${REQUEST_TYPE_LABELS[c.type]}: odoslané ${formatDateTime(c.lastRun.at)}`
-                : `${REQUEST_TYPE_LABELS[c.type]}: ${c.enabled ? `automaticky ${c.day}. ${MONTHS[c.month - 1]}` : "vypnuté"}`
-            )
-            .join(" · ")}{" "}
-          · Deň pred termínom od {settings.dayBeforeHour}:00
-        </p>
-      </Section>
-    );
-  }
-
   return (
-    <Section title="Pripomienky zákazníkom" icon={FiBell} actions={toggle}>
+    <div>
       <div className={styles.list}>
         {campaigns.map((c) => (
           <div key={c.type} className={styles.zoneCard}>
@@ -199,6 +174,6 @@ export const RemindersPanel = () => {
           </button>
         </div>
       )}
-    </Section>
+    </div>
   );
 };

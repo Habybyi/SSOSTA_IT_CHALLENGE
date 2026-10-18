@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { FiPlus, FiSearch, FiDownload, FiEdit2, FiSave, FiX, FiTrash2, FiAlertTriangle } from "react-icons/fi";
+import { FiPlus, FiSearch, FiDownload, FiEdit2, FiSave, FiX, FiTrash2 } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
-import { Section } from "../components/Section";
+import { Modal } from "../components/Modal";
+import { PagedList } from "../components/PagedList";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import { useDebouncedValue } from "../hooks";
@@ -38,19 +39,19 @@ const MaterialForm = ({ initial, onSave, onCancel }) => {
   );
 
   return (
-    <div className={styles.formPanel}>
+    <div className={styles.form}>
       <div className={styles.formRow}>
         {field("name", "Názov *")}
         {field("sku", "Kód (nepovinné)")}
         {field("unit", "Jednotka", { placeholder: "ks, m, kg" })}
       </div>
-      <div className={styles.formRow} style={{ marginTop: "1rem" }}>
+      <div className={styles.formRow}>
         {field("unitPrice", "Nákupná cena (€)", { inputMode: "decimal" })}
         {field("stockQty", "Na sklade", { inputMode: "decimal" })}
         {field("minStock", "Upozorniť pod", { inputMode: "decimal" })}
       </div>
-      {error && <div className={styles.errorMessage} style={{ marginTop: "0.75rem" }}>{error}</div>}
-      <div className={styles.actionRow}>
+      {error && <div className={styles.errorMessage}>{error}</div>}
+      <div className={styles.buttonRow} style={{ justifyContent: "flex-end" }}>
         <button type="button" className={styles.secondaryButton} onClick={onCancel}>
           <FiX /> Zrušiť
         </button>
@@ -98,7 +99,7 @@ const TemplatesTab = ({ materials, isOwner }) => {
 
   return (
     <>
-      <p className={styles.muted} style={{ marginTop: 0 }}>
+      <p className={styles.muted} style={{ marginTop: 0, flex: "none" }}>
         Podľa tohto zoznamu sa technikovi pred výjazdom ukáže, čo má zobrať. „Na zónu“ sa vynásobí počtom zón záhrady.
       </p>
       <div className={styles.tabs}>
@@ -112,33 +113,31 @@ const TemplatesTab = ({ materials, isOwner }) => {
         ))}
       </div>
 
-      <Section title={`Checklist: ${REQUEST_TYPE_LABELS[type]}`}>
-        {items.length === 0 ? (
-          <p className={styles.emptyState}>Zatiaľ prázdny.</p>
-        ) : (
-          <div className={styles.list}>
-            {items.map((t) => (
-              <div key={t.id} className={styles.listCard}>
-                <span className={styles.listCardMain}>
-                  <span className={styles.listCardTitle}>{t.material.name}</span>
-                  <span className={styles.listCardMeta}>
-                    {t.quantity} {t.material.unit} {t.perZone ? "na každú zónu" : "na výjazd"}
-                  </span>
+      <section className={styles.panelFill}>
+        <PagedList
+          items={items}
+          empty={<p className={styles.emptyState}>Checklist pre {REQUEST_TYPE_LABELS[type].toLowerCase()} je zatiaľ prázdny.</p>}
+          renderItem={(t) => (
+            <div className={`${styles.listCard} ${styles.fixedRow}`}>
+              <span className={styles.listCardMain}>
+                <span className={styles.listCardTitle}>{t.material.name}</span>
+                <span className={styles.listCardMeta}>
+                  {t.quantity} {t.material.unit} {t.perZone ? "na každú zónu" : "na výjazd"}
                 </span>
-                {isOwner && (
-                  <button type="button" className={styles.iconButton} onClick={() => handleDelete(t.id)} title="Odobrať">
-                    <FiTrash2 />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+              </span>
+              {isOwner && (
+                <button type="button" className={styles.iconButton} onClick={() => handleDelete(t.id)} title="Odobrať">
+                  <FiTrash2 />
+                </button>
+              )}
+            </div>
+          )}
+        />
 
         {isOwner && (
-          <div className={styles.formRow} style={{ marginTop: "1.25rem", alignItems: "flex-end" }}>
+          <div className={styles.formRow} style={{ marginTop: "0.85rem", alignItems: "flex-end", flex: "none" }}>
             <label className={styles.field}>
-              <span className={styles.label}>Materiál</span>
+              <span className={styles.label}>Pridať materiál do checklistu</span>
               <span className={styles.inputWrapper}>
                 <select className={styles.select} value={form.materialId} onChange={(e) => setForm((f) => ({ ...f, materialId: e.target.value }))}>
                   <option value="">Vyber materiál</option>
@@ -150,7 +149,7 @@ const TemplatesTab = ({ materials, isOwner }) => {
                 </select>
               </span>
             </label>
-            <label className={styles.field} style={{ flex: "0 1 120px" }}>
+            <label className={styles.field} style={{ flex: "0 1 110px" }}>
               <span className={styles.label}>Množstvo</span>
               <span className={styles.inputWrapper}>
                 <input className={styles.input} inputMode="decimal" value={form.quantity} onChange={(e) => setForm((f) => ({ ...f, quantity: e.target.value }))} />
@@ -166,7 +165,7 @@ const TemplatesTab = ({ materials, isOwner }) => {
           </div>
         )}
         {error && <div className={styles.errorMessage} style={{ marginTop: "0.75rem" }}>{error}</div>}
-      </Section>
+      </section>
     </>
   );
 };
@@ -178,7 +177,7 @@ export const MaterialsPage = () => {
   const [materials, setMaterials] = useState([]);
   const [q, setQ] = useState("");
   const [lowOnly, setLowOnly] = useState(false);
-  const [editing, setEditing] = useState(null); // "new" | id
+  const [editing, setEditing] = useState(null); // "new" | materiál
   const [error, setError] = useState("");
   const debouncedQ = useDebouncedValue(q);
 
@@ -210,7 +209,7 @@ export const MaterialsPage = () => {
     <AppShell>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Materiál a sklad</h1>
-        {isOwner && tab === "stock" && editing !== "new" && (
+        {isOwner && tab === "stock" && (
           <button type="button" className={styles.primaryButtonInline} onClick={() => setEditing("new")}>
             <FiPlus /> NOVÝ MATERIÁL
           </button>
@@ -232,18 +231,6 @@ export const MaterialsPage = () => {
         <TemplatesTab materials={materials} isOwner={isOwner} />
       ) : (
         <>
-          {editing === "new" && (
-            <MaterialForm
-              initial={EMPTY_MATERIAL}
-              onCancel={() => setEditing(null)}
-              onSave={async (form) => {
-                await api.createMaterial(token, form);
-                setEditing(null);
-                load();
-              }}
-            />
-          )}
-
           <div className={styles.toolbar} style={{ alignItems: "center" }}>
             <div className={`${styles.inputWrapper} ${styles.toolbarSearch}`}>
               <FiSearch />
@@ -252,60 +239,62 @@ export const MaterialsPage = () => {
             <label className={styles.checkboxLabel}>
               <input type="checkbox" checked={lowOnly} onChange={(e) => setLowOnly(e.target.checked)} />
               Len čo dochádza
+              {lowCount > 0 && <span className={styles.countAlert}>{lowCount}</span>}
             </label>
           </div>
 
-          {lowCount > 0 && !lowOnly && (
-            <div className={styles.calloutWarning} style={{ marginBottom: "1rem" }}>
-              <FiAlertTriangle style={{ verticalAlign: "-2px" }} /> Dochádza {lowCount} {lowCount === 1 ? "položka" : "položky"}. Čas
-              objednať vo veľkoobchode.
-            </div>
-          )}
-
-          <div className={styles.list}>
-            {materials.map((m) =>
-              editing === m.id ? (
-                <MaterialForm
-                  key={m.id}
-                  initial={{
-                    name: m.name,
-                    sku: m.sku || "",
-                    unit: m.unit,
-                    unitPrice: String(m.unitPrice),
-                    stockQty: String(m.stockQty),
-                    minStock: String(m.minStock),
-                  }}
-                  onCancel={() => setEditing(null)}
-                  onSave={async (form) => {
-                    await api.updateMaterial(token, m.id, form);
-                    setEditing(null);
-                    load();
-                  }}
-                />
-              ) : (
-                <div key={m.id} className={styles.listCard}>
-                  <span className={styles.listCardMain}>
-                    <span className={styles.listCardTitle}>{m.name}</span>
-                    <span className={styles.listCardMeta}>
-                      {m.sku ? `${m.sku} · ` : ""}
-                      {m.unitPrice.toFixed(2)} € / {m.unit} · upozorniť pod {m.minStock} {m.unit}
-                    </span>
+          <PagedList
+            items={materials}
+            empty={<p className={styles.emptyState}>{lowOnly ? "Nič nedochádza." : "Žiadny materiál."}</p>}
+            renderItem={(m) => (
+              <div className={`${styles.listCard} ${styles.fixedRow}`}>
+                <span className={styles.listCardMain}>
+                  <span className={styles.listCardTitle}>{m.name}</span>
+                  <span className={styles.listCardMeta}>
+                    {m.sku ? `${m.sku} · ` : ""}
+                    {m.unitPrice.toFixed(2)} € / {m.unit} · upozorniť pod {m.minStock} {m.unit}
                   </span>
-                  <span className={m.isLow ? styles.badgeEmergency : styles.badgeGreen}>
-                    {m.stockQty} {m.unit}
-                  </span>
-                  <button type="button" className={styles.iconButton} onClick={() => handleReceive(m)} title="Príjem na sklad">
-                    <FiDownload />
+                </span>
+                <span className={m.isLow ? styles.badgeEmergency : styles.badgeGreen}>
+                  {m.stockQty} {m.unit}
+                </span>
+                <button type="button" className={styles.iconButton} onClick={() => handleReceive(m)} title="Príjem na sklad">
+                  <FiDownload />
+                </button>
+                {isOwner && (
+                  <button type="button" className={styles.iconButton} onClick={() => setEditing(m)} title="Upraviť">
+                    <FiEdit2 />
                   </button>
-                  {isOwner && (
-                    <button type="button" className={styles.iconButton} onClick={() => setEditing(m.id)} title="Upraviť">
-                      <FiEdit2 />
-                    </button>
-                  )}
-                </div>
-              )
+                )}
+              </div>
             )}
-          </div>
+          />
+
+          {editing && (
+            <Modal title={editing === "new" ? "Nový materiál" : `Upraviť: ${editing.name}`} onClose={() => setEditing(null)}>
+              <MaterialForm
+                initial={
+                  editing === "new"
+                    ? EMPTY_MATERIAL
+                    : {
+                        name: editing.name,
+                        sku: editing.sku || "",
+                        unit: editing.unit,
+                        unitPrice: String(editing.unitPrice),
+                        stockQty: String(editing.stockQty),
+                        minStock: String(editing.minStock),
+                      }
+                }
+                onCancel={() => setEditing(null)}
+                onSave={async (form) => {
+                  if (editing === "new") await api.createMaterial(token, form);
+                  else await api.updateMaterial(token, editing.id, form);
+                  setEditing(null);
+                  load();
+                }}
+              />
+            </Modal>
+          )}
         </>
       )}
     </AppShell>

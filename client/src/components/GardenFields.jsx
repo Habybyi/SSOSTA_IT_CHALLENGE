@@ -50,6 +50,9 @@ export const GardenAddressFields = ({ form, setForm, errors, errorPrefix }) => {
         <TextField name="latitude" label="GPS šírka" inputMode="decimal" placeholder="49.0556" {...props} />
         <TextField name="longitude" label="GPS dĺžka" inputMode="decimal" placeholder="20.2979" {...props} />
       </div>
+      <div style={{ marginTop: "1rem" }}>
+        <TextAreaField name="notes" label="Poznámky a prístup" rows={2} placeholder="Pes na dvore, kľúč od šachty u suseda…" {...props} />
+      </div>
     </>
   );
 };
@@ -59,7 +62,7 @@ export const GardenTechFields = ({ form, setForm, errors, errorPrefix }) => {
   const props = { form, setForm, errors: e };
   return (
     <>
-      <h3 className={styles.formPanelTitle} style={{ marginTop: "1.5rem" }}>Zdroj vody</h3>
+      <h3 className={styles.formPanelTitle}>Zdroj vody</h3>
       <div className={styles.formRow}>
         <SelectField name="waterSource" label="Zdroj" options={toOptions(WATER_SOURCE_LABELS)} {...props} />
         <TextField name="waterPressureBar" label="Tlak (bar)" inputMode="decimal" {...props} />
@@ -67,7 +70,7 @@ export const GardenTechFields = ({ form, setForm, errors, errorPrefix }) => {
         <TextField name="mainValveLocation" label="Hlavný uzáver (kde je)" {...props} />
       </div>
 
-      <h3 className={styles.formPanelTitle} style={{ marginTop: "1.5rem" }}>Riadiaca jednotka a systém</h3>
+      <h3 className={styles.formPanelTitle} style={{ marginTop: "1rem" }}>Riadiaca jednotka a systém</h3>
       <div className={styles.formRow}>
         <TextField name="controllerModel" label="Model jednotky" placeholder="napr. Hunter Pro-HC" {...props} />
         <TextField name="controllerLocation" label="Umiestnenie jednotky" {...props} />
@@ -79,9 +82,9 @@ export const GardenTechFields = ({ form, setForm, errors, errorPrefix }) => {
         <CheckboxField name="hasRainSensor" label="Dažďový senzor" {...props} />
       </div>
 
-      <div style={{ marginTop: "1rem" }}>
-        <TextAreaField name="notes" label="Poznámky k záhrade" placeholder="Pes na dvore, kľúč od šachty u suseda…" {...props} />
-      </div>
     </>
   );
 };
+
+// Ktoré polia patria do ktorého kroku formulára (na červenú bodku pri chybe).
+export const GARDEN_ADDRESS_FIELDS = ["street", "city", "postalCode", "label", "areaM2", "latitude", "longitude", "notes"];

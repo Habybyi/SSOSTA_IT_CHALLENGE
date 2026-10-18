@@ -15,6 +15,8 @@ import {
 } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
 import { Section } from "../components/Section";
+import { PagedList } from "../components/PagedList";
+import { TabBar, useTab } from "../components/Tabs";
 import { InfoItem } from "../components/InfoItem";
 import { RequestCard } from "../components/RequestCard";
 import { useAuth } from "../context/AuthContext";
@@ -33,6 +35,12 @@ export const CustomerDetailPage = () => {
   const navigate = useNavigate();
   const { token, user } = useAuth();
   const [customer, setCustomer] = useState(null);
+  const tabs = [
+    { key: "contact", label: "Kontakt", icon: FiUser },
+    { key: "gardens", label: "Záhrady", icon: FiHome, count: customer?.gardens.length },
+    { key: "requests", label: "Požiadavky", icon: FiInbox, count: customer?.serviceRequests.length },
+  ];
+  const [tab, setTab] = useTab(tabs);
   const [error, setError] = useState("");
 
   const load = useCallback(() => {
@@ -108,78 +116,84 @@ export const CustomerDetailPage = () => {
 
       {error && <div className={styles.errorMessage} style={{ marginBottom: "1rem" }}>{error}</div>}
 
-      <Section title="Kontakt" icon={FiUser}>
-        <div className={styles.infoGrid}>
-          <InfoItem label="Telefón">{customer.phone}</InfoItem>
-          <InfoItem label="E-mail">{customer.email}</InfoItem>
-          <InfoItem label="Preferuje">{CONTACT_LABELS[customer.preferredContact]}</InfoItem>
-          <InfoItem label="Odkiaľ prišiel">{SOURCE_LABELS[customer.source]}</InfoItem>
-          <InfoItem label="Fakturačná adresa">{billing || "rovnaká ako záhrada"}</InfoItem>
-          <InfoItem label="Zákazník od">{formatDate(customer.createdAt)}</InfoItem>
-        </div>
-        {customer.notes && (
-          <div className={styles.calloutBox} style={{ marginTop: "1rem", whiteSpace: "pre-wrap" }}>
-            {customer.notes}
-          </div>
-        )}
-      </Section>
+      <TabBar tabs={tabs} active={tab} onChange={setTab} />
 
-      <Section
-        title="Záhrady"
-        icon={FiHome}
-        actions={
-          <Link to={`/customers/${id}/gardens/new`} className={styles.secondaryButton} style={{ textDecoration: "none" }}>
-            <FiPlus /> Pridať záhradu
-          </Link>
-        }
-      >
-        {customer.gardens.length === 0 ? (
-          <p className={styles.emptyState}>Zákazník zatiaľ nemá žiadnu záhradu.</p>
-        ) : (
-          <div className={styles.list}>
-            {customer.gardens.map((g) => (
-              <div key={g.id} className={styles.listCard}>
-                <Link to={`/gardens/${g.id}`} className={styles.listCardMain} style={{ color: "inherit", textDecoration: "none" }}>
-                  <span className={styles.listCardTitle}>{g.label}</span>
-                  <span className={styles.listCardMeta}>{gardenAddress(g)}</span>
-                  <span className={styles.chipRow} style={{ marginTop: "0.35rem" }}>
-                    <span className={styles.badgeGreen}>{g._count.zones} zón</span>
-                    <span className={styles.badge}>{WATER_SOURCE_LABELS[g.waterSource]}</span>
-                    {g.installedYear && <span className={styles.badge}>od {g.installedYear}</span>}
-                    {g.isSmartController && <span className={styles.badgeBrand}>smart</span>}
-                  </span>
-                </Link>
-                <a href={mapsUrl(g)} target="_blank" rel="noreferrer" className={styles.iconButton} title="Otvoriť v mapách">
-                  <FiMapPin />
-                </a>
-                <Link to={`/gardens/${g.id}`} className={styles.iconButton} title="Technická karta">
-                  <FiChevronRight />
-                </Link>
+      <div className={styles.tabPanel}>
+        {tab === "contact" && (
+          <Section title="Kontakt" icon={FiUser}>
+            <div className={styles.infoGrid}>
+              <InfoItem label="Telefón">{customer.phone}</InfoItem>
+              <InfoItem label="E-mail">{customer.email}</InfoItem>
+              <InfoItem label="Preferuje">{CONTACT_LABELS[customer.preferredContact]}</InfoItem>
+              <InfoItem label="Odkiaľ prišiel">{SOURCE_LABELS[customer.source]}</InfoItem>
+              <InfoItem label="Fakturačná adresa">{billing || "rovnaká ako záhrada"}</InfoItem>
+              <InfoItem label="Zákazník od">{formatDate(customer.createdAt)}</InfoItem>
+              <InfoItem label="Servisné pripomienky">{customer.serviceReminders ? "posielať" : "odhlásený"}</InfoItem>
+            </div>
+            {customer.notes && (
+              <div className={styles.calloutBox} style={{ marginTop: "1rem", whiteSpace: "pre-wrap", maxHeight: "8rem", overflow: "hidden" }}>
+                {customer.notes}
               </div>
-            ))}
-          </div>
+            )}
+          </Section>
         )}
-      </Section>
 
-      <Section
-        title="Posledné požiadavky"
-        icon={FiInbox}
-        actions={
-          <Link to={`/requests/new?customerId=${id}`} className={styles.secondaryButton} style={{ textDecoration: "none" }}>
-            <FiPlus /> Nová požiadavka
-          </Link>
-        }
-      >
-        {customer.serviceRequests.length === 0 ? (
-          <p className={styles.emptyState}>Žiadne požiadavky.</p>
-        ) : (
-          <div className={styles.list}>
-            {customer.serviceRequests.map((r) => (
-              <RequestCard key={r.id} request={r} showCustomer={false} />
-            ))}
-          </div>
+        {tab === "gardens" && (
+          <section className={styles.panelFill}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>
+                <FiHome /> Záhrady
+              </h2>
+              <Link to={`/customers/${id}/gardens/new`} className={styles.secondaryButton} style={{ textDecoration: "none" }}>
+                <FiPlus /> Pridať záhradu
+              </Link>
+            </div>
+            <PagedList
+              items={customer.gardens}
+              rowHeight={84}
+              empty={<p className={styles.emptyState}>Zákazník zatiaľ nemá žiadnu záhradu.</p>}
+              renderItem={(g) => (
+                <div className={`${styles.listCard} ${styles.fixedRow}`} style={{ height: 84 }}>
+                  <Link to={`/gardens/${g.id}`} className={styles.listCardMain} style={{ color: "inherit", textDecoration: "none" }}>
+                    <span className={styles.listCardTitle}>{g.label}</span>
+                    <span className={styles.listCardMeta}>{gardenAddress(g)}</span>
+                    <span className={styles.chipRow} style={{ flexWrap: "nowrap", overflow: "hidden" }}>
+                      <span className={styles.badgeGreen}>{g._count.zones} zón</span>
+                      <span className={styles.badge}>{WATER_SOURCE_LABELS[g.waterSource]}</span>
+                      {g.installedYear && <span className={styles.badge}>od {g.installedYear}</span>}
+                      {g.isSmartController && <span className={styles.badgeBrand}>smart</span>}
+                    </span>
+                  </Link>
+                  <a href={mapsUrl(g)} target="_blank" rel="noreferrer" className={styles.iconButton} title="Otvoriť v mapách">
+                    <FiMapPin />
+                  </a>
+                  <Link to={`/gardens/${g.id}`} className={styles.iconButton} title="Technická karta">
+                    <FiChevronRight />
+                  </Link>
+                </div>
+              )}
+            />
+          </section>
         )}
-      </Section>
+
+        {tab === "requests" && (
+          <section className={styles.panelFill}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>
+                <FiInbox /> Posledné požiadavky
+              </h2>
+              <Link to={`/requests/new?customerId=${id}`} className={styles.secondaryButton} style={{ textDecoration: "none" }}>
+                <FiPlus /> Nová požiadavka
+              </Link>
+            </div>
+            <PagedList
+              items={customer.serviceRequests}
+              empty={<p className={styles.emptyState}>Žiadne požiadavky.</p>}
+              renderItem={(r) => <RequestCard request={r} showCustomer={false} fixed />}
+            />
+          </section>
+        )}
+      </div>
     </AppShell>
   );
 };
