@@ -1,5 +1,8 @@
 import "dotenv/config";
 
+// Všetky dni a časy (kapacita, sloty, e-maily) sa počítajú v čase firmy, nie servera.
+process.env.TZ = process.env.APP_TIMEZONE || "Europe/Bratislava";
+
 const required = (name) => {
   const value = process.env[name];
   if (!value) {

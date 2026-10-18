@@ -73,6 +73,12 @@ const listSelect = {
   customer: { select: { id: true, firstName: true, lastName: true, phone: true } },
   garden: { select: { id: true, street: true, city: true } },
   assignedTo: { select: { id: true, name: true } },
+  appointments: {
+    where: { status: { in: ["RESERVED", "CONFIRMED"] } },
+    orderBy: { startsAt: "asc" },
+    take: 1,
+    select: { startsAt: true, status: true },
+  },
 };
 
 const customerName = (c) => [c.firstName, c.lastName].filter(Boolean).join(" ");
@@ -247,6 +253,11 @@ export async function getRequest(id) {
       assignedTo: { select: { id: true, name: true } },
       createdBy: { select: { id: true, name: true } },
       statusChanges: { orderBy: { createdAt: "asc" }, include: { changedBy: { select: { name: true } } } },
+      appointments: {
+        where: { status: { not: "CANCELLED" } },
+        orderBy: { startsAt: "asc" },
+        include: { technician: { select: { id: true, name: true } } },
+      },
     },
   });
   if (!request) throw notFound("Požiadavka sa nenašla.");

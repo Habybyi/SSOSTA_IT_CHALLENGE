@@ -7,6 +7,7 @@ import { gardensRouter } from "./modules/gardens/gardens.routes.js";
 import { gardenPhotosRouter, photosRouter } from "./modules/photos/photos.routes.js";
 import { requestsRouter } from "./modules/requests/requests.routes.js";
 import { inboundRouter, publicRouter } from "./modules/intake/intake.routes.js";
+import { appointmentsRouter, scheduleRouter } from "./modules/schedule/schedule.routes.js";
 
 // Všetko pod /api/v1, aby sa dala neskôr pridať v2 bez rozbitia starých klientov.
 export const apiRouter = Router();
@@ -29,3 +30,5 @@ apiRouter.use("/gardens/:id/photos", staffOnly, gardenPhotosRouter);
 apiRouter.use("/gardens", staffOnly, gardensRouter);
 apiRouter.use("/photos", staffOnly, photosRouter);
 apiRouter.use("/requests", staffOnly, requestsRouter);
+apiRouter.use("/schedule", staffOnly, scheduleRouter);
+apiRouter.use("/appointments", staffOnly, appointmentsRouter);

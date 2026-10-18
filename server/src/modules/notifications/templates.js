@@ -63,6 +63,84 @@ vašu požiadavku č. ${number} (${typeLabel}) sme vybavili. Ak by niečo nefung
     ),
   }),
 
+  APPOINTMENT_CONFIRMED: ({ number, firstName, typeLabel, dayLabel, timeLabel, address }) => ({
+    subject: `Termín potvrdený: ${dayLabel} o ${timeLabel}`,
+    text: `Dobrý deň${firstName ? ` ${firstName}` : ""},
+
+potvrdzujeme termín: ${typeLabel}${number ? ` (požiadavka č. ${number})` : ""}
+Kedy: ${dayLabel} o ${timeLabel}
+Kde: ${address}
+
+Ak vám termín nevyhovuje, odpovedzte na tento e-mail alebo zavolajte.
+
+Tím Custodia`,
+    html: layout(
+      `Termín potvrdený`,
+      p(`Dobrý deň${firstName ? ` ${escape(firstName)}` : ""},`) +
+        p(`potvrdzujeme termín: <strong>${escape(typeLabel)}</strong>${number ? ` (požiadavka č. ${number})` : ""}.`) +
+        p(`<strong>Kedy:</strong> ${escape(dayLabel)} o ${escape(timeLabel)}<br><strong>Kde:</strong> ${escape(address)}`) +
+        p("Ak vám termín nevyhovuje, odpovedzte na tento e-mail alebo zavolajte.") +
+        p("Tím Custodia")
+    ),
+  }),
+
+  APPOINTMENT_RESCHEDULED: ({ number, firstName, typeLabel, dayLabel, timeLabel, address }) => ({
+    subject: `Zmena termínu: ${dayLabel} o ${timeLabel}`,
+    text: `Dobrý deň${firstName ? ` ${firstName}` : ""},
+
+termín (${typeLabel}${number ? `, požiadavka č. ${number}` : ""}) sme presunuli.
+Nový termín: ${dayLabel} o ${timeLabel}
+Kde: ${address}
+
+Tím Custodia`,
+    html: layout(
+      `Zmena termínu`,
+      p(`Dobrý deň${firstName ? ` ${escape(firstName)}` : ""},`) +
+        p(`termín (${escape(typeLabel)}${number ? `, požiadavka č. ${number}` : ""}) sme presunuli.`) +
+        p(`<strong>Nový termín:</strong> ${escape(dayLabel)} o ${escape(timeLabel)}<br><strong>Kde:</strong> ${escape(address)}`) +
+        p("Tím Custodia")
+    ),
+  }),
+
+  APPOINTMENT_CANCELLED: ({ number, firstName, typeLabel, dayLabel, reason }) => ({
+    subject: `Termín ${dayLabel} je zrušený`,
+    text: `Dobrý deň${firstName ? ` ${firstName}` : ""},
+
+termín ${dayLabel} (${typeLabel}${number ? `, požiadavka č. ${number}` : ""}) sme museli zrušiť.${reason ? `
+Dôvod: ${reason}` : ""}
+Ozveme sa vám s novým termínom.
+
+Tím Custodia`,
+    html: layout(
+      `Termín zrušený`,
+      p(`Dobrý deň${firstName ? ` ${escape(firstName)}` : ""},`) +
+        p(`termín ${escape(dayLabel)} (${escape(typeLabel)}${number ? `, požiadavka č. ${number}` : ""}) sme museli zrušiť.`) +
+        (reason ? p(`Dôvod: ${escape(reason)}`) : "") +
+        p("Ozveme sa vám s novým termínom.") +
+        p("Tím Custodia")
+    ),
+  }),
+
+  BOOKING_RECEIVED: ({ number, firstName, typeLabel, dayLabel, address }) => ({
+    subject: `Rezervácia prijatá: ${dayLabel}`,
+    text: `Dobrý deň${firstName ? ` ${firstName}` : ""},
+
+rezervovali ste si deň ${dayLabel} (${typeLabel}, požiadavka č. ${number}).
+Kde: ${address}
+
+Presný čas príchodu vám potvrdíme, keď naplánujeme trasu na daný deň.
+
+Tím Custodia`,
+    html: layout(
+      `Rezervácia prijatá`,
+      p(`Dobrý deň${firstName ? ` ${escape(firstName)}` : ""},`) +
+        p(`rezervovali ste si deň <strong>${escape(dayLabel)}</strong> (${escape(typeLabel)}, požiadavka č. ${number}).`) +
+        p(`<strong>Kde:</strong> ${escape(address)}`) +
+        p("Presný čas príchodu vám potvrdíme, keď naplánujeme trasu na daný deň.") +
+        p("Tím Custodia")
+    ),
+  }),
+
   // Majiteľovi, keď príde požiadavka zvonku (web, e-mail), nech nemusí sledovať aplikáciu.
   STAFF_NEW_REQUEST: ({ number, customerName, typeLabel, priorityLabel, sourceLabel, requestId }) => {
     const url = `${config.appUrl}/requests/${requestId}`;
