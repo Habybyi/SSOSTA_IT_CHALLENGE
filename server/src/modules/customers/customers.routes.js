@@ -2,6 +2,7 @@ import { Router } from "express";
 import { requireRole } from "../../middleware/auth.js";
 import * as customersService from "./customers.service.js";
 import { createGarden } from "../gardens/gardens.service.js";
+import * as gdprService from "./gdpr.service.js";
 
 export const customersRouter = Router();
 
@@ -32,4 +33,15 @@ customersRouter.delete("/:id", requireRole("OWNER"), async (req, res) => {
 
 customersRouter.post("/:id/gardens", async (req, res) => {
   res.status(201).json({ garden: await createGarden(req.user.id, req.params.id, req.body) });
+});
+
+// GDPR: export a anonymizácia na žiadosť zákazníka (len majiteľ).
+customersRouter.get("/:id/export", requireRole("OWNER"), async (req, res) => {
+  const data = await gdprService.exportCustomer(req.user.id, req.params.id);
+  res.setHeader("Content-Disposition", `attachment; filename="zakaznik-${req.params.id}.json"`);
+  res.json(data);
+});
+
+customersRouter.post("/:id/anonymize", requireRole("OWNER"), async (req, res) => {
+  res.json(await gdprService.anonymizeCustomer(req.user.id, req.params.id));
 });
