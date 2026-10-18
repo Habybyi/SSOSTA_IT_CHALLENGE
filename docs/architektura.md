@@ -38,6 +38,17 @@ Vďaka tomu sa dá vymeniť napríklad spôsob odosielania notifikácií bez zme
 | Soft delete (`deletedAt`) a audit log | Nič sa nestratí, dá sa dohľadať kto čo zmenil |
 | Cena materiálu uložená pri použití | Staré výkazy sa nezmenia, keď sa zmení cenník |
 
+## Plánovanie
+
+| Pravidlo | Riešenie |
+|---|---|
+| Časové pásmo | Všetky dni a časy sa počítajú v `Europe/Bratislava` (`APP_TIMEZONE`), aj cez zmenu letného času |
+| Kapacita dňa | Predvolený počet výjazdov z nastavení, výnimky pre konkrétny deň v tabuľke `DayCapacity` |
+| Čo zaberá kapacitu | Rezervácie, potvrdené aj hotové termíny |
+| Konflikty | Plný deň alebo obsadený technik vráti `409` s kódom, UI ponúkne "Naplánovať aj tak" (`force`) |
+| Trvanie zásahu | Podľa typu z nastavení (napr. zazimovanie 60 min), dá sa zmeniť pri termíne |
+| Plánovač dňa | Rozloží požiadavky za sebou s rezervou na presun, preskočí obsadené časy technika a to, čo sa nezmestí |
+
 ## Notifikácie
 
 ```

@@ -52,6 +52,37 @@ Chyba `400` vráti `{ "error": "...", "fields": { "phone": "Zadaj telefón alebo
 - Max. 5 odoslaní za 15 minút z jednej IP.
 - Doménu webu treba povoliť v `WEBSITE_ORIGINS` v `server/.env` (CORS).
 
+## Rezervácia termínu (jarné spustenie, zazimovanie...)
+
+Zákazník si na webe vyberie **deň**, presný čas mu Milan potvrdí pri plánovaní trasy.
+
+### Voľné dni
+
+`GET /api/v1/public/availability?days=30`
+
+```json
+{ "days": [{ "date": "2026-10-20", "free": 4 }, { "date": "2026-10-21", "free": 6 }] }
+```
+
+Vráti len pracovné dni od zajtra, ktoré majú voľnú kapacitu. Žiadne osobné údaje.
+
+### Odoslanie rezervácie
+
+`POST /api/v1/public/bookings`
+
+| Pole | Povinné | Popis |
+|---|---|---|
+| `type` | áno | `SPRING_START`, `WINTERIZATION`, `LAWN_CARE` alebo `INSPECTION` |
+| `date` | áno | Deň z `/availability` (`RRRR-MM-DD`) |
+| `name`, `street`, `city` | áno | |
+| `phone` / `email` | aspoň jedno | |
+| `gdprConsent` | áno | `true` |
+| `description`, `postalCode`, `marketingConsent`, `website` | nie | Rovnako ako pri požiadavke |
+
+Odpoveď `201 { "number": 6, "date": "2026-10-20" }`. Ak medzitým deň obsadil niekto iný, príde `400` s chybou pri poli `date`.
+
+V CRM vznikne požiadavka a **rezervácia** v kalendári (žltý prerušovaný okraj). Zákazník dostane e-mail "Rezervácia prijatá", po potvrdení času druhý e-mail s presným časom.
+
 ## Prichádzajúce e-maily
 
 `POST /api/v1/inbound/email` s hlavičkou `X-Inbound-Secret: <INBOUND_EMAIL_SECRET>`

@@ -13,7 +13,7 @@ Nahrádza zošit a súkromný mobil majiteľa: žiadna požiadavka sa nestratí,
 | 0 | Základ: databáza, prihlásenie, roly, správa tímu, dizajn | ✅ |
 | 1 | Zákazníci a technická karta záhrady | ✅ |
 | 2 | Servisné požiadavky | ✅ |
-| 3 | Plánovanie a kalendár | ⏳ |
+| 3 | Plánovanie a kalendár | ✅ |
 | 4 | Výjazd, materiál a notifikácie | ⏳ |
 | 5 | Doladenie (mobil, UX, bezpečnosť, testy) | ⏳ |
 | 6 | Bonus (portál zákazníka, prehľady, mapa trasy, IoT) | ⏳ |
@@ -28,7 +28,12 @@ Nahrádza zošit a súkromný mobil majiteľa: žiadna požiadavka sa nestratí,
 - Upozornenie na starší systém (staršie inštalácie mali iné diely).
 - **Servisné požiadavky:** stavy (nová, naplánovaná, v riešení, hotová, uzavretá), priorita s haváriami navrchu, priradenie technikovi, história každej zmeny.
 - **Jednotný príjem:** ručne počas telefonátu (nájde zákazníka aj podľa čísla v inom tvare), z webu (formulár, kalkulačka) a z e-mailu. Neznámy človek sa založí ako dopyt.
-- **Potvrdenia e-mailom:** zákazník dostane číslo požiadavky a správu, keď je hotovo. Majiteľ dostane upozornenie na novú požiadavku zvonku.
+- **Kalendár:** týždeň výjazdov, kapacita každého dňa (obsadené/max), filter podľa technika. Majiteľ zmení kapacitu dňa jedným klikom (jarná špička viac, dovolenka 0).
+- **Plánovanie s kontrolou:** pri termíne vidno, koľko je v ten deň voľných miest a kam sa už ide. Systém upozorní na plný deň alebo obsadeného technika a Milan sa rozhodne, či aj tak.
+- **Plánovač sezóny:** nenaplánované zazimovania alebo spustenia zoskupené podľa obce. Vyberie celú obec, deň a technika, systém rozloží časy za sebou aj s presunom.
+- **Rezervácie zo webu:** zákazník si vyberie voľný deň, Milan potom potvrdí presný čas. Zrušený termín vráti požiadavku medzi nové, aby sa nestratila.
+- **Dnešné výjazdy** na prehľade (technik vidí svoje) s tlačidlami zavolať a navigovať.
+- **Potvrdenia e-mailom:** zákazník dostane číslo požiadavky správu s termínom, pri presune alebo zrušení termínu a keď je hotovo. Majiteľ dostane upozornenie na novú požiadavku zvonku.
 
 ## Technológie
 
