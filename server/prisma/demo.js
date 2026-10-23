@@ -70,10 +70,10 @@ async function reset() {
     prisma.device.deleteMany(),
     prisma.zone.deleteMany(),
     prisma.garden.deleteMany(),
+    prisma.auditLog.deleteMany(),
     prisma.user.deleteMany({ where: { role: "CUSTOMER" } }),
     prisma.customer.deleteMany(),
     prisma.dayCapacity.deleteMany(),
-    prisma.auditLog.deleteMany(),
   ]);
 }
 
@@ -176,6 +176,23 @@ async function main() {
     }
     customers.push({ ...c, record, garden });
     created += 1;
+  }
+
+  // Zákaznícky portál: jedna smart záhrada so senzormi má hotový prístup na ukážku.
+  const portalEmail = (process.env.DEMO_CUSTOMER_EMAIL || "maria.kollarova@example.sk").toLowerCase();
+  const portalCustomer = customers.find((c) => c.email === portalEmail)?.record;
+  if (portalCustomer && !(await prisma.user.findUnique({ where: { email: portalEmail } }))) {
+    await prisma.user.create({
+      data: {
+        email: portalEmail,
+        name: `${portalCustomer.firstName} ${portalCustomer.lastName}`,
+        phone: portalCustomer.phone,
+        role: "CUSTOMER",
+        customerId: portalCustomer.id,
+        passwordHash: await hashPassword(process.env.DEMO_CUSTOMER_PASSWORD || "Zakaznik123"),
+        mustChangePassword: false,
+      },
+    });
   }
 
   // Požiadavky a termíny vytvárame len pri prvom pridaní dema.
@@ -294,6 +311,7 @@ async function main() {
   };
   console.log(`Demo pripravené (${created} nových zákazníkov).`, counts);
   console.log(`Brigádnik: ${techEmail} (heslo z DEMO_TECH_PASSWORD, predvolene Brigadnik123)`);
+  console.log(`Zákaznícky portál: ${portalEmail} (heslo z DEMO_CUSTOMER_PASSWORD, predvolene Zakaznik123)`);
 }
 
 main()
