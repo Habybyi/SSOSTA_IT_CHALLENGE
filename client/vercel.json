@@ -1,3 +1,6 @@
 {
-  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/app.html" }]
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://custodia-api-smu3.onrender.com/api/:path*" },
+    { "source": "/((?!api/).*)", "destination": "/app.html" }
+  ]
 }
