@@ -22,14 +22,18 @@ npm run dev
 
 | Čo | Kde |
 |---|---|
-| Aplikácia | http://localhost:5173 |
+| Web firmy (kalkulačka, servisný formulár, AI asistent) | http://localhost:5173 |
+| CRM a zákaznícky portál (prihlásenie) | http://localhost:5173/login |
 | Odoslané e-maily (Mailpit) | http://localhost:8025 |
-| API | http://localhost:3001/api/v1 |
+| API | http://localhost:5173/api/v1 |
 
 | Účet | E-mail | Heslo |
 |---|---|---|
 | Majiteľ | `milan.kovac@custodia.sk` | `ZmenMa123!` (pri prvom prihlásení si ho zmení) |
 | Brigádnik | `peter.brigadnik@custodia.sk` | `Brigadnik123` |
+| Zákazník (portál) | `maria.kollarova@example.sk` | `Zakaznik123` |
+
+Živé dáta zo senzorov na prezentáciu: `npm run iot:simulate` (s `-- --leak` po 15 s nahlási únik vody a vznikne požiadavka).
 
 Pred ukážkou môžeš demo vrátiť do pôvodného stavu príkazom `npm run demo:reset` (zmaže zákazníkov, požiadavky a termíny a nahrá demo znova, účty a materiál ostanú).
 
@@ -60,7 +64,7 @@ Každý krok ukazuje riešenie jedného problému z príbehu firmy.
 | 3 | Plánovanie a kalendár | ✅ |
 | 4 | Výjazd, materiál a notifikácie | ✅ |
 | 5 | Doladenie: rozloženie bez skrolovania, GDPR, demo dáta, testy, spúšťanie jedným príkazom | ✅ |
-| 6 | Bonus (portál zákazníka, prehľady, mapa trasy, IoT) | ⏳ |
+| 6 | Bonus: web firmy napojený na CRM, mapa trasy dňa, IoT senzory, zákaznícky portál, logy | ✅ |
 
 ## Čo už vie
 
@@ -103,6 +107,7 @@ Overujú logiku, na ktorej stojí najviac: párovanie telefónnych čísel, dni 
 
 - [Analýza: problém → funkcia → rola](docs/analyza.md)
 - [Architektúra a rozhodnutia](docs/architektura.md)
+- [Web firmy: nastavenia, AI asistent, cookies](docs/web.md)
 - [API pre web firmy (formulár, kalkulačka, e-maily)](docs/api-pre-web.md)
 - [Značka: logá (SVG) a style guide farieb](docs/brand/)
 

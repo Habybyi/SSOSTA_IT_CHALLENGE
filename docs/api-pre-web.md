@@ -14,6 +14,7 @@ Web (kalkulačka, formulár na poruchu, objednanie spustenia alebo zazimovania) 
 | `phone` / `email` | aspoň jedno | Podľa nich CRM spáruje existujúceho zákazníka |
 | `street`, `city`, `postalCode` | nie | Adresa záhrady |
 | `description` | nie | Text od zákazníka |
+| `urgent` | nie | `true` = havária (únik vody), požiadavka dostane prioritu Havária |
 | `payload` | nie | Výsledok kalkulačky, uloží sa tak, ako príde (max. 10 kB) |
 | `gdprConsent` | áno | Musí byť `true` |
 | `marketingConsent` | nie | Súhlas so zasielaním pripomienok |
@@ -92,3 +93,11 @@ V CRM vznikne požiadavka a **rezervácia** v kalendári (žltý prerušovaný o
 ```
 
 Napojí sa na e-mailovú službu (Mailgun, SendGrid, Postmark), ktorá prijatý e-mail prepošle ako JSON. CRM odhadne typ požiadavky z textu (porucha, zazimovanie, spustenie...) a pri slovách ako "tečie" alebo "havária" zvýši prioritu.
+
+## AI asistent
+
+```
+POST /api/v1/public/assistant
+```
+
+Telo je vo formáte Google Gemini (`system_instruction`, `contents`), odpoveď tiež. Kľúč je na serveri v `GEMINI_API_KEY`. Bez kľúča vráti `503` a web odpovedá z pripravených otázok. Limit: 20 otázok za minútu z jednej IP adresy.
