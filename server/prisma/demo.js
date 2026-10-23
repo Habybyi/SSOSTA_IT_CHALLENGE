@@ -2,6 +2,7 @@ import "dotenv/config";
 import { prisma } from "../src/lib/prisma.js";
 import { hashPassword } from "../src/lib/password.js";
 import { normalizePhone } from "../src/lib/phone.js";
+import { demoGps } from "./demoGps.js";
 
 // Ukážkové dáta na prezentáciu: 15 stálych zákazníkov ako v zadaní, ich záhrady,
 // história zásahov za posledné roky, otvorené požiadavky a termíny na tento týždeň.
@@ -126,6 +127,7 @@ async function main() {
         customerId: record.id,
         street: c.street,
         city: c.city,
+        ...demoGps(c.city, created),
         areaM2: 300 + c.zones * 110,
         waterSource: c.water,
         waterPressureBar: c.water === "WELL" ? 3.2 : 4.5,
