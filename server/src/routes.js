@@ -11,6 +11,7 @@ import { appointmentsRouter, scheduleRouter } from "./modules/schedule/schedule.
 import { materialsRouter } from "./modules/materials/materials.routes.js";
 import { visitsRouter } from "./modules/visits/visits.routes.js";
 import { remindersRouter } from "./modules/reminders/reminders.routes.js";
+import { auditRouter } from "./modules/audit/audit.routes.js";
 
 // Všetko pod /api/v1, aby sa dala neskôr pridať v2 bez rozbitia starých klientov.
 export const apiRouter = Router();
@@ -25,6 +26,7 @@ apiRouter.use("/inbound", inboundRouter);
 // Odtiaľto už len prihlásení používatelia s vlastným heslom.
 apiRouter.use(requireAuth, requirePasswordChanged);
 apiRouter.use("/users", usersRouter);
+apiRouter.use("/audit", auditRouter);
 
 // Interné dáta firmy: majiteľ a technici (zákazník má neskôr vlastný portál).
 const staffOnly = requireRole("OWNER", "TECHNICIAN");

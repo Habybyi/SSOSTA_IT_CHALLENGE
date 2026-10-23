@@ -5,6 +5,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { ChangePasswordPage } from "./pages/ChangePasswordPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { TeamPage } from "./pages/TeamPage";
+import { AuditPage } from "./pages/AuditPage";
 import { CustomersPage } from "./pages/CustomersPage";
 import { CustomerFormPage } from "./pages/CustomerFormPage";
 import { CustomerDetailPage } from "./pages/CustomerDetailPage";
@@ -63,6 +64,14 @@ export const App = () => {
             element={
               <ProtectedRoute requireRole="OWNER">
                 <TeamPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/audit"
+            element={
+              <ProtectedRoute requireRole="OWNER">
+                <AuditPage />
               </ProtectedRoute>
             }
           />

@@ -38,6 +38,14 @@ export async function login(body) {
 
   // Rovnaká správa pre zlý e-mail aj heslo, aby sa nedalo zisťovať, ktoré účty existujú.
   if (!user || !user.isActive || !(await verifyPassword(password, user.passwordHash))) {
+    // Pokusy o prihlásenie vidí majiteľ v logoch (heslo sa nikdy neukladá).
+    await logAudit({
+      userId: user?.id ?? null,
+      action: "LOGIN_FAILED",
+      entityType: "User",
+      entityId: user?.id,
+      details: { email, reason: !user ? "neznámy e-mail" : !user.isActive ? "deaktivovaný účet" : "zlé heslo" },
+    });
     throw unauthorized("Nesprávny e-mail alebo heslo.");
   }
 

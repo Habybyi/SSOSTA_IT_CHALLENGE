@@ -11,6 +11,7 @@ import {
   FiPackage,
   FiUserCheck,
   FiLogOut,
+  FiActivity,
 } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { to: "/calendar", label: "Kalendár", short: "Kalendár", icon: FiCalendar, enabled: true },
   { to: "/materials", label: "Materiál a sklad", short: "Sklad", icon: FiPackage, enabled: true },
   { to: "/team", label: "Tím", short: "Tím", icon: FiUserCheck, enabled: true, requireRole: "OWNER" },
+  { to: "/audit", label: "Logy", short: "Logy", icon: FiActivity, enabled: true, requireRole: "OWNER" },
 ];
 
 // Technická karta záhrady patrí pod Zákazníkov.
