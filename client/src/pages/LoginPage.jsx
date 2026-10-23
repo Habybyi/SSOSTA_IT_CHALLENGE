@@ -100,6 +100,9 @@ export const LoginPage = () => {
             </button>
           )}
         </form>
+        <a href="/" className={styles.linkButton} style={{ display: "block", textAlign: "center", marginTop: "1rem" }}>
+          Späť na web Custodia
+        </a>
       </div>
     </div>
   );
