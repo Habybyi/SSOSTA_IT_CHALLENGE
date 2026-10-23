@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export const ProtectedRoute = ({ children, requireRole, allowPendingPasswordChange = false }) => {
+export const ProtectedRoute = ({ children, requireRole, allowPendingPasswordChange = false, allowCustomer = false }) => {
   const { user } = useAuth();
   const location = useLocation();
 
@@ -10,6 +10,8 @@ export const ProtectedRoute = ({ children, requireRole, allowPendingPasswordChan
   if (user.mustChangePassword && !allowPendingPasswordChange) {
     return <Navigate to="/change-password" replace />;
   }
+  // Zákazník má vlastný portál, interné obrazovky firmy nevidí.
+  if (user.role === "CUSTOMER" && !allowCustomer && requireRole !== "CUSTOMER") return <Navigate to="/portal" replace />;
   if (requireRole && user.role !== requireRole) return <Navigate to="/dashboard" replace />;
 
   return children;

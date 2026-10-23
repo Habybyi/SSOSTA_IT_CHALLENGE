@@ -19,6 +19,7 @@ import { PlannerPage } from "./pages/PlannerPage";
 import { MaterialsPage } from "./pages/MaterialsPage";
 import { VisitPage } from "./pages/VisitPage";
 import { RoutePage } from "./pages/RoutePage";
+import { PortalPage } from "./pages/PortalPage";
 
 const STAFF_PAGES = [
   ["/customers", CustomersPage],
@@ -48,8 +49,16 @@ export const App = () => {
           <Route
             path="/change-password"
             element={
-              <ProtectedRoute allowPendingPasswordChange>
+              <ProtectedRoute allowPendingPasswordChange allowCustomer>
                 <ChangePasswordPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/portal"
+            element={
+              <ProtectedRoute requireRole="CUSTOMER">
+                <PortalPage />
               </ProtectedRoute>
             }
           />

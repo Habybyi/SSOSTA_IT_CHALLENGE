@@ -14,6 +14,7 @@ import {
   FiChevronRight,
   FiDownload,
   FiShield,
+  FiGlobe,
 } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
 import { Section } from "../components/Section";
@@ -21,6 +22,7 @@ import { PagedList } from "../components/PagedList";
 import { TabBar, useTab } from "../components/Tabs";
 import { InfoItem } from "../components/InfoItem";
 import { RequestCard } from "../components/RequestCard";
+import { PortalAccessPanel } from "../components/PortalAccessPanel";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import {
@@ -41,6 +43,7 @@ export const CustomerDetailPage = () => {
     { key: "contact", label: "Kontakt", icon: FiUser },
     { key: "gardens", label: "Záhrady", icon: FiHome, count: customer?.gardens.length },
     { key: "requests", label: "Požiadavky", icon: FiInbox, count: customer?.serviceRequests.length },
+    ...(user.role === "OWNER" ? [{ key: "portal", label: "Portál", icon: FiGlobe }] : []),
   ];
   const [tab, setTab] = useTab(tabs);
   const [error, setError] = useState("");
@@ -226,6 +229,8 @@ export const CustomerDetailPage = () => {
             />
           </section>
         )}
+
+        {tab === "portal" && user.role === "OWNER" && <PortalAccessPanel customer={customer} />}
 
         {tab === "requests" && (
           <section className={styles.panelFill}>

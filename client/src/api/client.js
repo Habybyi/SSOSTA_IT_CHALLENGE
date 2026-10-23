@@ -78,6 +78,16 @@ export const api = {
   updateCustomer: (token, id, data) => request(`/customers/${id}`, { method: "PATCH", token, body: data }),
   deleteCustomer: (token, id) => request(`/customers/${id}`, { method: "DELETE", token }),
   exportCustomer: (token, id) => fetchBlob(`/customers/${id}/export`, token),
+  getPortalAccount: (token, customerId) => request(`/customers/${customerId}/portal`, { token }),
+  createPortalAccount: (token, customerId) => request(`/customers/${customerId}/portal`, { method: "POST", token }),
+  resetPortalPassword: (token, customerId) => request(`/customers/${customerId}/portal/reset-password`, { method: "POST", token }),
+  setPortalActive: (token, customerId, isActive) => request(`/customers/${customerId}/portal`, { method: "PATCH", token, body: { isActive } }),
+  portalOverview: (token) => request("/portal/overview", { token }),
+  portalRequests: (token, query) => request("/portal/requests", { token, query }),
+  portalCreateRequest: (token, data) => request("/portal/requests", { method: "POST", token, body: data }),
+  portalHistory: (token, query) => request("/portal/history", { token, query }),
+  portalPreferences: (token, data) => request("/portal/preferences", { method: "PATCH", token, body: data }),
+  portalExport: (token) => fetchBlob("/portal/export", token),
   anonymizeCustomer: (token, id) => request(`/customers/${id}/anonymize`, { method: "POST", token }),
 
   createGarden: (token, customerId, data) =>

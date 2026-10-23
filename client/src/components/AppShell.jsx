@@ -28,6 +28,9 @@ const NAV_ITEMS = [
   { to: "/audit", label: "Logy", short: "Logy", icon: FiActivity, enabled: true, requireRole: "OWNER", desktopOnly: true },
 ];
 
+// Zákazník vidí len svoj portál.
+const CUSTOMER_NAV_ITEMS = [{ to: "/portal", label: "Môj portál", short: "Portál", icon: FiHome, enabled: true }];
+
 // Technická karta záhrady patrí pod Zákazníkov.
 const isItemActive = (item, pathname) =>
   pathname.startsWith(item.to) ||
@@ -49,7 +52,8 @@ export const AppShell = ({ children }) => {
     api.getRequestStats(token).then(setCounts).catch(() => {});
   }, [token, user?.role, location.pathname]);
 
-  const visibleItems = NAV_ITEMS.filter((item) => !item.requireRole || item.requireRole === user?.role);
+  const visibleItems =
+    user?.role === "CUSTOMER" ? CUSTOMER_NAV_ITEMS : NAV_ITEMS.filter((item) => !item.requireRole || item.requireRole === user?.role);
 
   const handleLogout = () => {
     logout();
