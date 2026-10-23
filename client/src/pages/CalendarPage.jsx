@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { FiChevronLeft, FiChevronRight, FiSettings, FiMap } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiSettings, FiMap, FiNavigation } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
 import { AppointmentModal } from "../components/AppointmentModal";
 import { ScheduleSettingsPanel } from "../components/ScheduleSettingsPanel";
@@ -120,6 +120,13 @@ export const CalendarPage = () => {
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Kalendár</h1>
         <div className={styles.buttonRow}>
+          <Link
+            to={`/calendar/route?day=${capacity.some((d) => d.date === focusDay) ? focusDay : weekStart}`}
+            className={styles.secondaryButton}
+            style={{ textDecoration: "none" }}
+          >
+            <FiNavigation /> TRASA DŇA
+          </Link>
           <Link to="/calendar/planner" className={styles.primaryButtonInline} style={{ textDecoration: "none" }}>
             <FiMap /> PLÁNOVAČ SEZÓNY
           </Link>

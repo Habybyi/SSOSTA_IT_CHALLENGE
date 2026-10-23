@@ -18,6 +18,7 @@ import { CalendarPage } from "./pages/CalendarPage";
 import { PlannerPage } from "./pages/PlannerPage";
 import { MaterialsPage } from "./pages/MaterialsPage";
 import { VisitPage } from "./pages/VisitPage";
+import { RoutePage } from "./pages/RoutePage";
 
 const STAFF_PAGES = [
   ["/customers", CustomersPage],
@@ -32,6 +33,7 @@ const STAFF_PAGES = [
   ["/requests/:id", RequestDetailPage],
   ["/calendar", CalendarPage],
   ["/calendar/planner", PlannerPage],
+  ["/calendar/route", RoutePage],
   ["/materials", MaterialsPage],
   ["/visits/:id", VisitPage],
 ];
