@@ -1,5 +1,6 @@
 import { TextField, TextAreaField, SelectField, CheckboxField } from "./FormFields";
 import { WATER_SOURCE_LABELS, toOptions } from "../utils/labels";
+import { LocationPicker } from "./LocationPicker";
 import styles from "../styles/neumorphic.module.css";
 
 // Polia záhrady, používa ich formulár nového zákazníka aj úprava technickej karty.
@@ -49,6 +50,7 @@ export const GardenAddressFields = ({ form, setForm, errors, errorPrefix }) => {
         <TextField name="areaM2" label="Plocha záhrady (m²)" inputMode="numeric" {...props} />
         <TextField name="latitude" label="GPS šírka" inputMode="decimal" placeholder="49.0556" {...props} />
         <TextField name="longitude" label="GPS dĺžka" inputMode="decimal" placeholder="20.2979" {...props} />
+        <LocationPicker form={form} setForm={setForm} />
       </div>
       <div style={{ marginTop: "1rem" }}>
         <TextAreaField name="notes" label="Poznámky a prístup" rows={2} placeholder="Pes na dvore, kľúč od šachty u suseda…" {...props} />
