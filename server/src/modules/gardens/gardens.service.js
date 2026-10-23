@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { prisma } from "../../lib/prisma.js";
+import { deviceSelect } from "../iot/iot.rules.js";
 import { notFound } from "../../lib/httpError.js";
 import { parse } from "../../lib/validate.js";
 import { optionalBoolean, optionalNumber, optionalText, requiredText } from "../../lib/fields.js";
@@ -75,7 +76,7 @@ export async function getGarden(id) {
         orderBy: { createdAt: "desc" },
         select: { id: true, caption: true, mimeType: true, createdAt: true, uploadedBy: { select: { name: true } } },
       },
-      devices: { orderBy: { name: "asc" } },
+      devices: { orderBy: { name: "asc" }, select: deviceSelect },
     },
   });
 }

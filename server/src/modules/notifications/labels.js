@@ -19,4 +19,5 @@ export const SOURCE_LABELS = {
   WEB_FORM: "formulár na webe",
   CALCULATOR: "kalkulačka na webe",
   CUSTOMER_PORTAL: "zákaznícky portál",
+  IOT: "senzor v záhrade (IoT)",
 };

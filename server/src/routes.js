@@ -12,6 +12,7 @@ import { materialsRouter } from "./modules/materials/materials.routes.js";
 import { visitsRouter } from "./modules/visits/visits.routes.js";
 import { remindersRouter } from "./modules/reminders/reminders.routes.js";
 import { auditRouter } from "./modules/audit/audit.routes.js";
+import { devicesRouter, gardenDevicesRouter, iotIngestRouter } from "./modules/iot/iot.routes.js";
 
 // Všetko pod /api/v1, aby sa dala neskôr pridať v2 bez rozbitia starých klientov.
 export const apiRouter = Router();
@@ -22,6 +23,7 @@ apiRouter.use("/auth", authRouter);
 // Bez prihlásenia: web firmy a e-mailový webhook (ten má vlastný tajný kľúč).
 apiRouter.use("/public", publicRouter);
 apiRouter.use("/inbound", inboundRouter);
+apiRouter.use("/iot", iotIngestRouter);
 
 // Odtiaľto už len prihlásení používatelia s vlastným heslom.
 apiRouter.use(requireAuth, requirePasswordChanged);
@@ -32,6 +34,8 @@ apiRouter.use("/audit", auditRouter);
 const staffOnly = requireRole("OWNER", "TECHNICIAN");
 apiRouter.use("/customers", staffOnly, customersRouter);
 apiRouter.use("/gardens/:id/photos", staffOnly, gardenPhotosRouter);
+apiRouter.use("/gardens/:id/devices", staffOnly, gardenDevicesRouter);
+apiRouter.use("/devices", staffOnly, devicesRouter);
 apiRouter.use("/gardens", staffOnly, gardensRouter);
 apiRouter.use("/photos", staffOnly, photosRouter);
 apiRouter.use("/requests", staffOnly, requestsRouter);
