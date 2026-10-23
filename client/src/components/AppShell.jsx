@@ -25,7 +25,7 @@ const NAV_ITEMS = [
   { to: "/calendar", label: "Kalendár", short: "Kalendár", icon: FiCalendar, enabled: true },
   { to: "/materials", label: "Materiál a sklad", short: "Sklad", icon: FiPackage, enabled: true },
   { to: "/team", label: "Tím", short: "Tím", icon: FiUserCheck, enabled: true, requireRole: "OWNER" },
-  { to: "/audit", label: "Logy", short: "Logy", icon: FiActivity, enabled: true, requireRole: "OWNER" },
+  { to: "/audit", label: "Logy", short: "Logy", icon: FiActivity, enabled: true, requireRole: "OWNER", desktopOnly: true },
 ];
 
 // Technická karta záhrady patrí pod Zákazníkov.
@@ -117,7 +117,8 @@ export const AppShell = ({ children }) => {
 
         <nav className={styles.bottomNav}>
           {visibleItems
-            .filter((item) => item.enabled)
+            // Spodná lišta má miesto len na najdôležitejšie položky.
+            .filter((item) => item.enabled && !item.desktopOnly)
             .map((item) => {
               const Icon = item.icon;
               const isActive = isItemActive(item, location.pathname);
