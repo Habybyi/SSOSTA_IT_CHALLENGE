@@ -71,7 +71,16 @@ export async function anonymizeCustomer(actorId, id) {
     await tx.notification.updateMany({ where: { customerId: id }, data: { recipient: "anonymizované", payload: Prisma.DbNull } });
     // Audit si nechá, kto čo kedy urobil, ale bez obsahu zmien (môžu v ňom byť kontakty).
     await tx.auditLog.updateMany({ where: { entityType: "Customer", entityId: id }, data: { details: Prisma.DbNull } });
-    if (customer.user) await tx.user.delete({ where: { id: customer.user.id } });
+    if (customer.user) {
+      // Na účet odkazujú audit a história požiadaviek: odkazy zrušíme, záznamy ostanú.
+      const userId = customer.user.id;
+      await tx.auditLog.updateMany({ where: { userId }, data: { userId: null } });
+      await tx.serviceRequest.updateMany({ where: { createdById: userId }, data: { createdById: null } });
+      await tx.requestStatusChange.updateMany({ where: { changedById: userId }, data: { changedById: null } });
+      await tx.photo.updateMany({ where: { uploadedById: userId }, data: { uploadedById: null } });
+      await tx.notification.updateMany({ where: { userId }, data: { userId: null } });
+      await tx.user.delete({ where: { id: userId } });
+    }
   });
 
   // Súbory fotiek až po úspešnej transakcii.
