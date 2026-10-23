@@ -13,6 +13,7 @@ import { visitsRouter } from "./modules/visits/visits.routes.js";
 import { remindersRouter } from "./modules/reminders/reminders.routes.js";
 import { auditRouter } from "./modules/audit/audit.routes.js";
 import { devicesRouter, gardenDevicesRouter, iotIngestRouter } from "./modules/iot/iot.routes.js";
+import { portalAccountRouter, portalRouter } from "./modules/portal/portal.routes.js";
 
 // Všetko pod /api/v1, aby sa dala neskôr pridať v2 bez rozbitia starých klientov.
 export const apiRouter = Router();
@@ -29,9 +30,11 @@ apiRouter.use("/iot", iotIngestRouter);
 apiRouter.use(requireAuth, requirePasswordChanged);
 apiRouter.use("/users", usersRouter);
 apiRouter.use("/audit", auditRouter);
+apiRouter.use("/portal", portalRouter);
 
 // Interné dáta firmy: majiteľ a technici (zákazník má neskôr vlastný portál).
 const staffOnly = requireRole("OWNER", "TECHNICIAN");
+apiRouter.use("/customers/:id/portal", staffOnly, portalAccountRouter);
 apiRouter.use("/customers", staffOnly, customersRouter);
 apiRouter.use("/gardens/:id/photos", staffOnly, gardenPhotosRouter);
 apiRouter.use("/gardens/:id/devices", staffOnly, gardenDevicesRouter);

@@ -62,3 +62,10 @@ export function deviceStatus(device, now = new Date()) {
 
 // Únik vody je porucha: z neho vznikne požiadavka automaticky.
 export const createsRequest = (type, value) => DEVICE_RULES[type]?.check?.(value)?.level === "alert";
+
+// Zariadenie pripravené na zobrazenie: stav a hodnota s jednotkou.
+export const presentDevice = (device) => ({
+  ...device,
+  status: deviceStatus(device),
+  display: formatValue(device.type, device.lastValue?.value),
+});

@@ -5,7 +5,7 @@ import { notFound, unauthorized } from "../../lib/httpError.js";
 import { parse } from "../../lib/validate.js";
 import { logAudit } from "../audit/audit.service.js";
 import { createRequestRecord } from "../requests/requests.service.js";
-import { createsRequest, deviceSelect, deviceStatus, formatValue } from "./iot.rules.js";
+import { createsRequest, deviceSelect, deviceStatus, formatValue, presentDevice } from "./iot.rules.js";
 
 const DEVICE_TYPES = ["HOME_GATEWAY", "SPRINKLER", "HUMIDITY_SENSOR", "WATER_LEVEL_SENSOR", "TRIP_SENSOR", "MOWER", "OTHER"];
 const OPEN_STATUSES = ["NEW", "SCHEDULED", "IN_PROGRESS"];
@@ -26,12 +26,6 @@ const readingSchema = z.object({
 const newToken = () => crypto.randomBytes(24).toString("base64url");
 const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
 
-const withStatus = (device) => ({
-  ...device,
-  status: deviceStatus(device),
-  display: formatValue(device.type, device.lastValue?.value),
-});
-
 export async function listGardenDevices(gardenId) {
   const since = new Date(Date.now() - HISTORY_HOURS * 3600 * 1000);
   const devices = await prisma.device.findMany({
@@ -42,7 +36,7 @@ export async function listGardenDevices(gardenId) {
     },
     orderBy: { name: "asc" },
   });
-  return devices.map(withStatus);
+  return devices.map(presentDevice);
 }
 
 export async function createDevice(actorId, gardenId, body) {
@@ -55,7 +49,7 @@ export async function createDevice(actorId, gardenId, body) {
     select: deviceSelect,
   });
   await logAudit({ userId: actorId, action: "DEVICE_CREATED", entityType: "Device", entityId: device.id, details: { name: device.name } });
-  return { device: withStatus(device), token };
+  return { device: presentDevice(device), token };
 }
 
 export async function regenerateToken(actorId, id) {
@@ -63,7 +57,7 @@ export async function regenerateToken(actorId, id) {
   const device = await prisma.device.update({ where: { id }, data: { tokenHash: hashToken(token) }, select: deviceSelect }).catch(() => null);
   if (!device) throw notFound("Zariadenie sa nenašlo.");
   await logAudit({ userId: actorId, action: "DEVICE_TOKEN_REGENERATED", entityType: "Device", entityId: id });
-  return { device: withStatus(device), token };
+  return { device: presentDevice(device), token };
 }
 
 export async function deleteDevice(actorId, id) {
