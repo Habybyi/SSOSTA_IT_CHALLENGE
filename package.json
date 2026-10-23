@@ -6,7 +6,8 @@
     "setup": "node scripts/setup.mjs",
     "dev": "concurrently -k -n api,web -c green,cyan \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
     "test": "npm --prefix server test",
-    "demo:reset": "npm --prefix server run db:demo -- --reset"
+    "demo:reset": "npm --prefix server run db:demo -- --reset",
+    "iot:simulate": "npm --prefix server run iot:simulate --"
   },
   "devDependencies": {
     "concurrently": "^9.2.5"

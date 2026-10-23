@@ -3,6 +3,7 @@ import { prisma } from "../src/lib/prisma.js";
 import { hashPassword } from "../src/lib/password.js";
 import { normalizePhone } from "../src/lib/phone.js";
 import { demoGps } from "./demoGps.js";
+import { createDemoDevices } from "./demoIot.js";
 
 // Ukážkové dáta na prezentáciu: 15 stálych zákazníkov ako v zadaní, ich záhrady,
 // história zásahov za posledné roky, otvorené požiadavky a termíny na tento týždeň.
@@ -145,6 +146,8 @@ async function main() {
         },
       },
     });
+
+    if (c.smart) await createDemoDevices(prisma, garden, c, created);
 
     // História: každá sezóna od inštalácie (jarné spustenie a zazimovanie).
     for (let year = c.year; year < now.getFullYear(); year++) {
