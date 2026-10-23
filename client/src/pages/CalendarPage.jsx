@@ -44,6 +44,13 @@ const AppointmentChip = ({ a, onClick }) => {
   );
 };
 
+// Na mobile je pás dní posuvný: vybraný deň do stredu, bez posunu celej stránky.
+const centerInStrip = (el) => {
+  if (!el) return;
+  const strip = el.parentElement;
+  strip.scrollLeft = el.offsetLeft - strip.offsetLeft - (strip.clientWidth - el.clientWidth) / 2;
+};
+
 // Týždenný kalendár výjazdov. Pri každom dni je kapacita (obsadené/max), majiteľ ju vie zmeniť kliknutím.
 export const CalendarPage = () => {
   const { token, user } = useAuth();
@@ -194,6 +201,7 @@ export const CalendarPage = () => {
                     key={day.date}
                     type="button"
                     className={active ? styles.dayStripButtonActive : styles.dayStripButton}
+                    ref={active ? centerInStrip : undefined}
                     onClick={() => setFocusDay(day.date)}
                     style={day.max === 0 ? { opacity: 0.5 } : undefined}
                   >
