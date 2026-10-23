@@ -1,0 +1,148 @@
+/* GDPR: súhlas s cookies po kategóriách, analytika (GA4 + lokálne meranie) a štatistiky */
+
+// ---------- Súhlas ----------
+// Pri zmene textu alebo kategórií zvýš verziu, aby sa súhlas vyžiadal znova.
+const CONSENT_KEY = "consent_v2";
+let consent = st.get(CONSENT_KEY); // { analytics: bool, external: bool, ts: ISO } alebo null
+const can = (cat) => !!(consent && consent[cat]);
+
+function saveConsent(analytics, external) {
+  consent = { analytics, external, ts: new Date().toISOString() };
+  st.set(CONSENT_KEY, consent);
+  $("#ck").classList.add("hide");
+  applyConsent();
+}
+
+function openCookies(settings) {
+  $("#ck").classList.remove("hide");
+  $("#ck-main").classList.toggle("hide", !!settings);
+  $("#ck-set").classList.toggle("hide", !settings);
+  $("#c-an").checked = can("analytics");
+  $("#c-ex").checked = can("external");
+}
+
+$("#ck-all").onclick = () => saveConsent(true, true);
+$("#ck-min").onclick = () => saveConsent(false, false);
+$("#ck-open").onclick = () => openCookies(true);
+$("#ck-save").onclick = () => saveConsent($("#c-an").checked, $("#c-ex").checked);
+$$("[data-cookies]").forEach(
+  (a) =>
+    (a.onclick = (e) => {
+      e.preventDefault();
+      openCookies(true);
+    }),
+);
+
+// ---------- Zdroj návštevy ----------
+const q = new URLSearchParams(location.search);
+let ref = "priamo";
+try {
+  if (document.referrer) {
+    const h = new URL(document.referrer).hostname;
+    ref = h === location.hostname ? "priamo" : h.replace(/^www\./, "");
+  }
+} catch (e) {}
+const src = { utm: q.get("utm_source") || null, referrer: ref };
+const srcLabel = src.utm || ref;
+
+// ---------- Google Analytics 4 (len po súhlase) ----------
+let gaLoaded = false;
+function loadGA() {
+  if (gaLoaded || !CFG.ga4) return;
+  gaLoaded = true;
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () {
+    dataLayer.push(arguments);
+  };
+  gtag("js", new Date());
+  gtag("config", CFG.ga4, { anonymize_ip: true });
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(CFG.ga4);
+  document.head.appendChild(s);
+}
+
+// ---------- Meranie udalostí ----------
+// Udalosti: page_view, calc_start, calc_complete, lead_submit, service_submit, chat_open,
+// chat_message, voice_input, click_* (tlačidlá s atribútom data-t)
+function track(ev, d) {
+  if (!can("analytics")) return;
+  const s = st.get("stats") || { events: {}, sources: {} };
+  s.events[ev] = (s.events[ev] || 0) + 1;
+  if (ev === "page_view") s.sources[srcLabel] = (s.sources[srcLabel] || 0) + 1;
+  st.set("stats", s);
+  if (window.gtag) gtag("event", ev, Object.assign({ source: srcLabel }, d || {}));
+}
+
+let pageViewSent = false;
+function applyConsent() {
+  if (can("analytics")) {
+    loadGA();
+    if (!pageViewSent) {
+      pageViewSent = true;
+      track("page_view");
+    }
+  }
+  if (can("external")) loadMap();
+}
+
+// ---------- Google mapa v kontakte (externý obsah, načíta sa až po súhlase) ----------
+function loadMap() {
+  const f = $("#gmap");
+  if (!f || f.src) return;
+  f.src = f.dataset.src;
+  $("#map-ph").classList.add("hide");
+}
+$("#map-load").onclick = () => {
+  saveConsent(can("analytics"), true);
+};
+
+$$("[data-t]").forEach((e) => e.addEventListener("click", () => track("click_" + e.dataset.t)));
+
+// ---------- Štatistiky (otvoríš cez ?stats v adrese alebo odkazom v pätičke) ----------
+function showStats() {
+  const s = st.get("stats") || { events: {}, sources: {} },
+    e = s.events,
+    n = (k) => e[k] || 0;
+  const pv = n("page_view"),
+    pct = (a, b) => (b ? Math.round((a / b) * 100) + " %" : "–");
+  const funnel = [
+    ["Návštevy stránky", pv, ""],
+    ["Začali kalkulačku", n("calc_start"), pct(n("calc_start"), pv)],
+    ["Dokončili výpočet", n("calc_complete"), pct(n("calc_complete"), n("calc_start"))],
+    ["Odoslali dopyt (lead)", n("lead_submit"), pct(n("lead_submit"), n("calc_complete"))],
+  ];
+  const max = Math.max(1, pv);
+  const sources = Object.entries(s.sources).sort((a, b) => b[1] - a[1]);
+  $("#stats-body").innerHTML = `
+    <h3>Lievik kalkulačky</h3>
+    ${funnel
+      .map(
+        ([l, v, p]) =>
+          `<div class="fn"><span>${l}</span><b>${v}</b><small>${p}</small><i style="width:${(v / max) * 100}%"></i></div>`,
+      )
+      .join("")}
+    <div class="kv">
+      <div><b>${n("service_submit")}</b>servisné požiadavky</div>
+      <div><b>${n("chat_message")}</b>otázky AI asistentovi</div>
+    </div>
+    <h3>Odkiaľ prichádzajú návštevníci</h3>
+    ${
+      sources.length
+        ? `<table class="tb">${sources.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v}</td></tr>`).join("")}</table>`
+        : '<p class="who">Zatiaľ žiadne dáta.</p>'
+    }
+    <p class="who">Ukážka z tohto prehliadača (len so súhlasom s analytikou). Na ostrom webe sa rovnaké
+    udalosti posielajú do Google Analytics 4, kde sú súhrnné dáta všetkých návštevníkov.</p>`;
+  $("#stats").classList.remove("hide");
+}
+$("#stats-close").onclick = () => $("#stats").classList.add("hide");
+$("#stats-link").onclick = (e) => {
+  e.preventDefault();
+  showStats();
+};
+
+// ---------- Štart ----------
+if (consent === null) openCookies(false);
+else applyConsent();
+if (q.has("stats")) showStats();

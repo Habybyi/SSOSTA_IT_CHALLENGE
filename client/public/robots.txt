@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+# CRM a zákaznícky portál nepatria do vyhľadávačov.
+Disallow: /api/
+Disallow: /login
+Disallow: /app.html
+Disallow: /dashboard
+Disallow: /portal
+
+Sitemap: https://custodia.sk/sitemap.xml
