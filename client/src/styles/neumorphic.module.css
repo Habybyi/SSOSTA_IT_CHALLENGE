@@ -1958,3 +1958,25 @@
     gap: 0.75rem 1.25rem;
   }
 }
+
+/* Pole na heslo sa pri prihlásení vysunie až po zadaní e-mailu. */
+.slideDown {
+  animation: slideDown 0.25s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slideDown {
+    animation: none;
+  }
+}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { FiMail, FiLock } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
@@ -16,12 +16,23 @@ export const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Heslo sa ukáže až po zadaní e-mailu, aby pole nebolo stále na očiach.
+  const [isPasswordStep, setIsPasswordStep] = useState(false);
+  const passwordRef = useRef(null);
+
+  useEffect(() => {
+    if (isPasswordStep) passwordRef.current?.focus();
+  }, [isPasswordStep]);
 
   if (user) return <Navigate to={from} replace />;
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    if (!isPasswordStep) {
+      setIsPasswordStep(true);
+      return;
+    }
     setIsSubmitting(true);
     try {
       const loggedIn = await login(email, password);
@@ -46,27 +57,48 @@ export const LoginPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               className={styles.input}
               autoComplete="username"
+              readOnly={isPasswordStep}
               required
             />
           </Field>
 
-          <Field icon={FiLock}>
-            <input
-              type="password"
-              placeholder="Heslo"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={styles.input}
-              autoComplete="current-password"
-              required
-            />
-          </Field>
+          {isPasswordStep && (
+            <div className={styles.slideDown}>
+              <Field icon={FiLock}>
+                <input
+                  ref={passwordRef}
+                  type="password"
+                  placeholder="Heslo"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={styles.input}
+                  autoComplete="current-password"
+                  required
+                />
+              </Field>
+            </div>
+          )}
 
           {error && <div className={styles.errorMessage}>{error}</div>}
 
           <button type="submit" className={styles.primaryButton} disabled={isSubmitting}>
-            {isSubmitting ? "PRIHLASUJEM…" : "PRIHLÁSIŤ SA"}
+            {!isPasswordStep ? "POKRAČOVAŤ" : isSubmitting ? "PRIHLASUJEM…" : "PRIHLÁSIŤ SA"}
           </button>
+
+          {isPasswordStep && (
+            <button
+              type="button"
+              className={styles.linkButton}
+              style={{ alignSelf: "center" }}
+              onClick={() => {
+                setIsPasswordStep(false);
+                setPassword("");
+                setError("");
+              }}
+            >
+              Zmeniť e-mail
+            </button>
+          )}
         </form>
       </div>
     </div>
