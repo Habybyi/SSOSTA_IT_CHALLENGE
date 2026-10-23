@@ -1,6 +1,6 @@
-// Nie natvrdo "localhost": keď sa stránka otvorí na mobile cez IP počítača,
-// "localhost" by znamenal samotný mobil.
-const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:3001/api/v1`;
+// Relatívna cesta: Vite ju prepošle na server (proxy), takže web funguje
+// na localhoste aj z mobilu cez akúkoľvek IP počítača.
+const API_URL = import.meta.env.VITE_API_URL || "/api/v1";
 
 export class ApiError extends Error {
   constructor(message, status, fields, code) {
@@ -66,6 +66,7 @@ export const api = {
     request("/auth/change-password", { method: "POST", token, body: { currentPassword, newPassword } }),
 
   listUsers: (token, query) => request("/users", { token, query }),
+  listAudit: (token, query) => request("/audit", { token, query }),
   createUser: (token, data) => request("/users", { method: "POST", token, body: data }),
   updateUser: (token, id, data) => request(`/users/${id}`, { method: "PATCH", token, body: data }),
   resetPassword: (token, id) => request(`/users/${id}/reset-password`, { method: "POST", token }),
