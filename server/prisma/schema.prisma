@@ -71,6 +71,7 @@ enum Source {
   REFERRAL
   CUSTOMER_PORTAL
   MANUAL
+  IOT
 }
 
 model Customer {
@@ -225,10 +226,25 @@ model Device {
   type       DeviceType
   name       String
   externalId String?
+  // Tajný kľúč zariadenia: posiela ho v hlavičke X-Device-Token. Ukladá sa len hash.
+  tokenHash  String?    @unique
   lastValue  Json?
   lastSeenAt DateTime?
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
+
+  readings DeviceReading[]
+}
+
+// História hodnôt zo senzora (graf za posledných 24 hodín).
+model DeviceReading {
+  id         String   @id @default(uuid()) @db.Uuid
+  deviceId   String   @db.Uuid
+  device     Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  value      Float
+  recordedAt DateTime @default(now())
+
+  @@index([deviceId, recordedAt])
 }
 
 // ---------------------------------------------------------------------------
