@@ -2038,3 +2038,55 @@
     order: -1;
   }
 }
+
+/* IoT v karte záhrady. */
+.calloutAlert {
+  composes: calloutBox;
+  background: rgba(214, 69, 47, 0.1);
+  border-color: rgba(214, 69, 47, 0.45);
+}
+
+.sparkline {
+  flex: none;
+  width: 140px;
+  height: 36px;
+}
+
+.iotValue {
+  flex: none;
+  min-width: 84px;
+  text-align: right;
+  color: var(--neu-text);
+  font-size: 1.05rem;
+}
+
+.codeInline {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+.codeBlock {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: var(--neu-brand);
+  color: #e7ede5;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 14rem;
+  overflow: auto;
+}
+
+@media (max-width: 768px) {
+  .sparkline {
+    display: none;
+  }
+
+  .iotValue {
+    min-width: 0;
+  }
+}

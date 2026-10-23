@@ -83,6 +83,10 @@ export const api = {
   createGarden: (token, customerId, data) =>
     request(`/customers/${customerId}/gardens`, { method: "POST", token, body: data }),
   getGarden: (token, id) => request(`/gardens/${id}`, { token }),
+  listDevices: (token, gardenId) => request(`/gardens/${gardenId}/devices`, { token }),
+  createDevice: (token, gardenId, data) => request(`/gardens/${gardenId}/devices`, { method: "POST", token, body: data }),
+  regenerateDeviceToken: (token, id) => request(`/devices/${id}/token`, { method: "POST", token }),
+  deleteDevice: (token, id) => request(`/devices/${id}`, { method: "DELETE", token }),
   updateGarden: (token, id, data) => request(`/gardens/${id}`, { method: "PATCH", token, body: data }),
   deleteGarden: (token, id) => request(`/gardens/${id}`, { method: "DELETE", token }),
 

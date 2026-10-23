@@ -19,6 +19,7 @@ export const SOURCE_LABELS = {
   WEB_FORM: "Formulár na webe",
   CALCULATOR: "Kalkulačka na webe",
   CUSTOMER_PORTAL: "Zákaznícky portál",
+  IOT: "Senzor v záhrade (IoT)",
 };
 
 export const CONTACT_LABELS = {
@@ -149,6 +150,9 @@ export const AUDIT_ACTION_LABELS = {
   WORKLOG_CREATED: "Zápis do histórie",
   REMINDER_SETTINGS_UPDATED: "Nastavenia pripomienok",
   SEASONAL_CAMPAIGN_RUN: "Sezónna kampaň",
+  DEVICE_CREATED: "Nové IoT zariadenie",
+  DEVICE_DELETED: "Odstránené IoT zariadenie",
+  DEVICE_TOKEN_REGENERATED: "Nový kľúč IoT zariadenia",
 };
 
 export const AUDIT_ENTITY_LABELS = {
@@ -164,4 +168,15 @@ export const AUDIT_ENTITY_LABELS = {
   Material: "Materiál",
   MaterialTemplate: "Šablóna materiálu",
   WorkLog: "História",
+  Device: "IoT zariadenie",
+};
+
+export const DEVICE_TYPE_LABELS = {
+  HUMIDITY_SENSOR: "Senzor vlhkosti pôdy",
+  WATER_LEVEL_SENSOR: "Hladina vody (studňa, nádrž)",
+  TRIP_SENSOR: "Senzor úniku vody",
+  SPRINKLER: "Postrekovač / ventil",
+  MOWER: "Robotická kosačka",
+  HOME_GATEWAY: "Brána (gateway)",
+  OTHER: "Iné zariadenie",
 };

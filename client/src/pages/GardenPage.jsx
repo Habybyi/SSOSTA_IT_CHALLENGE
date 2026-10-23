@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { FiArrowLeft, FiEdit2, FiMapPin, FiPhone, FiTrash2, FiDroplet, FiCpu, FiCamera, FiInfo, FiInbox } from "react-icons/fi";
+import { FiArrowLeft, FiEdit2, FiMapPin, FiPhone, FiTrash2, FiDroplet, FiCpu, FiCamera, FiInfo, FiInbox, FiActivity } from "react-icons/fi";
 import { AppShell } from "../components/AppShell";
 import { Section } from "../components/Section";
 import { TabBar, useTab } from "../components/Tabs";
@@ -8,6 +8,7 @@ import { InfoItem } from "../components/InfoItem";
 import { ZonesSection } from "../components/ZonesSection";
 import { HistorySection } from "../components/HistorySection";
 import { PhotoGallery } from "../components/PhotoGallery";
+import { IotSection } from "../components/IotSection";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import { WATER_SOURCE_LABELS } from "../utils/labels";
@@ -27,6 +28,7 @@ export const GardenPage = () => {
     { key: "zones", label: "Zóny", icon: FiDroplet, count: garden?.zones.length },
     { key: "photos", label: "Fotky", icon: FiCamera, count: garden?.photos.length },
     { key: "history", label: "História", icon: FiCpu },
+    { key: "iot", label: "IoT", icon: FiActivity, count: garden?.devices.length || undefined },
   ];
   const [tab, setTab] = useTab(tabs);
   const [error, setError] = useState("");
@@ -153,6 +155,8 @@ export const GardenPage = () => {
         )}
 
         {tab === "history" && <HistorySection gardenId={id} />}
+
+        {tab === "iot" && <IotSection gardenId={id} onChange={load} />}
       </div>
     </AppShell>
   );
