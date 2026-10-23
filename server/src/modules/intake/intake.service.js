@@ -88,6 +88,8 @@ const publicSchema = z
     city: optionalText(100),
     postalCode: optionalText(20),
     description: optionalText(3000),
+    // Zákazník na webe zaškrtol haváriu (únik vody, zaplavená záhrada).
+    urgent: z.boolean().default(false),
     // Výsledok kalkulačky (zóny, plocha, cena od do), uloží sa k požiadavke tak, ako prišiel.
     payload: z.record(z.string(), z.unknown()).optional(),
     gdprConsent: z.literal(true, { message: "Potrebujeme súhlas so spracovaním údajov." }),
@@ -113,6 +115,7 @@ export async function submitPublicRequest(body) {
     customer,
     gardenId,
     type,
+    priority: data.urgent ? "EMERGENCY" : "NORMAL",
     source: data.source,
     title: data.source === "CALCULATOR" ? "Dopyt z kalkulačky: presná ponuka a obhliadka" : null,
     description: data.description,

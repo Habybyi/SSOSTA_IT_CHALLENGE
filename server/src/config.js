@@ -28,6 +28,11 @@ export const config = {
   },
   mailFrom: process.env.MAIL_FROM || "Custodia <servis@custodia.sk>",
   inboundEmailSecret: process.env.INBOUND_EMAIL_SECRET || "",
+  // AI asistent na webe (kľúč zadarmo: https://aistudio.google.com/apikey).
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || "",
+    model: process.env.GEMINI_MODEL || "gemini-3.5-flash-lite",
+  },
   // Vypnutie workera napr. pri testoch alebo keď beží samostatne.
   notificationsWorker: process.env.NOTIFICATIONS_WORKER !== "false",
 };
