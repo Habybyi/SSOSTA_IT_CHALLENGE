@@ -2090,3 +2090,134 @@
     min-width: 0;
   }
 }
+
+@media (min-width: 769px) {
+  .titleTruncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 768px) {
+  .splitColumns,
+  .plannerLayout,
+  .routeLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .splitColumns > *,
+  .plannerLayout > *,
+  .routeLayout > * {
+    min-width: 0;
+  }
+
+  .listCard {
+    flex-wrap: wrap;
+    column-gap: 0.75rem;
+    row-gap: 0.45rem;
+    padding: 0.85rem 1rem;
+  }
+
+  .listCardMain {
+    flex: 1 1 11rem;
+  }
+
+  .fixedRow {
+    height: auto !important;
+    min-height: var(--row-h);
+  }
+
+  .listCardTitle,
+  .fixedRow .listCardTitle,
+  .fixedRow .listCardMeta,
+  .listCardMeta {
+    white-space: normal;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow-wrap: anywhere;
+  }
+
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 6px 4px 8px;
+    margin: -6px -4px 0.6rem;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab,
+  .tabActive {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  .dayStrip {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 6px 4px 8px;
+    margin: -6px -4px 0.6rem;
+  }
+
+  .dayStrip::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dayStripButton,
+  .dayStripButtonActive {
+    flex: 0 0 4.6rem;
+    white-space: nowrap;
+  }
+
+  .pageHeader,
+  .splitHeader {
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .pageHeader .buttonRow,
+  .splitHeader .buttonRow {
+    width: 100%;
+  }
+
+  .pageHeader .buttonRow > *,
+  .splitHeader .buttonRow > * {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .primaryButtonInline {
+    padding: 0.8rem 1.1rem;
+    font-size: 0.85rem;
+  }
+
+  .toolbar {
+    gap: 0.6rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .toolbar > .inputWrapper {
+    flex: 1 1 100% !important;
+  }
+
+  .statGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .mapPanel {
+    min-height: 320px;
+  }
+
+  .modalWide {
+    max-width: 100%;
+  }
+}

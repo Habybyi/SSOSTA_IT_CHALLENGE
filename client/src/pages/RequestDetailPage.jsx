@@ -185,7 +185,7 @@ export const RequestDetailPage = () => {
 
       <div className={styles.pageHeader}>
         <div style={{ minWidth: 0 }}>
-          <h1 className={styles.pageTitle} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <h1 className={`${styles.pageTitle} ${styles.titleTruncate}`}>
             <span className={styles.muted}>#{r.number}</span> {r.title}
           </h1>
           <div className={styles.chipRow} style={{ marginTop: "0.4rem", alignItems: "center" }}>
