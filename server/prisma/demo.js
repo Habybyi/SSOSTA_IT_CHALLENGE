@@ -78,6 +78,11 @@ async function reset() {
 }
 
 async function main() {
+  // Na serveri sa demo nahrá len do prázdnej databázy, pri každom reštarte by inak dopĺňalo dáta.
+  if (process.env.DEMO_ONLY_IF_EMPTY === "true" && !RESET && (await prisma.customer.count()) > 0) {
+    console.log("Demo preskočené: databáza už obsahuje zákazníkov.");
+    return;
+  }
   if (RESET) await reset();
 
   const owner = await prisma.user.findFirst({ where: { role: "OWNER", isActive: true }, orderBy: { createdAt: "asc" } });

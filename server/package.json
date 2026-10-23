@@ -13,7 +13,8 @@
     "db:studio": "prisma studio",
     "db:demo": "node prisma/demo.js",
     "test": "node --test test/*.test.js",
-    "iot:simulate": "node scripts/iot-simulator.js"
+    "iot:simulate": "node scripts/iot-simulator.js",
+    "start:render": "prisma migrate deploy && node prisma/seed.js && node prisma/demo.js && node src/index.js"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
