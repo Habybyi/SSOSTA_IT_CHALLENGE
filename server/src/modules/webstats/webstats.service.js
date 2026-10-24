@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { prisma } from "../../lib/prisma.js";
 import { parse } from "../../lib/validate.js";
+import { addDays, dayKey, dayStart } from "../../lib/dates.js";
 import { WEB_EVENT_TYPES, isBot, normalizeSource } from "./webstats.rules.js";
 
 const eventSchema = z.object({
@@ -21,7 +22,7 @@ export async function recordEvent(body, userAgent) {
 
 export async function getWebStats(query) {
   const { days } = parse(rangeSchema, query);
-  const since = new Date(Date.now() - days * 24 * 3600 * 1000);
+  const since = dayStart(addDays(dayKey(new Date()), -(days - 1)));
   const [byType, bySource, daily, requestsBySource, leads] = await Promise.all([
     prisma.webEvent.groupBy({ by: ["type"], where: { createdAt: { gte: since } }, _count: { _all: true } }),
     prisma.webEvent.groupBy({
