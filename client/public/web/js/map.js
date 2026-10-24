@@ -93,7 +93,7 @@ function draw() {
         radius: 6,
         color: "#fff",
         weight: 2,
-        fillColor: "#2f7d32",
+        fillColor: "#28861c",
         fillOpacity: 1,
       }).addTo(llayer),
     );
@@ -119,13 +119,13 @@ function draw() {
       cx.closePath();
       cx.fillStyle = "rgba(134,197,138,.5)";
       cx.fill();
-      cx.strokeStyle = "#2f7d32";
+      cx.strokeStyle = "#28861c";
       cx.lineWidth = 3;
       cx.stroke();
       pts.forEach((p) => {
         cx.beginPath();
         cx.arc(p[0], p[1], 5, 0, 7);
-        cx.fillStyle = "#2f7d32";
+        cx.fillStyle = "#28861c";
         cx.fill();
       });
     }

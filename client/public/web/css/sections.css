@@ -377,7 +377,7 @@ footer {
 }
 
 .dark {
-  background: linear-gradient(135deg, var(--deep) 35%, #2f7d32 150%);
+  background: linear-gradient(135deg, var(--deep) 35%, #28861c 150%);
 }
 .ic {
   color: #0a2e0f;
