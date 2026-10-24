@@ -101,10 +101,11 @@ React 19 + Vite · Node.js + Express 5 · PostgreSQL 16 + Prisma · Docker Compo
 npm test
 ```
 
-Overujú logiku, na ktorej stojí najviac: párovanie telefónnych čísel, dni a časy cez zmenu letného času, validáciu formulárov, e-mailové šablóny (aj ochranu proti vloženému kódu) a odhad typu požiadavky z e-mailu.
+22 testov overuje logiku, na ktorej stojí najviac: párovanie telefónnych čísel, dni a časy cez zmenu letného času, validáciu formulárov, e-mailové šablóny (aj ochranu proti vloženému kódu) a odhad typu požiadavky z e-mailu.
 
 ## Dokumentácia
 
+- **[Ako to celé funguje (hlavná dokumentácia)](docs/dokumentacia.md)**
 - [Analýza: problém → funkcia → rola](docs/analyza.md)
 - [Architektúra a rozhodnutia](docs/architektura.md)
 - [Web firmy: nastavenia, AI asistent, cookies](docs/web.md)

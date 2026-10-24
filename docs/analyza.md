@@ -14,7 +14,7 @@ Systém nahrádza Milanov zošit a súkromný mobil. Každý problém z príbehu
 
 | # | Problém z príbehu | Funkcia systému | Rola | Fáza |
 |---|---|---|---|---|
-| P1 | Zákazníci volajú na súkromný mobil počas Milanovej práce | Jednotný príjem požiadaviek: web formulár, e-mail, ručné zadanie, portál | Zákazník, Majiteľ | 2 |
+| P1 | Zákazníci volajú na súkromný mobil počas Milanovej práce | Jednotný príjem požiadaviek: web (formulár, kalkulačka, rezervácia voľného dňa), e-mail, ručné zadanie počas hovoru, zákaznícky portál, IoT senzor úniku vody | Zákazník, Majiteľ | 2, 6 |
 | P2 | Požiadavky v zošite sa strácajú | Evidencia požiadaviek so stavmi, prioritou a históriou zmien. Nič sa nemaže, len uzatvára | Majiteľ | 2 |
 | P3 | Na jar a na jeseň chcú všetci naraz | Rezervácia termínov cez sloty, kapacita na deň, zoskupenie výjazdov podľa obce | Zákazník, Majiteľ | 3 |
 | P4 | Milan si nepamätá typ postrekovačov a počet zón | Technická karta záhrady: zóny, postrekovače, riadiaca jednotka, ventily, zdroj vody, fotky | Majiteľ, Technik | 1 |
@@ -22,9 +22,8 @@ Systém nahrádza Milanov zošit a súkromný mobil. Každý problém z príbehu
 | P6 | Brigádnik ide bez materiálu a musí sa vracať | Pred výjazdom karta záhrady + checklist materiálu podľa typu zásahu a počtu zón | Technik | 4 |
 | P7 | Brigádnik nie je vždy k dispozícii | Priradenie výjazdu konkrétnemu technikovi, kalendár tímu | Majiteľ | 3 |
 | P8 | Zákazníci môžu byť nespokojní | Automatické potvrdenie, pripomienka termínu, sezónna pripomienka zazimovania | Zákazník | 2, 4 |
-| P9 | Milan potrebuje istotu, že ho firma uživí | Výkaz práce a materiálu, prehľad tržieb a zákaziek | Majiteľ | 4, 6 |
+| P9 | Milan potrebuje istotu, že ho firma uživí | Výkaz práce a materiálu pri každom zásahu, meranie webu: koľko ľudí príde, použije kalkulačku a pošle dopyt, koľko sa stane zákazníkmi | Majiteľ | 4, 6 |
 | P10 | Milan nie je informatik | Jednoduché rozhranie, veľké tlačidlá, mobil ako prvý, žiadny IT žargón | Všetci | priebežne |
+| P11 | Konkurencia má profesionálnu prezentáciu, Milan láka „inteligentné záhrady“ | Web s kalkulačkou a AI asistentom, IoT senzory v karte záhrady a v portáli zákazníka, trasa dňa na mape | Zákazník, Majiteľ, Technik | 6 |
 
-## Mimo rozsah (zatiaľ)
-
-- Napojenie na web firmy (kalkulačka, formuláre). Web ešte neexistuje, API na príjem požiadaviek je ale navrhnuté tak, aby ho web neskôr len zavolal.
+Podrobný popis, ako jednotlivé funkcie fungujú: [dokumentacia.md](dokumentacia.md).

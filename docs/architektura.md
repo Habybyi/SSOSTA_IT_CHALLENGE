@@ -3,12 +3,14 @@
 ## Prehľad
 
 ```
-client/   React + Vite (mobil first, neumorfický dizajn)
-   │  REST /api/v1 (JSON, JWT v hlavičke Authorization)
+client/   web firmy (index.html) + CRM a portál (React + Vite, app.html), jedna adresa
+   │  REST /api/v1 (JSON, JWT v hlavičke Authorization), Vite/Vercel ho posiela na server
 server/   Node + Express 5
    │  Prisma ORM
-PostgreSQL 16 (Docker)
+PostgreSQL 16 (lokálne Docker, online Render)
 ```
+
+Online: Vercel servíruje web a CRM, všetko pod `/api` prepošle na server na Renderi (`client/vercel.json`, `render.yaml`). Prehliadač tak volá iba jednu adresu a CORS netreba riešiť.
 
 ## Vrstvy na serveri
 
@@ -94,3 +96,17 @@ akcia (nová požiadavka, hotovo)  →  tabuľka Notification (PENDING)  →  wo
 - Helmet (bezpečnostné HTTP hlavičky), CORS len pre adresu klienta a povolený web firmy.
 - Verejný formulár: limit 5 odoslaní za 15 minút, skryté pole proti robotom, povinný súhlas GDPR, verejnosti sa vracia len číslo požiadavky.
 - E-mailový webhook chránený tajným kľúčom (porovnanie odolné voči časovým útokom).
+
+## Doplnené vo Fáze 6
+
+| Oblasť | Riešenie |
+|---|---|
+| Web a CRM ako celok | Vite viacstránkový režim: `/` je web, ostatné adresy bez prípony dostanú `app.html` (CRM). Na Verceli to isté cez `vercel.json` |
+| IoT | Zariadenie má vlastný kľúč (v DB iba SHA-256 hash), hodnoty idú do `DeviceReading`. Pravidlá stavu sú v `iot.rules.js` bez databázy, aby sa dali testovať. Únik vody vytvorí jednu požiadavku, nie novú pri každej správe |
+| Zákaznícky portál | Rola `CUSTOMER` s prepojením `User.customerId`. API `/portal` vracia iba dáta prihláseného zákazníka, interné poznámky nie |
+| Mapa trasy | Leaflet + OpenStreetMap, súradnice z karty záhrady, navigácia cez odkaz na Google Mapy |
+| Meranie webu | Tabuľka `WebEvent` (typ, zdroj, čas). Bez IP, cookies a identifikátora, preto bez súhlasu. Roboty sa filtrujú podľa User-Agent |
+| AI asistent | Server prepošle rozhovor do Google Gemini s kľúčom z `.env`, obmedzí dĺžku a počet otázok |
+| Logy | Audit log s neúspešnými prihláseniami, stránka pre majiteľa, výpis požiadaviek do terminálu bez obsahu |
+| Nasadenie | Render Blueprint (`render.yaml`): pri štarte migrácie, účet majiteľa, demo iba do prázdnej databázy. `TRUST_PROXY=2` kvôli správnej IP za Vercelom a Renderom |
+
