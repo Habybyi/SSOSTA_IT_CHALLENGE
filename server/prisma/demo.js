@@ -4,6 +4,7 @@ import { hashPassword } from "../src/lib/password.js";
 import { normalizePhone } from "../src/lib/phone.js";
 import { demoGps } from "./demoGps.js";
 import { createDemoDevices } from "./demoIot.js";
+import { createDemoWebEvents } from "./demoWeb.js";
 
 
 const RESET = process.argv.includes("--reset");
@@ -64,6 +65,7 @@ async function reset() {
     prisma.zone.deleteMany(),
     prisma.garden.deleteMany(),
     prisma.auditLog.deleteMany(),
+    prisma.webEvent.deleteMany(),
     prisma.user.deleteMany({ where: { role: "CUSTOMER" } }),
     prisma.customer.deleteMany(),
     prisma.dayCapacity.deleteMany(),
@@ -298,7 +300,8 @@ async function main() {
     požiadavky: await prisma.serviceRequest.count(),
     termíny: await prisma.appointment.count(),
   };
-  console.log(`Demo pripravené (${created} nových zákazníkov).`, counts);
+  const webEvents = await createDemoWebEvents(prisma);
+  console.log(`Demo pripravené (${created} nových zákazníkov, ${webEvents} udalostí z webu).`, counts);
   console.log(`Brigádnik: ${techEmail} (heslo z DEMO_TECH_PASSWORD, predvolene Brigadnik123)`);
   console.log(`Zákaznícky portál: ${portalEmail} (heslo z DEMO_CUSTOMER_PASSWORD, predvolene Zakaznik123)`);
 }
