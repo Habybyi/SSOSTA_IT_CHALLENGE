@@ -5,9 +5,6 @@ import { notFound } from "../../lib/httpError.js";
 import { storage } from "../../lib/storage.js";
 import { logAudit } from "../audit/audit.service.js";
 
-// GDPR: zákazník má právo vedieť, čo o ňom firma eviduje (export),
-// a požiadať o vymazanie. Servisnú históriu (čo sa na záhrade robilo) firma
-// potrebuje kvôli záruke a účtovníctvu, preto osobné údaje anonymizujeme, nie mažeme celé záznamy.
 
 export async function exportCustomer(actorId, id) {
   const customer = await prisma.customer.findUnique({
@@ -59,20 +56,16 @@ export async function anonymizeCustomer(actorId, id) {
         deletedAt: customer.deletedAt || new Date(),
       },
     });
-    // Adresa záhrady je osobný údaj: necháme len obec (štatistika podľa lokality).
     await tx.garden.updateMany({
       where: { customerId: id },
       data: { street: "anonymizované", postalCode: null, latitude: null, longitude: null, notes: null, deletedAt: new Date() },
     });
     await tx.photo.deleteMany({ where: { garden: { customerId: id } } });
-    // Texty od zákazníka môžu obsahovať osobné údaje. Výsledok kalkulačky (plochy, ceny) nie, ten ostáva.
     await tx.serviceRequest.updateMany({ where: { customerId: id }, data: { description: null } });
     await tx.notification.updateMany({ where: { customerId: id, status: "PENDING" }, data: { status: "CANCELLED" } });
     await tx.notification.updateMany({ where: { customerId: id }, data: { recipient: "anonymizované", payload: Prisma.DbNull } });
-    // Audit si nechá, kto čo kedy urobil, ale bez obsahu zmien (môžu v ňom byť kontakty).
     await tx.auditLog.updateMany({ where: { entityType: "Customer", entityId: id }, data: { details: Prisma.DbNull } });
     if (customer.user) {
-      // Na účet odkazujú audit a história požiadaviek: odkazy zrušíme, záznamy ostanú.
       const userId = customer.user.id;
       await tx.auditLog.updateMany({ where: { userId }, data: { userId: null } });
       await tx.serviceRequest.updateMany({ where: { createdById: userId }, data: { createdById: null } });
@@ -83,7 +76,6 @@ export async function anonymizeCustomer(actorId, id) {
     }
   });
 
-  // Súbory fotiek až po úspešnej transakcii.
   for (const key of photoKeys) await storage.remove(key).catch(() => {});
   await logAudit({ userId: actorId, action: "CUSTOMER_ANONYMIZED", entityType: "Customer", entityId: id });
   return { ok: true };

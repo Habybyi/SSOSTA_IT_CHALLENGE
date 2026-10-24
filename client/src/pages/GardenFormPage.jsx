@@ -9,7 +9,6 @@ import { api } from "../api/client";
 import { toFormValues } from "../utils/format";
 import styles from "../styles/neumorphic.module.css";
 
-// /customers/:customerId/gardens/new = nová záhrada, /gardens/:id/edit = úprava karty.
 export const GardenFormPage = () => {
   const { id, customerId } = useParams();
   const isEdit = Boolean(id);

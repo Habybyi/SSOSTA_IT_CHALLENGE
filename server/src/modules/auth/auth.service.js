@@ -36,9 +36,7 @@ export async function login(body) {
   const { email, password } = parse(loginSchema, body);
   const user = await prisma.user.findUnique({ where: { email } });
 
-  // Rovnaká správa pre zlý e-mail aj heslo, aby sa nedalo zisťovať, ktoré účty existujú.
   if (!user || !user.isActive || !(await verifyPassword(password, user.passwordHash))) {
-    // Pokusy o prihlásenie vidí majiteľ v logoch (heslo sa nikdy neukladá).
     await logAudit({
       userId: user?.id ?? null,
       action: "LOGIN_FAILED",

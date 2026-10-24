@@ -15,7 +15,6 @@ export const StatusBadge = ({ status }) => {
   return <span className={cls}>{REQUEST_STATUS_LABELS[status]}</span>;
 };
 
-// Jedna požiadavka v zozname: priorita farbou, číslo, zákazník, ako dlho čaká.
 export const RequestCard = ({ request, showCustomer = true, fixed = false }) => {
   const r = request;
   return (

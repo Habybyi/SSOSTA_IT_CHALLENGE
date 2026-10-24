@@ -96,8 +96,6 @@ async function validateRelations({ customerId, gardenId, assignedToId }) {
   }
 }
 
-// Spoločné vytvorenie požiadavky pre všetky kanály (ručne, web, e-mail).
-// Vždy zapíše prvý stav do histórie a podľa nastavenia pošle potvrdenia.
 export async function createRequestRecord({
   customer,
   gardenId = null,
@@ -149,13 +147,11 @@ export async function createRequestRecord({
   return request;
 }
 
-// Ručné zadanie, typicky počas telefonátu.
 export async function createRequest(actor, body) {
   const data = parse(createSchema, body);
   const customer = await prisma.customer.findFirst({ where: { id: data.customerId, deletedAt: null } });
   if (!customer) throw badRequest("Zákazník sa nenašiel.", { fields: { customerId: "Vyber zákazníka." } });
 
-  // Ak má zákazník jedinú záhradu, netreba ju vyberať.
   let { gardenId } = data;
   if (!gardenId) {
     const gardens = await prisma.garden.findMany({ where: { customerId: customer.id, deletedAt: null }, select: { id: true } });
@@ -200,7 +196,6 @@ export async function listRequests(user, query) {
     ];
   }
 
-  // Otvorené: najprv havárie, potom najdlhšie čakajúce. Vybavené: najnovšie hore.
   const orderBy =
     view === "done" || view === "all" ? [{ createdAt: "desc" }] : [{ priority: "desc" }, { createdAt: "asc" }];
 
@@ -271,7 +266,6 @@ export async function updateRequest(actor, id, body) {
   if (!existing) throw notFound("Požiadavka sa nenašla.");
   await validateRelations({ customerId: existing.customerId, gardenId: data.gardenId, assignedToId: data.assignedToId });
 
-  // Prázdny názov = predvolený podľa typu.
   if (data.title === null) data.title = DEFAULT_TITLES[data.type || existing.type];
 
   await prisma.serviceRequest.update({ where: { id }, data });
@@ -279,7 +273,6 @@ export async function updateRequest(actor, id, body) {
   return getRequest(id);
 }
 
-// Zmena stavu sa vždy zapíše do histórie, takže je jasné, kto čo a kedy urobil.
 export async function changeStatus(actor, id, body) {
   const { status, note, notifyCustomer } = parse(statusSchema, body);
   const existing = await prisma.serviceRequest.findUnique({ where: { id }, include: { customer: true } });

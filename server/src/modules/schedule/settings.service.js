@@ -4,14 +4,12 @@ import { parse } from "../../lib/validate.js";
 import { isTime } from "../../lib/dates.js";
 import { logAudit } from "../audit/audit.service.js";
 
-// Nastavenia plánovania v jednom zázname tabuľky Setting (kľúč "schedule").
 export const DEFAULT_SCHEDULE = {
   workdayStart: "08:00",
   workdayEnd: "17:00",
-  workDays: [1, 2, 3, 4, 5, 6], // pondelok až sobota
+  workDays: [1, 2, 3, 4, 5, 6],
   defaultVisitsPerDay: 6,
-  travelBufferMin: 15, // presun medzi záhradami
-  // Koľko trvá zásah podľa typu (minúty).
+  travelBufferMin: 15,
   durations: {
     FAULT: 90,
     SPRING_START: 60,

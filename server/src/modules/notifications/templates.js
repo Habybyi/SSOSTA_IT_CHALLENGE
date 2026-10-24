@@ -1,10 +1,8 @@
 import { config } from "../../config.js";
 
-// Texty e-mailov. Každá šablóna dostane payload a vráti predmet, text a HTML.
-// Zámerne jednoduché HTML bez externých obrázkov, aby sa zobrazilo v každom klientovi.
 
-const BRAND = "#0a2e0f"; // Secondary zo style guide
-const ACCENT = "#28861c"; // Primary zo style guide
+const BRAND = "#0a2e0f";
+const ACCENT = "#28861c";
 
 const escape = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -27,7 +25,6 @@ const layout = (title, bodyHtml) => `<!doctype html>
 const p = (text) => `<p style="font-size:15px;line-height:1.5;margin:0 0 14px">${text}</p>`;
 
 export const TEMPLATES = {
-  // Zákazníkovi hneď po prijatí požiadavky (rieši problém "požiadavka sa stratí").
   REQUEST_RECEIVED: ({ number, firstName, typeLabel, description }) => ({
     subject: `Prijali sme vašu požiadavku č. ${number}`,
     text: `Dobrý deň${firstName ? ` ${firstName}` : ""},
@@ -162,7 +159,6 @@ Tím Custodia`,
     ),
   }),
 
-  // Technikovi večer pred výjazdmi: kam, kedy, komu zavolať.
   TECH_AGENDA: ({ name, dayLabel, items }) => {
     const rows = (items || [])
       .map((i) => `${i.time}  ${i.customer}, ${i.address} (${i.typeLabel})${i.phone ? `, tel. ${i.phone}` : ""}`)
@@ -190,7 +186,6 @@ Pred výjazdom si otvor kartu záhrady a checklist materiálu v aplikácii: ${co
     };
   },
 
-  // Sezónna kampaň: na jeseň zazimovanie, na jar spustenie.
   SEASONAL_REMINDER: ({ type, firstName }) => {
     const winter = type === "WINTERIZATION";
     const subject = winter ? "Blíži sa zima: je čas zazimovať závlahu" : "Jar je tu: spustíme vašu závlahu";
@@ -229,7 +224,6 @@ Nechcete dostávať servisné pripomienky? Stačí odpovedať "NIE".`,
     ),
   }),
 
-  // Majiteľovi, keď príde požiadavka zvonku (web, e-mail), nech nemusí sledovať aplikáciu.
   STAFF_NEW_REQUEST: ({ number, customerName, typeLabel, priorityLabel, sourceLabel, requestId }) => {
     const url = `${config.appUrl}/requests/${requestId}`;
     return {

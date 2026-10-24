@@ -5,8 +5,6 @@ import { api } from "../api/client";
 import { addDaysKey, capitalize, formatDayLong, formatTime, timeOfDay, toDayKey } from "../utils/format";
 import styles from "../styles/neumorphic.module.css";
 
-// Formulár termínu: nový termín k požiadavke, presun existujúceho alebo potvrdenie rezervácie.
-// Pod dátumom ukáže, koľko je v ten deň voľných miest a kam sa už ide, aby sa výjazdy dali spájať podľa obce.
 export const ScheduleForm = ({ request, appointment, defaultDuration, onSaved, onCancel, submitLabel = "NAPLÁNOVAŤ" }) => {
   const { token } = useAuth();
   const initialDay = appointment ? toDayKey(appointment.startsAt) : addDaysKey(toDayKey(new Date()), 1);
@@ -54,7 +52,6 @@ export const ScheduleForm = ({ request, appointment, defaultDuration, onSaved, o
         : await api.createAppointment(token, { ...payload, serviceRequestId: request.id });
       onSaved(data.appointment);
     } catch (err) {
-      // Plný deň alebo obsadený technik: Milan môže vedome naplánovať aj tak.
       if (err.code === "CAPACITY_FULL" || err.code === "TECHNICIAN_BUSY") setConfirmMessage(err.message);
       else setError(err.message);
     } finally {
@@ -62,7 +59,6 @@ export const ScheduleForm = ({ request, appointment, defaultDuration, onSaved, o
     }
   };
 
-  // Tip na spojenie výjazdov: iné požiadavky v rovnakej obci v ten deň.
   const otherRequests = dayAppointments.filter((a) => !request || a.serviceRequest?.id !== request.id);
   const cities = [...new Set(otherRequests.map((a) => a.garden.city))];
   const sameCity = request?.garden && cities.includes(request.garden.city);

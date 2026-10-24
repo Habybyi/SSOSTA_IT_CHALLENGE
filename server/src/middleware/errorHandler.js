@@ -6,7 +6,6 @@ export function notFoundHandler(req, res) {
   res.status(404).json({ error: "Takáto adresa API neexistuje." });
 }
 
-// eslint-disable-next-line no-unused-vars
 export function errorHandler(err, req, res, next) {
   if (err instanceof HttpError) {
     return res.status(err.status).json({ error: err.message, ...(err.details || {}) });
@@ -15,7 +14,6 @@ export function errorHandler(err, req, res, next) {
     if (err.code === "P2002") {
       return res.status(409).json({ error: "Takýto záznam už existuje." });
     }
-    // P2023 = neplatné UUID v adrese, pre používateľa je to "nenašlo sa".
     if (err.code === "P2025" || err.code === "P2023") {
       return res.status(404).json({ error: "Záznam sa nenašiel." });
     }

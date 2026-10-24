@@ -1,4 +1,3 @@
-/* Sekcie a komponenty: hero, služby, kalkulačka, formuláre, pätička, cookies */
 .hero {
   position: relative;
   overflow: hidden;
@@ -351,7 +350,6 @@ footer {
   margin: auto;
 }
 
-/* Doplnky k ikonám */
 .ic {
   color: #0b1f0e;
 }
@@ -378,7 +376,6 @@ footer {
   color: var(--acc);
 }
 
-/* Gradienty zo Style Guide */
 .dark {
   background: linear-gradient(135deg, var(--deep) 35%, #2f7d32 150%);
 }
@@ -386,7 +383,6 @@ footer {
   color: #0a2e0f;
 }
 
-/* Znak (koruna) ako vodoznak v hlavnej sekcii */
 .hero-mark {
   position: absolute;
   right: -40px;
@@ -398,7 +394,6 @@ footer {
   pointer-events: none;
 }
 
-/* Mapa v kontakte */
 .map {
   padding: 0;
   overflow: hidden;
@@ -411,13 +406,11 @@ footer {
   min-height: 300px;
   border: 0;
 }
-/* Fotky pred/po: súbory assets/img/pred.jpg a po.jpg (bez nich sa zobrazí ilustrácia) */
 .ba .b1,
 .ba .b2 {
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
 }
 
-/* Ukážka aplikácie v tmavom režime: tmavý telefón */
 :root[data-theme="dark"] .phone {
   background: #071a0b;
   color: #fff;
@@ -437,7 +430,6 @@ footer {
   color: #0b1f0e;
 }
 
-/* ===== Cookies: lišta a nastavenia ===== */
 #ck p {
   margin: 6px 0 12px;
   font-size: 0.92rem;
@@ -514,7 +506,6 @@ footer {
   outline-offset: 2px;
 }
 
-/* ===== Mapa v kontakte (placeholder do súhlasu) ===== */
 .map {
   position: relative;
 }
@@ -540,7 +531,6 @@ footer {
   margin: 0 0 8px;
 }
 
-/* ===== Zakreslenie pozemku na satelitnej mape ===== */
 .addr {
   display: flex;
   gap: 8px;
@@ -567,7 +557,6 @@ footer {
   cursor: crosshair;
 }
 
-/* ===== Časté otázky ===== */
 .faq {
   padding: 0;
 }
@@ -596,7 +585,6 @@ footer {
   color: var(--mut);
 }
 
-/* ===== Modálne okno (štatistiky) ===== */
 .modal {
   position: fixed;
   inset: 0;
@@ -667,7 +655,6 @@ footer {
   font-weight: 700;
 }
 
-/* ===== Ikonové tlačidlo ===== */
 .ib {
   display: grid;
   place-items: center;
@@ -689,7 +676,6 @@ footer {
   height: 20px;
 }
 
-/* ===== AI asistent ===== */
 #ai-fab {
   position: fixed;
   right: 18px;
@@ -927,12 +913,10 @@ footer {
     animation: none;
   }
 }
-/* Cookies lišta nad tlačidlom asistenta */
 #ck {
   z-index: 75;
 }
 
-/* Sociálne siete */
 .soc {
   display: flex;
   flex-wrap: wrap;
@@ -966,7 +950,6 @@ footer {
   height: 40px;
   justify-content: center;
 }
-/* Mapa vyplní celú výšku karty */
 .map {
   display: flex;
   flex-direction: column;
@@ -976,7 +959,6 @@ footer {
   flex: 1;
 }
 
-/* Pasca na roboty: skryté pole, človek ho nevidí ani nevyplní. */
 .hp {
   position: absolute !important;
   left: -9999px !important;

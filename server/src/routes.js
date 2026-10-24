@@ -16,25 +16,21 @@ import { devicesRouter, gardenDevicesRouter, iotIngestRouter } from "./modules/i
 import { portalAccountRouter, portalRouter } from "./modules/portal/portal.routes.js";
 import { assistantRouter } from "./modules/assistant/assistant.routes.js";
 
-// Všetko pod /api/v1, aby sa dala neskôr pridať v2 bez rozbitia starých klientov.
 export const apiRouter = Router();
 
 apiRouter.get("/health", (req, res) => res.json({ status: "ok" }));
 apiRouter.use("/auth", authRouter);
 
-// Bez prihlásenia: web firmy a e-mailový webhook (ten má vlastný tajný kľúč).
 apiRouter.use("/public/assistant", assistantRouter);
 apiRouter.use("/public", publicRouter);
 apiRouter.use("/inbound", inboundRouter);
 apiRouter.use("/iot", iotIngestRouter);
 
-// Odtiaľto už len prihlásení používatelia s vlastným heslom.
 apiRouter.use(requireAuth, requirePasswordChanged);
 apiRouter.use("/users", usersRouter);
 apiRouter.use("/audit", auditRouter);
 apiRouter.use("/portal", portalRouter);
 
-// Interné dáta firmy: majiteľ a technici (zákazník má neskôr vlastný portál).
 const staffOnly = requireRole("OWNER", "TECHNICIAN");
 apiRouter.use("/customers/:id/portal", staffOnly, portalAccountRouter);
 apiRouter.use("/customers", staffOnly, customersRouter);

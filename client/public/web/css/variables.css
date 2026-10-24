@@ -1,7 +1,5 @@
-/* Farby a témy (svetlá / tmavá). Farby značky meň len tu. */
 :root {
   color-scheme: light;
-  /* Tlmená zelená paleta (jemnejšia než Style Guide) */
   --bg: #f4f8f4;
   --card: #ffffff;
   --ink: #0e2312;
@@ -16,13 +14,11 @@
   --wm-text: #0a2e0f;
   --warn: #fff4d6;
   --r: 18px;
-  /* Písmo: keď dizajnéri dodajú font, vlož jeho súbory do assets/fonts a doplň ho na začiatok */
   --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-/* Tmavý režim (prepína sa tlačidlom s mesiačikom, voľba sa pamätá v prehliadači) */
 :root[data-theme="dark"] {
   color-scheme: dark;
   --bg: #09130b;

@@ -2,7 +2,6 @@ import { FiX } from "react-icons/fi";
 import { Portal } from "./Portal";
 import styles from "../styles/neumorphic.module.css";
 
-// Okno nad obrazovkou (formuláre, nastavenia), aby sa stránka nemusela predlžovať.
 export const Modal = ({ title, onClose, wide = false, children }) => (
   <Portal>
     <div className={styles.modalBackdrop} onClick={onClose}>

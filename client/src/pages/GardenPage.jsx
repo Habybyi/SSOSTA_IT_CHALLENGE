@@ -17,7 +17,6 @@ import styles from "../styles/neumorphic.module.css";
 
 const yesNo = (v) => (v ? "Áno" : "Nie");
 
-// Technická karta záhrady: všetko, čo treba vedieť pred výjazdom.
 export const GardenPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();

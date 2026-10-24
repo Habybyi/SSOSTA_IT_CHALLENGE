@@ -1,5 +1,3 @@
-// Každá požiadavka na API do terminálu: čas, metóda, cesta, výsledok, trvanie.
-// Telo požiadavky sa nevypisuje, aby sa do logu nedostali heslá.
 export function requestLogger(req, res, next) {
   const start = process.hrtime.bigint();
   res.on("finish", () => {

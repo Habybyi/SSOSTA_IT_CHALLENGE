@@ -1,7 +1,5 @@
 import { prisma } from "../../lib/prisma.js";
 
-// Notifikácia sa len zapíše do tabuľky (outbox), odošle ju worker.
-// Vďaka tomu výpadok e-mailu nezhodí uloženie požiadavky a nič sa nestratí.
 export async function enqueueNotification({
   template,
   recipient,
@@ -18,13 +16,11 @@ export async function enqueueNotification({
       data: { template, recipient, payload, customerId, userId, channel, scheduledFor, dedupeKey },
     });
   } catch (err) {
-    // Rovnaký dedupeKey = táto notifikácia už existuje (napr. sezónna pripomienka), nič netreba.
     if (err.code === "P2002") return null;
     throw err;
   }
 }
 
-// Upozorní všetkých aktívnych majiteľov.
 export async function notifyOwners(template, payload) {
   const owners = await prisma.user.findMany({ where: { role: "OWNER", isActive: true }, select: { id: true, email: true } });
   await Promise.all(owners.map((o) => enqueueNotification({ template, recipient: o.email, payload, userId: o.id })));

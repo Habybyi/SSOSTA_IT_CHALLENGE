@@ -8,12 +8,10 @@ import { enqueueNotification } from "../notifications/notifications.service.js";
 import { REQUEST_TYPE_LABELS } from "../notifications/labels.js";
 import { OPEN_STATUSES } from "../requests/requests.service.js";
 
-// Pripomienky: deň pred termínom a sezónne kampane (jarné spustenie, zazimovanie).
-
 export const SEASONAL_TYPES = ["WINTERIZATION", "SPRING_START"];
 
 export const DEFAULT_REMINDERS = {
-  dayBeforeHour: 17, // od tejto hodiny sa posielajú pripomienky na zajtra
+  dayBeforeHour: 17,
   seasonal: {
     WINTERIZATION: { enabled: true, month: 9, day: 15 },
     SPRING_START: { enabled: true, month: 3, day: 1 },
@@ -57,15 +55,10 @@ export async function updateReminderSettings(actorId, body) {
   return next;
 }
 
-// ---- Sezónne kampane ----
-
 const seasonKey = (type, year) => `reminders.lastRun.${type}.${year}`;
 
-// Od kedy sa ráta sezóna: zazimovanie od 1. júla, jarné spustenie od 1. januára.
 const seasonStart = (type, year) => (type === "WINTERIZATION" ? new Date(year, 6, 1) : new Date(year, 0, 1));
 
-// Komu by išla pripomienka: aktívni zákazníci so záhradou a e-mailom, ktorí sa neodhlásili,
-// nemajú otvorenú požiadavku toho typu, túto sezónu ho ešte nemali a pripomienku ešte nedostali.
 export async function getSeasonalRecipients(type) {
   const year = new Date().getFullYear();
   const customers = await prisma.customer.findMany({
@@ -137,10 +130,6 @@ export async function runSeasonalCampaign(actorId, type) {
   return { queued };
 }
 
-// ---- Deň pred termínom ----
-
-// Zákazník dostane pripomienku, technik zoznam zajtrajších výjazdov.
-// dedupeKey obsahuje čas termínu: po presune príde nová pripomienka, inak nikdy dvakrát.
 export async function queueTomorrowReminders() {
   const tomorrow = addDays(dayKey(new Date()), 1);
   const appointments = await prisma.appointment.findMany({
@@ -207,8 +196,6 @@ export async function queueTomorrowReminders() {
   return { customers, technicians };
 }
 
-// ---- Plánovač úloh (volá sa každých pár minút) ----
-
 export async function runDueReminderJobs(now = new Date()) {
   const settings = await getReminderSettings();
   const result = {};
@@ -217,7 +204,6 @@ export async function runDueReminderJobs(now = new Date()) {
     result.tomorrow = await queueTomorrowReminders();
   }
 
-  // Sezónna kampaň sa spustí sama v nastavený deň (a v nasledujúcich 30 dňoch, ak server nebežal).
   const year = now.getFullYear();
   for (const type of SEASONAL_TYPES) {
     const season = settings.seasonal[type];

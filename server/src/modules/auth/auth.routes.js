@@ -5,7 +5,6 @@ import * as authService from "./auth.service.js";
 
 export const authRouter = Router();
 
-// Ochrana proti hádaniu hesiel: 10 pokusov za 15 minút z jednej IP.
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 10,

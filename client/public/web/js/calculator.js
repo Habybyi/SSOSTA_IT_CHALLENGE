@@ -1,5 +1,3 @@
-/* Kalkulačka závlahy (4 kroky) */
-// calculator
 const num = (id) => Math.max(0, parseFloat($("#" + id).value) || 0),
   mode = () => $("[name=mode]:checked").value;
 let step = 1,

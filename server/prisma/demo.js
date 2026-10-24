@@ -5,12 +5,6 @@ import { normalizePhone } from "../src/lib/phone.js";
 import { demoGps } from "./demoGps.js";
 import { createDemoDevices } from "./demoIot.js";
 
-// Ukážkové dáta na prezentáciu: 15 stálych zákazníkov ako v zadaní, ich záhrady,
-// história zásahov za posledné roky, otvorené požiadavky a termíny na tento týždeň.
-// Dátumy sa počítajú od dnes, takže demo vyzerá vždy aktuálne.
-//
-//   npm run db:demo              pridá demo (existujúce dáta nechá, rovnakých zákazníkov nepridá dvakrát)
-//   npm run db:demo -- --reset   najprv ZMAŽE zákazníkov, požiadavky a termíny (používatelia, materiál a nastavenia ostanú)
 
 const RESET = process.argv.includes("--reset");
 
@@ -23,7 +17,6 @@ const day = (offset, hour = 8, minute = 0) => {
 };
 const yearsAgo = (years, month, dayOfMonth) => new Date(now.getFullYear() - years, month - 1, dayOfMonth, 9, 0);
 
-// Najbližší pracovný deň (po až so) od posunu, aby demo termíny nepadli na nedeľu.
 const workday = (offset, hour, minute = 0) => {
   let d = day(offset, hour, minute);
   while (d.getDay() === 0) d = new Date(d.getTime() + 24 * 3600 * 1000);
@@ -78,7 +71,6 @@ async function reset() {
 }
 
 async function main() {
-  // Na serveri sa demo nahrá len do prázdnej databázy, pri každom reštarte by inak dopĺňalo dáta.
   if (process.env.DEMO_ONLY_IF_EMPTY === "true" && !RESET && (await prisma.customer.count()) > 0) {
     console.log("Demo preskočené: databáza už obsahuje zákazníkov.");
     return;
@@ -88,7 +80,6 @@ async function main() {
   const owner = await prisma.user.findFirst({ where: { role: "OWNER", isActive: true }, orderBy: { createdAt: "asc" } });
   if (!owner) throw new Error("Najprv spusti npm run db:seed (chýba účet majiteľa).");
 
-  // Brigádnik s heslom zo .env (alebo predvoleným), aby sa dal na prezentácii ukázať aj jeho pohľad.
   const techEmail = (process.env.DEMO_TECH_EMAIL || "peter.brigadnik@custodia.sk").toLowerCase();
   const tech = await prisma.user.upsert({
     where: { email: techEmail },
@@ -154,7 +145,6 @@ async function main() {
 
     if (c.smart) await createDemoDevices(prisma, garden, c, created);
 
-    // História: každá sezóna od inštalácie (jarné spustenie a zazimovanie).
     for (let year = c.year; year < now.getFullYear(); year++) {
       const ago = now.getFullYear() - year;
       if (year > c.year) {
@@ -183,7 +173,6 @@ async function main() {
     created += 1;
   }
 
-  // Zákaznícky portál: jedna smart záhrada so senzormi má hotový prístup na ukážku.
   const portalEmail = (process.env.DEMO_CUSTOMER_EMAIL || "maria.kollarova@example.sk").toLowerCase();
   const portalCustomer = customers.find((c) => c.email === portalEmail)?.record;
   if (portalCustomer && !(await prisma.user.findUnique({ where: { email: portalEmail } }))) {
@@ -200,7 +189,6 @@ async function main() {
     });
   }
 
-  // Požiadavky a termíny vytvárame len pri prvom pridaní dema.
   const hasDemoRequests = await prisma.serviceRequest.count({ where: { customerId: { in: customers.map((c) => c.record.id) } } });
   if (!hasDemoRequests) {
     const byLast = (last) => customers.find((c) => c.last === last);
@@ -239,7 +227,6 @@ async function main() {
         },
       });
 
-    // Havária a nová porucha: navrchu zoznamu.
     await createRequest(byLast("Švec"), {
       type: "FAULT",
       priority: "EMERGENCY",
@@ -256,7 +243,6 @@ async function main() {
       createdAgoHours: 20,
     });
 
-    // Zazimovania naplánované na tento a budúci týždeň (jesenná špička).
     const autumn = [
       ["Hudák", 0, 8], ["Kollárová", 0, 9, 15], ["Bednárová", 1, 8], ["Hrušovská", 1, 9, 15],
       ["Oravec", 2, 8], ["Vargová", 2, 9, 30], ["Mráz", 3, 8], ["Krajčírová", 4, 8], ["Kováčik", 4, 9, 15],
@@ -267,7 +253,6 @@ async function main() {
       await appointment(r, c, workday(offset, hour, minute), 60);
     }
 
-    // Obhliadka z kalkulačky na webe (nový dopyt) a rezervácia zo webu bez presného času.
     const lead = await prisma.customer.create({
       data: { firstName: "Veronika", lastName: "Šimková", email: "veronika.simkova@example.sk", status: "LEAD", source: "CALCULATOR" },
     });
@@ -283,7 +268,6 @@ async function main() {
     const booking = await createRequest(pollakova, { type: "WINTERIZATION", source: "WEB_FORM", title: "Zazimovanie", createdAgoHours: 30, payload: { preferredDate: "web" } });
     await appointment(booking, pollakova, workday(5, 8), 60, "RESERVED", null);
 
-    // Starostlivosť o trávnik v riešení (treba ešte prísť) a vybavené požiadavky z minulých dní.
     await createRequest(byLast("Gavalier"), {
       type: "LAWN_CARE",
       status: "IN_PROGRESS",

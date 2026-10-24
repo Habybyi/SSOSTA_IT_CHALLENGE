@@ -110,14 +110,12 @@
       }
     </script>
     <link rel="preconnect" href="https://generativelanguage.googleapis.com" />
-    <!-- Štýly -->
     <link rel="icon" type="image/svg+xml" href="/web/assets/logo/favicon.svg" />
     <link rel="stylesheet" href="/web/css/variables.css" />
     <link rel="stylesheet" href="/web/css/base.css" />
     <link rel="stylesheet" href="/web/css/sections.css" />
   </head>
   <body>
-    <!-- ===== LOGO A IKONY (SVG sprite, použité cez <use href="#...">) ===== -->
     <svg width="0" height="0" style="position: absolute" aria-hidden="true">
       <symbol id="lg" viewBox="0 0 64 56">
         <path d="M3 49 9 12 29 41Z" fill="var(--dk)" />
@@ -252,7 +250,6 @@
         <path d="M21 13A9 9 0 1111 3a7 7 0 0010 10z" />
       </symbol>
     </svg>
-    <!-- ===== HLAVIČKA A MENU ===== -->
     <header>
       <div class="w nav">
         <a class="logo" href="#top" aria-label="Custodia domov">
@@ -282,9 +279,7 @@
       </div>
     </header>
 
-    <!-- ===== OBSAH STRÁNKY ===== -->
     <main id="top">
-      <!-- ===== HERO: hlavný benefit + tlačidlo na kalkulačku ===== -->
       <section class="hero">
         <svg class="hero-mark" aria-hidden="true"><use href="#lg" /></svg>
         <div class="w" style="position: relative">
@@ -312,7 +307,6 @@
         </div>
       </section>
 
-      <!-- ===== SLUŽBY ===== -->
       <section id="sluzby">
         <div class="w">
           <span class="eyebrow">Čo robíme</span>
@@ -369,7 +363,6 @@
         </div>
       </section>
 
-      <!-- ===== SMART ZÁHRADA (bonus) ===== -->
       <section id="smart" class="dark">
         <div class="w grid g2" style="align-items: center">
           <div>
@@ -412,7 +405,6 @@
         </div>
       </section>
 
-      <!-- ===== PRÍBEH FIRMY ===== -->
       <section id="pribeh">
         <div class="w grid g2" style="align-items: center">
           <div>
@@ -445,7 +437,6 @@
         </div>
       </section>
 
-      <!-- ===== REFERENCIE A FOTKY REALIZÁCIÍ ===== -->
       <section id="referencie" style="background: var(--card)">
         <div class="w">
           <span class="eyebrow">Referencie</span>
@@ -491,7 +482,6 @@
         </div>
       </section>
 
-      <!-- ===== KALKULAČKA ZÁVLAHY (logika: js/calculator.js) ===== -->
       <section id="kalkulacka">
         <div class="w calc">
           <span class="eyebrow">Kalkulačka</span>
@@ -636,7 +626,6 @@
         </div>
       </section>
 
-      <!-- ===== SERVISNÝ FORMULÁR (logika: js/forms.js) ===== -->
       <section id="servis" style="background: var(--card)">
         <div class="w calc">
           <span class="eyebrow">Pre existujúcich zákazníkov</span>
@@ -700,7 +689,6 @@
         </div>
       </section>
 
-      <!-- ===== ČASTÉ OTÁZKY (SEO: lokálne kľúčové slová + FAQ schema v hlavičke) ===== -->
       <section id="faq">
         <div class="w calc">
           <span class="eyebrow">Časté otázky</span>
@@ -756,7 +744,6 @@
         </div>
       </section>
 
-      <!-- ===== KONTAKT A DÁTOVÝ KONTRAKT S CRM ===== -->
       <section id="kontakt">
         <div class="w grid g2">
           <div>
@@ -828,7 +815,6 @@
       </section>
     </main>
 
-    <!-- ===== PÄTIČKA ===== -->
     <footer>
       <div class="w">
         <div class="soc soc-f">
@@ -857,7 +843,6 @@
       </div>
     </footer>
 
-    <!-- ===== COOKIES BANNER (logika: js/analytics.js) ===== -->
     <div id="ck" class="hide" role="dialog" aria-modal="false" aria-labelledby="ck-t">
       <div id="ck-main">
         <b id="ck-t">Cookies a súkromie</b>
@@ -894,7 +879,6 @@
       </div>
     </div>
 
-    <!-- ===== ŠTATISTIKY (logika: js/analytics.js, otvoríš cez ?stats) ===== -->
     <div id="stats" class="modal hide" role="dialog" aria-modal="true" aria-labelledby="stats-t">
       <div class="card">
         <div class="mh">
@@ -909,7 +893,6 @@
       </div>
     </div>
 
-    <!-- ===== AI ASISTENT (logika: js/assistant.js, nastavenie v js/config.js) ===== -->
     <button
       id="ai-fab"
       type="button"
@@ -973,7 +956,6 @@
       </p>
     </section>
 
-    <!-- Skripty (poradie je dôležité) -->
     <script src="/web/js/config.js" defer></script>
     <script src="/web/js/analytics.js" defer></script>
     <script src="/web/js/ui.js" defer></script>

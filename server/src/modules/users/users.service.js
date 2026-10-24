@@ -6,7 +6,6 @@ import { generateTempPassword, hashPassword } from "../../lib/password.js";
 import { getPagination, paginated } from "../../lib/pagination.js";
 import { logAudit } from "../audit/audit.service.js";
 
-// Zákaznícke účty vznikajú cez kartu zákazníka (portál, bonus), nie tu.
 const STAFF_ROLES = ["OWNER", "TECHNICIAN"];
 
 const userSelect = {
@@ -50,7 +49,6 @@ export async function listStaff(query) {
   return paginated(items, total, pagination);
 }
 
-// Vráti dočasné heslo jediný raz, majiteľ ho odovzdá technikovi.
 export async function createStaff(actorId, body) {
   const data = parse(createSchema, body);
   const tempPassword = generateTempPassword();

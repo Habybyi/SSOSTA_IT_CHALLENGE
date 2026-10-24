@@ -6,8 +6,6 @@ import { optionalNumber, optionalText, requiredText } from "../../lib/fields.js"
 import { logAudit } from "../audit/audit.service.js";
 import { REQUEST_TYPES } from "../requests/requests.service.js";
 
-// Sklad a katalóg materiálu (ceny od veľkoobchodu) + šablóny checklistov podľa typu zásahu.
-
 const materialFields = {
   sku: optionalText(50),
   name: requiredText("Zadaj názov materiálu.", 200),
@@ -18,7 +16,6 @@ const materialFields = {
   isActive: z.boolean().optional(),
 };
 
-// null z prázdneho poľa nahradíme predvolenou hodnotou, stĺpce v DB sú povinné.
 const withDefaults = (data) =>
   Object.fromEntries(
     Object.entries(data).map(([k, v]) => {
@@ -80,15 +77,12 @@ export async function updateMaterial(actorId, id, body) {
   return toNumber(material);
 }
 
-// Príjem tovaru (nákup vo veľkoobchode) pripočíta k zásobe.
 export async function receiveMaterial(actorId, id, body) {
   const { quantity, note } = parse(receiveSchema, body);
   const material = await prisma.material.update({ where: { id }, data: { stockQty: { increment: quantity } } });
   await logAudit({ userId: actorId, action: "MATERIAL_RECEIVED", entityType: "Material", entityId: id, details: { quantity, note } });
   return toNumber(material);
 }
-
-// ---- Šablóny checklistu ----
 
 const templateSchema = z.object({
   requestType: z.enum(REQUEST_TYPES, { message: "Vyber typ zásahu." }),
@@ -125,7 +119,6 @@ export async function deleteTemplate(actorId, id) {
   await logAudit({ userId: actorId, action: "TEMPLATE_DELETED", entityType: "MaterialTemplate", entityId: id });
 }
 
-// Checklist pre konkrétnu záhradu: šablóna typu zásahu × počet zón, so stavom skladu.
 export async function buildChecklist(requestType, zoneCount) {
   const templates = await prisma.materialTemplate.findMany({
     where: { requestType, material: { isActive: true } },

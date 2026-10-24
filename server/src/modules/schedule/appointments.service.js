@@ -11,7 +11,6 @@ import { OPEN_STATUSES } from "../requests/requests.service.js";
 import { ACTIVE_APPOINTMENT_STATUSES, getDayCapacity, parseRange } from "./capacity.service.js";
 import { getScheduleSettings } from "./settings.service.js";
 
-// Automatická poznámka pri rezervácii zo webu. Po potvrdení času už neplatí, tak sa zmaže.
 export const RESERVATION_NOTE = "Rezervácia zo webu, presný čas treba potvrdiť.";
 const clearReservationNote = (notes) => (notes === RESERVATION_NOTE ? null : notes);
 
@@ -44,7 +43,6 @@ const createSchema = z.object({
   durationMin: z.coerce.number().int().min(15).max(720).optional(),
   notes: optionalText(1000),
   notifyCustomer: z.boolean().default(true),
-  // true = Milan potvrdil, že chce naplánovať aj napriek plnému dňu alebo obsadenému technikovi.
   force: z.boolean().default(false),
 });
 
@@ -83,7 +81,6 @@ export async function getAppointment(id) {
   return appointment;
 }
 
-// Kontroly pred uložením. Bez force vráti 409 s vysvetlením, UI sa opýta "Napriek tomu?".
 async function checkConflicts({ startsAt, endsAt, technicianId, excludeId, force }) {
   if (force) return;
   const capacity = await getDayCapacity(dayKey(startsAt), { excludeAppointmentId: excludeId });
@@ -139,7 +136,6 @@ async function notifyAppointment(appointment, template, extra = {}) {
   });
 }
 
-// Naplánovanie požiadavky posunie jej stav na "Naplánovaná" a nastaví technika.
 async function markRequestScheduled(requestId, { technicianId, startsAt, actorId }) {
   const request = await prisma.serviceRequest.findUnique({ where: { id: requestId } });
   if (!request) return;
@@ -179,7 +175,6 @@ export async function createAppointment(actor, body) {
   const endsAt = addMinutes(startsAt, duration);
   await checkConflicts({ startsAt, endsAt, technicianId: data.technicianId, force: data.force });
 
-  // Ak má požiadavka rezerváciu zo webu, potvrdíme ju namiesto vytvorenia druhého termínu.
   const reserved = request
     ? await prisma.appointment.findFirst({ where: { serviceRequestId: request.id, status: "RESERVED" } })
     : null;
@@ -214,7 +209,6 @@ export async function createAppointment(actor, body) {
   return appointment;
 }
 
-// Presun termínu, zmena technika alebo potvrdenie rezervácie (RESERVED → CONFIRMED).
 export async function updateAppointment(actor, id, body) {
   const data = parse(updateSchema, body);
   const existing = await getAppointment(id);
@@ -266,7 +260,6 @@ export async function cancelAppointment(actor, id, body) {
     include: appointmentInclude,
   });
 
-  // Ak požiadavka nemá iný termín, vráti sa medzi nové, aby sa na ňu nezabudlo.
   const request = existing.serviceRequest;
   if (request && request.status === "SCHEDULED") {
     const other = await prisma.appointment.count({
@@ -292,20 +285,15 @@ export async function cancelAppointment(actor, id, body) {
   return appointment;
 }
 
-// ---------------------------------------------------------------------------
-// Plánovač sezóny: hromadné naplánovanie požiadaviek z jednej obce na jeden deň
-// ---------------------------------------------------------------------------
 
 const plannerSchema = z.object({ type: z.enum(["SPRING_START", "WINTERIZATION", "LAWN_CARE", "FAULT", "INSPECTION", "INSTALLATION", "OTHER"]).optional() });
 
-// Nenaplánované požiadavky zoskupené podľa obce, aby jeden výjazd pokryl celú ulicu.
 export async function getPlannerGroups(query) {
   const { type } = parse(plannerSchema, query);
   const requests = await prisma.serviceRequest.findMany({
     where: {
       status: { in: ["NEW", "SCHEDULED"] },
       ...(type ? { type } : {}),
-      // Naplánované s potvrdeným termínom už netreba, rezervácie áno (čakajú na presný čas).
       NOT: { appointments: { some: { status: "CONFIRMED" } } },
     },
     orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
@@ -346,8 +334,6 @@ const planDaySchema = z.object({
   force: z.boolean().default(false),
 });
 
-// Rozloží vybrané požiadavky za sebou od začiatku dňa, s rezervou na presun.
-// Preskočí obsadené časy technika a to, čo sa nezmestí do pracovného dňa alebo kapacity.
 export async function planDay(actor, body) {
   const data = parse(planDaySchema, body);
   const settings = await getScheduleSettings();
@@ -389,7 +375,6 @@ export async function planDay(actor, body) {
       continue;
     }
     const reservation = request.appointments[0];
-    // Rezervácia na tento deň už kapacitu zaberá, z iného dňa ju pridáva.
     const addsToDay = !reservation || dayKey(reservation.startsAt) !== data.date;
     if (addsToDay && booked >= capacity.max && !data.force) {
       skipped.push({ requestId, number: request.number, reason: `deň je plný (${booked}/${capacity.max})` });
@@ -397,7 +382,6 @@ export async function planDay(actor, body) {
     }
 
     const duration = settings.durations[request.type] || 60;
-    // Posun za obsadené úseky technika (okrem vlastnej rezervácie tejto požiadavky).
     let moved = true;
     while (moved) {
       moved = false;

@@ -1,15 +1,10 @@
-/* Zakreslenie pozemku na satelitnej mape (Leaflet + Esri) s vyhľadaním adresy.
-   Ak sa mapa nenačíta (offline), použije sa náhradná mriežka 5 × 5 m. */
-
-const MAP_CENTER = [49.0598, 20.2975]; // Poprad
-let lmap = null, // Leaflet mapa
-  lpts = [], // body na mape [lat, lng]
+const MAP_CENTER = [49.0598, 20.2975];
+let lmap = null,
+  lpts = [],
   llayer = null,
   useLeaflet = false;
 
-// ---------- Načítanie Leafletu až keď ho treba (rýchlejšie načítanie stránky) ----------
 let leafletPromise = null;
-// Pozor: pole "Dĺžka" má id="L", preto window.L môže byť input. Kontrolujeme L.map.
 const hasLeaflet = () => !!(window.L && typeof window.L.map === "function");
 function loadLeaflet() {
   if (hasLeaflet()) return Promise.resolve();
@@ -49,7 +44,6 @@ function initLeaflet() {
   });
 }
 
-// Plocha mnohouholníka na guli (m²)
 function geoArea(p) {
   if (p.length < 3) return 0;
   const R = 6378137,
@@ -63,10 +57,9 @@ function geoArea(p) {
   return Math.abs((a * R * R) / 2);
 }
 
-// ---------- Náhradná mriežka (canvas) ----------
 const cv = $("#cv"),
   cx = cv.getContext("2d"),
-  PX = 12; // 12 px = 1 m
+  PX = 12;
 let pts = [];
 const cs = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
@@ -81,7 +74,6 @@ function gridArea() {
   return Math.abs(a) / 2 / (PX * PX);
 }
 
-// Používa kalkulačka: plocha zakresleného pozemku v m²
 function polyArea() {
   return useLeaflet ? geoArea(lpts) : gridArea();
 }
@@ -158,7 +150,6 @@ $("#clr").onclick = () => {
   draw();
 };
 
-// ---------- Vyhľadanie adresy (OpenStreetMap Nominatim) ----------
 async function findAddress() {
   const qv = $("#addr").value.trim(),
     msg = $("#addr-msg");
@@ -189,7 +180,6 @@ $("#addr").addEventListener("keydown", (e) => {
   }
 });
 
-// ---------- Prepínanie Rozmery / Zakresliť na mape ----------
 function useGrid() {
   useLeaflet = false;
   $("#lmap").classList.add("hide");

@@ -76,10 +76,9 @@ const ZoneForm = ({ initial, onSave, onCancel }) => {
   );
 };
 
-// Zóny záhrady: na jednom mieste, čo je kde zakopané.
 export const ZonesSection = ({ gardenId, zones, onChange }) => {
   const { token } = useAuth();
-  const [editing, setEditing] = useState(null); // "new" | zoneId | null
+  const [editing, setEditing] = useState(null);
   const [error, setError] = useState("");
 
   const handleCreate = async (form) => {

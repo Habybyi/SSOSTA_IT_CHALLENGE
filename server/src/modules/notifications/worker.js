@@ -6,8 +6,6 @@ const BATCH_SIZE = 20;
 const MAX_ATTEMPTS = 5;
 const INTERVAL_MS = 10_000;
 
-// Spracuje čakajúce notifikácie. Každú si najprv "zarezervuje" podmieneným updatom
-// (attempts sa musí zhodovať), takže ani dva bežiace servery nepošlú e-mail dvakrát.
 export async function processPendingNotifications() {
   const pending = await prisma.notification.findMany({
     where: { status: "PENDING", scheduledFor: { lte: new Date() } },
@@ -35,7 +33,6 @@ export async function processPendingNotifications() {
         data: {
           status: failed ? "FAILED" : "PENDING",
           lastError: String(err.message).slice(0, 500),
-          // Ďalší pokus o 1, 4, 9, 16 minút.
           scheduledFor: failed ? undefined : new Date(Date.now() + attempts * attempts * 60_000),
         },
       });
@@ -44,8 +41,6 @@ export async function processPendingNotifications() {
   return pending.length;
 }
 
-// Jednoduchý interval v rámci API servera. Pri väčšej záťaži sa nahradí frontou
-// (Redis/BullMQ) a samostatným procesom, zvyšok aplikácie sa nemení.
 export function startNotificationWorker() {
   let running = false;
   const tick = async () => {

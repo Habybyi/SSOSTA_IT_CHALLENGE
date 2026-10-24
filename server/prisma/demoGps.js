@@ -1,4 +1,3 @@
-// Približné GPS demo záhrad: stred obce + malý posun, aby špendlíky neležali na sebe.
 const CITY_CENTERS = {
   Poprad: [49.0565, 20.2978],
   Svit: [49.0546, 20.2025],

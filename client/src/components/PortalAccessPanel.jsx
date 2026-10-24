@@ -8,7 +8,6 @@ import { api } from "../api/client";
 import { formatDate } from "../utils/format";
 import styles from "../styles/neumorphic.module.css";
 
-// Prístup zákazníka do portálu (len majiteľ). Heslo sa ukáže raz, zákazník si ho pri prvom prihlásení zmení.
 export const PortalAccessPanel = ({ customer }) => {
   const { token } = useAuth();
   const [account, setAccount] = useState(undefined);

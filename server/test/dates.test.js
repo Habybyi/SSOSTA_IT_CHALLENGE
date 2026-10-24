@@ -1,12 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-// Testy bežia v čase firmy, rovnako ako server.
 process.env.TZ = "Europe/Bratislava";
 const dates = await import("../src/lib/dates.js");
 
 test("8:00 je 8:00 slovenského času aj cez zmenu letného času", () => {
-  // 24. 10. 2026 ešte letný čas (UTC+2), 26. 10. už zimný (UTC+1).
   assert.equal(dates.atTime("2026-10-24", "08:00").toISOString(), "2026-10-24T06:00:00.000Z");
   assert.equal(dates.atTime("2026-10-26", "08:00").toISOString(), "2026-10-26T07:00:00.000Z");
 });

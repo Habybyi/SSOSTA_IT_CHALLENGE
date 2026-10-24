@@ -1,7 +1,5 @@
-/* Formuláre napojené na Custodia CRM (verejné API, rovnaká adresa ako web) */
 const PHONE_HINT = "Skúste to znova alebo nám zavolajte na +421 900 123 456.";
 
-// Odoslanie do CRM. Chyby vracia po slovensky (CRM ich posiela aj pri konkrétnom poli).
 async function postCRM(path, data) {
   let r;
   try {
@@ -24,7 +22,6 @@ async function postCRM(path, data) {
 const okMail = (v) => /^\S+@\S+\.\S+$/.test(v),
   okTel = (v) => v.replace(/[^\d]/g, "").length >= 9;
 
-// Počas odosielania zablokovať tlačidlo, aby nevznikli dve rovnaké požiadavky.
 async function submitting(form, fn) {
   const btn = form.querySelector("[type=submit]");
   const label = btn.textContent;
@@ -38,7 +35,6 @@ async function submitting(form, fn) {
   }
 }
 
-// ----- Dopyt z kalkulačky -----
 $("#lead").onsubmit = async (e) => {
   e.preventDefault();
   const n = $("#ln").value.trim(),
@@ -75,11 +71,9 @@ $("#lead").onsubmit = async (e) => {
   }
 };
 
-// ----- Porucha alebo termín servisu -----
 const SERVICE_TYPES = { porucha: "FAULT", spustenie: "SPRING_START", zazimovanie: "WINTERIZATION" };
 let daysLoaded = false;
 
-// Voľné dni podľa kapacity v CRM: zákazník si nevyberie deň, ktorý je už plný.
 async function loadFreeDays() {
   if (daysLoaded) return;
   const sel = $("#sd");
@@ -155,7 +149,6 @@ $("#sf").onsubmit = async (e) => {
     e.target.innerHTML = `<div class="ok">Požiadavku č. ${esc(d.number ?? "")} sme prijali. ${when} Ďakujeme!</div>`;
   } catch (err) {
     er.textContent = err.message;
-    // Deň mohol medzitým niekto obsadiť: načítať znova.
     if (!isFault) {
       daysLoaded = false;
       loadFreeDays();

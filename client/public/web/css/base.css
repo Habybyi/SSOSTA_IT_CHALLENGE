@@ -1,4 +1,3 @@
-/* Základ: reset, typografia, tlačidlá, hlavička, mriežky */
 * {
   box-sizing: border-box;
 }
@@ -147,7 +146,6 @@ nav a {
   }
 }
 
-/* Ikony (SVG sprite v index.html) */
 .i {
   width: 1.1em;
   height: 1.1em;
@@ -202,13 +200,11 @@ nav a {
   }
 }
 
-/* Wordmark v hlavičke (farby sa menia s témou cez --wm-text) */
 .wm {
   display: block;
   width: 112px;
   height: 27.5px;
 }
-/* Prepínač témy na počítači: plávajúci vľavo dole */
 @media (min-width: 820px) {
   .tg {
     position: fixed;

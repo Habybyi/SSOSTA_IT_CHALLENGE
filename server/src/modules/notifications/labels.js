@@ -1,4 +1,3 @@
-// Slovenské názvy pre texty e-mailov (frontend má vlastné v utils/labels.js).
 export const REQUEST_TYPE_LABELS = {
   FAULT: "porucha",
   SPRING_START: "jarné spustenie",

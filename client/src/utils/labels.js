@@ -1,4 +1,3 @@
-// Ľudské názvy pre hodnoty z API (enumy v databáze sú po anglicky).
 export const ROLE_LABELS = {
   OWNER: "Majiteľ",
   TECHNICIAN: "Technik",
@@ -86,7 +85,6 @@ export const NOTIFICATION_STATUS_LABELS = {
   CANCELLED: "zrušené",
 };
 
-// Hodnoty z kalkulačky na webe (payload požiadavky).
 export const PAYLOAD_LABELS = {
   areaM2: "Plocha (m²)",
   lawnM2: "Trávnik (m²)",

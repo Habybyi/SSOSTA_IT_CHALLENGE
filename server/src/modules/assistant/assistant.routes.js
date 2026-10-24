@@ -5,8 +5,6 @@ import { config } from "../../config.js";
 import { HttpError } from "../../lib/httpError.js";
 import { parse } from "../../lib/validate.js";
 
-// AI asistent na webe (Google Gemini). Kľúč je len tu na serveri, prehliadač ho nikdy nevidí.
-// Bez kľúča vráti 503 a web odpovedá z pripravených otázok (FAQ).
 export const assistantRouter = Router();
 
 const limiter = rateLimit({
@@ -30,7 +28,6 @@ assistantRouter.post("/", limiter, async (req, res) => {
   if (!config.gemini.apiKey) throw new HttpError(503, "AI asistent nie je nastavený.");
   const data = parse(schema, req.body);
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.gemini.model)}:generateContent`;
-  // Posielame len to, čo web potrebuje: posledných 12 správ a pevné nastavenia generovania.
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": config.gemini.apiKey },

@@ -11,7 +11,6 @@ import styles from "../styles/neumorphic.module.css";
 
 const EMPTY_FORM = { name: "", email: "", phone: "", role: "TECHNICIAN" };
 
-// Správa tímu (len majiteľ): pridanie brigádnika, deaktivácia, nové dočasné heslo.
 export const TeamPage = () => {
   const { token, user: me } = useAuth();
   const [users, setUsers] = useState([]);

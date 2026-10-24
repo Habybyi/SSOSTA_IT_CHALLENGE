@@ -1,5 +1,3 @@
-// Relatívna cesta: Vite ju prepošle na server (proxy), takže web funguje
-// na localhoste aj z mobilu cez akúkoľvek IP počítača.
 const API_URL = import.meta.env.VITE_API_URL || "/api/v1";
 
 export class ApiError extends Error {
@@ -7,14 +5,12 @@ export class ApiError extends Error {
     super(message);
     this.status = status;
     this.fields = fields || {};
-    // Napr. CAPACITY_FULL alebo TECHNICIAN_BUSY: UI sa opýta, či naplánovať aj tak.
     this.code = code;
   }
 }
 
 let onUnauthorized = null;
 
-// AuthContext sa sem zaregistruje, aby pri vypršanom prihlásení odhlásil používateľa.
 export const setUnauthorizedHandler = (handler) => {
   onUnauthorized = handler;
 };

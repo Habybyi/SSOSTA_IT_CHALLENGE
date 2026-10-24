@@ -44,14 +44,12 @@ const AppointmentChip = ({ a, onClick }) => {
   );
 };
 
-// Na mobile je pás dní posuvný: vybraný deň do stredu, bez posunu celej stránky.
 const centerInStrip = (el) => {
   if (!el) return;
   const strip = el.parentElement;
   strip.scrollLeft = el.offsetLeft - strip.offsetLeft - (strip.clientWidth - el.clientWidth) / 2;
 };
 
-// Týždenný kalendár výjazdov. Pri každom dni je kapacita (obsadené/max), majiteľ ju vie zmeniť kliknutím.
 export const CalendarPage = () => {
   const { token, user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -72,9 +70,7 @@ export const CalendarPage = () => {
   const areaRef = useRef(null);
   const { width: areaWidth, height: areaHeight } = useElementSize(areaRef);
   const isMobile = useIsMobile();
-  // Týždeň v 7 stĺpcoch len ak je na to šírka, inak pohľad jedného dňa.
   const dayMode = isMobile || (areaWidth > 0 && areaWidth < 760);
-  // Koľko výjazdov sa zmestí do stĺpca dňa (hlavička dňa ~70 px, výjazd 64 px + medzera).
   const chipsPerDay = Math.max(1, Math.floor((areaHeight - 90) / 71));
 
   useEffect(() => {

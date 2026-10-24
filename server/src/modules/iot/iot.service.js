@@ -22,7 +22,6 @@ const readingSchema = z.object({
   recordedAt: z.coerce.date().optional(),
 });
 
-// Kľúč vidí majiteľ iba raz (ako dočasné heslo), v databáze je len jeho hash.
 const newToken = () => crypto.randomBytes(24).toString("base64url");
 const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
 
@@ -66,7 +65,6 @@ export async function deleteDevice(actorId, id) {
   await logAudit({ userId: actorId, action: "DEVICE_DELETED", entityType: "Device", entityId: id, details: { name: device.name } });
 }
 
-// Príjem hodnoty zo senzora (Packet Tracer, ESP32, simulátor...).
 export async function receiveReading(token, body) {
   if (!token) throw unauthorized("Chýba kľúč zariadenia (hlavička X-Device-Token).");
   const device = await prisma.device.findUnique({
@@ -76,7 +74,6 @@ export async function receiveReading(token, body) {
   if (!device) throw unauthorized("Neznámy kľúč zariadenia.");
 
   const { value, recordedAt } = parse(readingSchema, body);
-  // Hodinky zariadenia môžu ísť zle: budúcnosť ani staré dáta neberieme.
   const now = new Date();
   const at = recordedAt && recordedAt <= now && now - recordedAt < 24 * 3600 * 1000 ? recordedAt : now;
 
@@ -95,7 +92,6 @@ export async function receiveReading(token, body) {
   };
 }
 
-// Jedna otvorená požiadavka na únik, nie nová pri každej správe senzora.
 async function openLeakRequest(device, value) {
   const { garden } = device;
   if (garden.deletedAt || garden.customer.deletedAt) return null;

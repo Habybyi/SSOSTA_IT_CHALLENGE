@@ -7,7 +7,6 @@ import { useAuth } from "../context/AuthContext";
 import { Portal } from "./Portal";
 import styles from "../styles/neumorphic.module.css";
 
-// Fotky sú za prihlásením, preto sa načítajú cez fetch s tokenom, nie priamo cez <img src>.
 const usePhotoUrl = (photoId) => {
   const { token } = useAuth();
   const [url, setUrl] = useState(null);
@@ -51,7 +50,6 @@ export const PhotoGallery = ({ gardenId, photos, onChange }) => {
   const gridRef = useRef(null);
   const { width, height } = useElementSize(gridRef);
   const isMobile = useIsMobile();
-  // Koľko fotiek sa zmestí: stĺpce po min. 130 px, pomer 4:3, medzera 13,6 px.
   const gap = 13.6;
   const cols = Math.max(1, Math.floor((width + gap) / (130 + gap)));
   const thumbH = ((width - gap * (cols - 1)) / cols) * 0.75;
@@ -101,7 +99,6 @@ export const PhotoGallery = ({ gardenId, photos, onChange }) => {
             onChange={(e) => setCaption(e.target.value)}
           />
         </div>
-        {/* accept="image/*" ponúkne na mobile aj fotoaparát */}
         <input ref={inputRef} type="file" accept="image/*" multiple hidden onChange={handleFiles} />
         <button
           type="button"

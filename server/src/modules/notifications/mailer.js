@@ -1,7 +1,6 @@
 import nodemailer from "nodemailer";
 import { config } from "../../config.js";
 
-// Odosielanie cez SMTP. Lokálne Mailpit, v produkcii ľubovoľný SMTP (napr. Websupport, SendGrid).
 const transporter = nodemailer.createTransport({
   host: config.smtp.host,
   port: config.smtp.port,

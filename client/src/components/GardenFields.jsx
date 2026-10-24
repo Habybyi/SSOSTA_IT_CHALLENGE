@@ -3,7 +3,6 @@ import { WATER_SOURCE_LABELS, toOptions } from "../utils/labels";
 import { LocationPicker } from "./LocationPicker";
 import styles from "../styles/neumorphic.module.css";
 
-// Polia záhrady, používa ich formulár nového zákazníka aj úprava technickej karty.
 export const EMPTY_GARDEN = {
   label: "",
   street: "",
@@ -25,7 +24,6 @@ export const EMPTY_GARDEN = {
   notes: "",
 };
 
-// Chyby z API pri vnorenom objekte prídu ako "garden.street".
 const scoped = (errors, prefix) =>
   prefix
     ? Object.fromEntries(
@@ -88,5 +86,4 @@ export const GardenTechFields = ({ form, setForm, errors, errorPrefix }) => {
   );
 };
 
-// Ktoré polia patria do ktorého kroku formulára (na červenú bodku pri chybe).
 export const GARDEN_ADDRESS_FIELDS = ["street", "city", "postalCode", "label", "areaM2", "latitude", "longitude", "notes"];

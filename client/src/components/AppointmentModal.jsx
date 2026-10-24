@@ -10,7 +10,6 @@ import { APPOINTMENT_STATUS_LABELS, REQUEST_TYPE_LABELS } from "../utils/labels"
 import { capitalize, formatDayLong, formatTime, fullName, mapsUrl, toDayKey } from "../utils/format";
 import styles from "../styles/neumorphic.module.css";
 
-// Detail výjazdu z kalendára: kontakt, navigácia, presun, potvrdenie rezervácie, zrušenie.
 export const AppointmentModal = ({ appointment, onClose, onChanged }) => {
   const { token } = useAuth();
   const [mode, setMode] = useState(appointment.status === "RESERVED" ? "confirm" : "view");

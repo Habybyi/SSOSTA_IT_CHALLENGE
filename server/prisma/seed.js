@@ -2,7 +2,6 @@ import "dotenv/config";
 import { prisma } from "../src/lib/prisma.js";
 import { hashPassword } from "../src/lib/password.js";
 
-// Vytvorí prvý účet majiteľa a predvolené nastavenia. Dá sa spustiť opakovane.
 async function main() {
   const email = (process.env.SEED_OWNER_EMAIL || "milan.kovac@custodia.sk").toLowerCase();
   const password = process.env.SEED_OWNER_PASSWORD || "ZmenMa123!";
@@ -31,7 +30,6 @@ async function main() {
     await prisma.setting.upsert({ where: { key }, update: {}, create: { key, value } });
   }
 
-  // Základný katalóg materiálu a checklisty (dajú sa upraviť v aplikácii).
   const materials = [
     { sku: "TRY-STA", name: "Statická tryska (náhradná)", unit: "ks", unitPrice: 4.5, stockQty: 40, minStock: 10 },
     { sku: "TRY-ROT", name: "Rotačná tryska Hunter", unit: "ks", unitPrice: 12.9, stockQty: 15, minStock: 5 },

@@ -1,6 +1,5 @@
 import styles from "../styles/neumorphic.module.css";
 
-// Slogan je súčasťou loga (lockup) od grafikov.
 export const SLOGAN = "Kráľovsky bez starostí";
 
 export const BrandHeader = () => {

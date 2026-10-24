@@ -1,8 +1,6 @@
 import { Field } from "./Field";
 import styles from "../styles/neumorphic.module.css";
 
-// Malé obaly nad Field, aby formuláre neboli plné opakovaného kódu.
-// form = objekt hodnôt, setForm = setter, errors = chyby z API podľa názvu poľa.
 
 export const TextField = ({ name, label, form, setForm, errors, type = "text", ...rest }) => (
   <Field label={label} error={errors?.[name]}>

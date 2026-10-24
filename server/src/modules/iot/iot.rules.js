@@ -1,7 +1,4 @@
-// Pravidlá pre IoT zariadenia: čo hodnota znamená a kedy treba niečo riešiť.
-// Bez databázy, aby sa dali ľahko otestovať.
 
-// Nikdy nevracať tokenHash von z API.
 export const deviceSelect = {
   id: true,
   gardenId: true,
@@ -13,7 +10,6 @@ export const deviceSelect = {
   createdAt: true,
 };
 
-// Po tomto čase bez správy považujeme zariadenie za odpojené.
 export const OFFLINE_AFTER_MIN = 30;
 
 const onOff = (on, off) => (value) => (value >= 1 ? on : off);
@@ -27,7 +23,6 @@ export const DEVICE_RULES = {
     unit: "%",
     check: (v) => (v < 15 ? { level: "warning", message: "Nízka hladina vody v studni alebo nádrži." } : null),
   },
-  // Senzor úniku vody: 1 = voda tam, kde nemá byť.
   TRIP_SENSOR: {
     format: onOff("ÚNIK", "OK"),
     check: (v) => (v >= 1 ? { level: "alert", message: "Senzor hlási únik vody." } : null),
@@ -46,7 +41,6 @@ export const formatValue = (type, value) => {
   return rule.unit ? `${rounded} ${rule.unit}` : String(rounded);
 };
 
-// Stav zariadenia pre kartu záhrady: waiting (ešte nič neposlalo), offline, alert, warning, ok.
 export function deviceStatus(device, now = new Date()) {
   const value = device.lastValue?.value;
   if (!device.lastSeenAt || value == null) {
@@ -60,10 +54,8 @@ export function deviceStatus(device, now = new Date()) {
   return problem || { level: "ok", message: "" };
 }
 
-// Únik vody je porucha: z neho vznikne požiadavka automaticky.
 export const createsRequest = (type, value) => DEVICE_RULES[type]?.check?.(value)?.level === "alert";
 
-// Zariadenie pripravené na zobrazenie: stav a hodnota s jednotkou.
 export const presentDevice = (device) => ({
   ...device,
   status: deviceStatus(device),

@@ -63,7 +63,6 @@ const MaterialForm = ({ initial, onSave, onCancel }) => {
   );
 };
 
-// Šablóny checklistu: čo brať so sebou na daný typ zásahu.
 const TemplatesTab = ({ materials, isOwner }) => {
   const { token } = useAuth();
   const [templates, setTemplates] = useState([]);
@@ -177,7 +176,7 @@ export const MaterialsPage = () => {
   const [materials, setMaterials] = useState([]);
   const [q, setQ] = useState("");
   const [lowOnly, setLowOnly] = useState(false);
-  const [editing, setEditing] = useState(null); // "new" | materiál
+  const [editing, setEditing] = useState(null);
   const [error, setError] = useState("");
   const debouncedQ = useDebouncedValue(q);
 

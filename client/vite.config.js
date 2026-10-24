@@ -1,8 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// Jedna adresa pre všetko: "/" je web firmy (index.html), ostatné stránky bez prípony
-// (/login, /dashboard, /portal...) sú CRM aplikácia (app.html).
 const crmFallback = () => {
   const rewrite = (req, res, next) => {
     const path = req.url.split("?")[0];
@@ -13,7 +11,6 @@ const crmFallback = () => {
   };
   return {
     name: "custodia-crm-fallback",
-    // Blok bez návratovej hodnoty: vrátená funkcia by sa vo Vite spustila ako ďalší middleware.
     configureServer(server) {
       server.middlewares.use(rewrite);
     },

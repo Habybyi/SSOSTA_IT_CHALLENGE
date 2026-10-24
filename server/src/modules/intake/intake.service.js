@@ -14,8 +14,6 @@ import { getPublicAvailability } from "../schedule/capacity.service.js";
 import { getScheduleSettings } from "../schedule/settings.service.js";
 import { RESERVATION_NOTE } from "../schedule/appointments.service.js";
 
-// Príjem požiadaviek zvonku: formulár a kalkulačka na webe, prichádzajúce e-maily.
-// Zákazníka spáruje podľa e-mailu alebo telefónu, neznámeho založí ako "dopyt" (LEAD).
 
 const splitName = (fullName) => {
   const parts = fullName.trim().split(/\s+/);
@@ -50,7 +48,6 @@ async function findOrCreateCustomer({ name, email, phone, street, city, postalCo
       },
     });
   } else if (!customer.email && email) {
-    // Doplníme chýbajúci kontakt, existujúci nikdy neprepisujeme.
     customer = await prisma.customer.update({ where: { id: customer.id }, data: { email } });
   }
 
@@ -75,8 +72,6 @@ async function findOrCreateCustomer({ name, email, phone, street, city, postalCo
   return { customer, gardenId };
 }
 
-// ---- Formulár a kalkulačka na webe ----
-
 const publicSchema = z
   .object({
     source: z.enum(["WEB_FORM", "CALCULATOR"]).default("WEB_FORM"),
@@ -88,20 +83,16 @@ const publicSchema = z
     city: optionalText(100),
     postalCode: optionalText(20),
     description: optionalText(3000),
-    // Zákazník na webe zaškrtol haváriu (únik vody, zaplavená záhrada).
     urgent: z.boolean().default(false),
-    // Výsledok kalkulačky (zóny, plocha, cena od do), uloží sa k požiadavke tak, ako prišiel.
     payload: z.record(z.string(), z.unknown()).optional(),
     gdprConsent: z.literal(true, { message: "Potrebujeme súhlas so spracovaním údajov." }),
     marketingConsent: z.boolean().default(false),
-    // Pasca na roboty: skryté pole, človek ho nevyplní.
     website: z.string().max(0).optional().or(z.literal("")),
   })
   .refine((d) => d.email || d.phone, { message: "Zadaj telefón alebo e-mail.", path: ["phone"] });
 
 export async function submitPublicRequest(body) {
   if (body && typeof body.website === "string" && body.website.length > 0) {
-    // Robotovi tvárime úspech, nech neskúša ďalej.
     return { number: null };
   }
   const data = parse(publicSchema, body);
@@ -123,11 +114,8 @@ export async function submitPublicRequest(body) {
     notifyCustomer: true,
     notifyStaff: true,
   });
-  // Verejnosti vraciame len číslo, žiadne osobné údaje.
   return { number: request.number };
 }
-
-// ---- Prichádzajúce e-maily ----
 
 const inboundSchema = z.object({
   from: requiredText("Chýba odosielateľ.", 300),
@@ -135,7 +123,6 @@ const inboundSchema = z.object({
   text: optionalText(20_000),
 });
 
-// "Ján Novák <jan@example.sk>" -> { name, email }
 const parseFrom = (from) => {
   const match = from.match(/^\s*"?([^"<]*?)"?\s*<([^>]+)>\s*$/);
   const email = (match ? match[2] : from).trim().toLowerCase();
@@ -143,7 +130,6 @@ const parseFrom = (from) => {
   return { name, email };
 };
 
-// Typ požiadavky odhadneme z predmetu a textu, Milan ho môže zmeniť.
 export const guessType = (text) => {
   const t = text.toLowerCase();
   if (/(porucha|nefunguj|nejde|te[cč]ie|kvapk|pokazen|prasknut|havari)/.test(t)) return "FAULT";
@@ -187,8 +173,6 @@ export async function receiveInboundEmail(body) {
   return { number: request.number };
 }
 
-// ---- Rezervácia dňa zo webu (jarné spustenie, zazimovanie...) ----
-
 const bookingSchema = z
   .object({
     type: z.enum(["SPRING_START", "WINTERIZATION", "LAWN_CARE", "INSPECTION"], { message: "Vyber službu." }),
@@ -210,7 +194,6 @@ export async function submitPublicBooking(body) {
   if (body && typeof body.website === "string" && body.website.length > 0) return { number: null };
   const data = parse(bookingSchema, body);
 
-  // Zákazník si rezervuje deň, presný čas doplní Milan pri plánovaní trasy.
   const available = await getPublicAvailability(60);
   if (!available.some((d) => d.date === data.date)) {
     throw badRequest("Tento deň je už obsadený. Vyber iný.", { fields: { date: "Deň je obsadený." } });

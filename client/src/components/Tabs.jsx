@@ -1,7 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import styles from "../styles/neumorphic.module.css";
 
-// Záložky; aktívna je v adrese (?tab=...), takže funguje tlačidlo Späť aj obnovenie stránky.
 export const useTab = (tabs, fallback) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const requested = searchParams.get("tab");

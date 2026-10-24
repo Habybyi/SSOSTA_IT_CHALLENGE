@@ -9,7 +9,6 @@ import styles from "../styles/neumorphic.module.css";
 
 const EMPTY_QUICK = { firstName: "", lastName: "", phone: "", email: "", street: "", city: "" };
 
-// Výber zákazníka pri telefonáte: nájdi podľa mena alebo čísla, prípadne rýchlo založ nového.
 export const CustomerPicker = ({ onSelect }) => {
   const { token } = useAuth();
   const [q, setQ] = useState("");
@@ -32,7 +31,6 @@ export const CustomerPicker = ({ onSelect }) => {
   }, [debouncedQ, token]);
 
   const startCreate = () => {
-    // Čo Milan napísal do hľadania, predvyplníme: číslo do telefónu, inak do mena.
     const looksLikePhone = /^[+\d\s]{5,}$/.test(q.trim());
     const [first = "", ...rest] = looksLikePhone ? [] : q.trim().split(/\s+/);
     setQuick({ ...EMPTY_QUICK, phone: looksLikePhone ? q.trim() : "", firstName: first, lastName: rest.join(" ") });

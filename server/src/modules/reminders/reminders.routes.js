@@ -30,7 +30,6 @@ remindersRouter.post("/seasonal/run", requireRole("OWNER"), async (req, res) => 
   res.json(await remindersService.runSeasonalCampaign(req.user.id, type));
 });
 
-// Ručné spustenie pripomienok na zajtra (inak idú samé od nastavenej hodiny).
 remindersRouter.post("/tomorrow/run", requireRole("OWNER"), async (req, res) => {
   res.json(await remindersService.queueTomorrowReminders());
 });

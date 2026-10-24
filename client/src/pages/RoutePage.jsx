@@ -13,7 +13,6 @@ import styles from "../styles/neumorphic.module.css";
 
 const whatToDo = (a) => (a.serviceRequest ? `#${a.serviceRequest.number} ${REQUEST_TYPE_LABELS[a.serviceRequest.type]}` : a.notes || "Výjazd");
 
-// Trasa dňa: výjazdy v poradí podľa času na mape. Brigádnik vidí len svoje.
 export const RoutePage = () => {
   const { token, user } = useAuth();
   const isOwner = user.role === "OWNER";

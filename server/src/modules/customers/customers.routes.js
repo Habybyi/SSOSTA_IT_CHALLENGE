@@ -35,7 +35,6 @@ customersRouter.post("/:id/gardens", async (req, res) => {
   res.status(201).json({ garden: await createGarden(req.user.id, req.params.id, req.body) });
 });
 
-// GDPR: export a anonymizácia na žiadosť zákazníka (len majiteľ).
 customersRouter.get("/:id/export", requireRole("OWNER"), async (req, res) => {
   const data = await gdprService.exportCustomer(req.user.id, req.params.id);
   res.setHeader("Content-Disposition", `attachment; filename="zakaznik-${req.params.id}.json"`);

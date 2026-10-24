@@ -17,7 +17,6 @@ const describeDetails = (details) => {
     .join(", ");
 };
 
-// Logy (len majiteľ): kto čo kedy spravil v CRM, vrátane neúspešných prihlásení.
 export const AuditPage = () => {
   const { token } = useAuth();
   const [entries, setEntries] = useState([]);
@@ -39,10 +38,8 @@ export const AuditPage = () => {
 
   useEffect(() => {
     load();
-    // Pri prezentácii sa logy obnovujú samé.
     const timer = setInterval(load, 10000);
     return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const EntryRow = ({ entry }) => {

@@ -2,7 +2,6 @@ import { Router } from "express";
 import { requireRole } from "../../middleware/auth.js";
 import * as portalService from "./portal.service.js";
 
-// Zákaznícky portál: /portal (len rola CUSTOMER).
 export const portalRouter = Router();
 portalRouter.use(requireRole("CUSTOMER"));
 
@@ -32,7 +31,6 @@ portalRouter.get("/export", async (req, res) => {
   res.json(data);
 });
 
-// Prístup zákazníka do portálu, spravuje majiteľ z karty zákazníka: /customers/:id/portal
 export const portalAccountRouter = Router({ mergeParams: true });
 portalAccountRouter.use(requireRole("OWNER"));
 

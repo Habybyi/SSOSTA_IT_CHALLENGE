@@ -1,9 +1,5 @@
-/* GDPR: súhlas s cookies po kategóriách, analytika (GA4 + lokálne meranie) a štatistiky */
-
-// ---------- Súhlas ----------
-// Pri zmene textu alebo kategórií zvýš verziu, aby sa súhlas vyžiadal znova.
 const CONSENT_KEY = "consent_v2";
-let consent = st.get(CONSENT_KEY); // { analytics: bool, external: bool, ts: ISO } alebo null
+let consent = st.get(CONSENT_KEY);
 const can = (cat) => !!(consent && consent[cat]);
 
 function saveConsent(analytics, external) {
@@ -33,7 +29,6 @@ $$("[data-cookies]").forEach(
     }),
 );
 
-// ---------- Zdroj návštevy ----------
 const q = new URLSearchParams(location.search);
 let ref = "priamo";
 try {
@@ -45,7 +40,6 @@ try {
 const src = { utm: q.get("utm_source") || null, referrer: ref };
 const srcLabel = src.utm || ref;
 
-// ---------- Google Analytics 4 (len po súhlase) ----------
 let gaLoaded = false;
 function loadGA() {
   if (gaLoaded || !CFG.ga4) return;
@@ -62,9 +56,6 @@ function loadGA() {
   document.head.appendChild(s);
 }
 
-// ---------- Meranie udalostí ----------
-// Udalosti: page_view, calc_start, calc_complete, lead_submit, service_submit, chat_open,
-// chat_message, voice_input, click_* (tlačidlá s atribútom data-t)
 function track(ev, d) {
   if (!can("analytics")) return;
   const s = st.get("stats") || { events: {}, sources: {} };
@@ -86,7 +77,6 @@ function applyConsent() {
   if (can("external")) loadMap();
 }
 
-// ---------- Google mapa v kontakte (externý obsah, načíta sa až po súhlase) ----------
 function loadMap() {
   const f = $("#gmap");
   if (!f || f.src) return;
@@ -99,7 +89,6 @@ $("#map-load").onclick = () => {
 
 $$("[data-t]").forEach((e) => e.addEventListener("click", () => track("click_" + e.dataset.t)));
 
-// ---------- Štatistiky (otvoríš cez ?stats v adrese alebo odkazom v pätičke) ----------
 function showStats() {
   const s = st.get("stats") || { events: {}, sources: {} },
     e = s.events,
@@ -142,7 +131,6 @@ $("#stats-link").onclick = (e) => {
   showStats();
 };
 
-// ---------- Štart ----------
 if (consent === null) openCookies(false);
 else applyConsent();
 if (q.has("stats")) showStats();

@@ -20,7 +20,6 @@ const STATUS_BADGE = {
   waiting: { className: styles.badgeMuted, label: "Čaká na dáta" },
 };
 
-// Malý graf za posledných 24 hodín (bez knižnice, stačí čiara).
 const Sparkline = ({ readings }) => {
   if (readings.length < 2) return <span className={styles.sparkline} />;
   const width = 140;
@@ -39,7 +38,6 @@ const Sparkline = ({ readings }) => {
   );
 };
 
-// Kľúč a návod na pripojenie: zobrazí sa len raz, potom ho už nikto neuvidí.
 const TokenModal = ({ result, onClose }) => {
   const url = `${window.location.origin}/api/v1/iot/readings`;
   const snippet = `from realhttp import *
@@ -77,7 +75,6 @@ while True:
   );
 };
 
-// IoT v karte záhrady: posledné hodnoty zo senzorov, stav a graf za 24 hodín.
 export const IotSection = ({ gardenId, onChange }) => {
   const { token, user } = useAuth();
   const isOwner = user.role === "OWNER";
@@ -98,7 +95,6 @@ export const IotSection = ({ gardenId, onChange }) => {
     }
   }, [token, gardenId]);
 
-  // Hodnoty sa obnovujú samé, aby bolo vidno, keď senzor niečo pošle.
   useEffect(() => {
     load();
     const timer = setInterval(load, REFRESH_MS);

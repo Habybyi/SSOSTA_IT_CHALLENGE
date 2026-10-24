@@ -1,5 +1,3 @@
-// Chyba so status kódom a správou pre používateľa (po slovensky).
-// Service vrstva hádže HttpError, error handler z nej spraví JSON odpoveď.
 export class HttpError extends Error {
   constructor(status, message, details) {
     super(message);

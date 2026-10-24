@@ -3,9 +3,6 @@ import { createReadStream } from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 
-// Úložisko súborov za jednoduchým rozhraním (save/open/remove).
-// Dnes lokálny disk, neskôr sa dá nahradiť S3 bez zmeny zvyšku aplikácie,
-// lebo v DB je uložený len storageKey.
 const ROOT = path.resolve(process.env.UPLOAD_DIR || "uploads");
 
 const resolveKey = (key) => {

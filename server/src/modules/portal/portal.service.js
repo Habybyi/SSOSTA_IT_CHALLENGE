@@ -10,8 +10,6 @@ import { createRequestRecord, OPEN_STATUSES } from "../requests/requests.service
 import { exportCustomer } from "../customers/gdpr.service.js";
 import { deviceSelect, presentDevice } from "../iot/iot.rules.js";
 
-// Zákaznícky portál: zákazník vidí len svoje záhrady, požiadavky, termíny a históriu.
-// Interné poznámky firmy (napr. "pes na dvore") sa sem nedostanú.
 
 const PORTAL_REQUEST_TYPES = ["FAULT", "SPRING_START", "WINTERIZATION", "LAWN_CARE", "INSPECTION", "INSTALLATION", "OTHER"];
 
@@ -165,13 +163,10 @@ export async function updatePreferences(user, body) {
   return { ok: true };
 }
 
-// GDPR: zákazník si môže sám stiahnuť, čo o ňom firma eviduje.
 export async function exportOwnData(user) {
   const customer = await customerOf(user);
   return exportCustomer(user.id, customer.id);
 }
-
-// --- Správa prístupu (len majiteľ, z karty zákazníka) ---
 
 export async function getPortalAccount(customerId) {
   return prisma.user.findFirst({ where: { customerId, role: "CUSTOMER" }, select: portalUserSelect });

@@ -28,7 +28,6 @@ const customerFields = {
 };
 
 const needsContact = (data) => Boolean(data.phone || data.email);
-// Zod si objekt s parametrami upravuje, preto správa ako samostatná konštanta.
 const CONTACT_MESSAGE = "Zadaj aspoň telefón alebo e-mail.";
 
 const createSchema = z
@@ -61,7 +60,6 @@ export async function listCustomers(query) {
   const where = { deletedAt: null, ...(status ? { status } : {}) };
   const and = [];
   if (q) {
-    // Hľadanie naprieč menom, kontaktom aj adresou záhrady.
     const words = q.split(/\s+/).filter(Boolean);
     for (const word of words) {
       const contains = { contains: word, mode: "insensitive" };
@@ -96,7 +94,6 @@ export async function listCustomers(query) {
   return paginated(items.map(withOpenCount), total, pagination);
 }
 
-// Zoznam obcí pre filter (z adries záhrad).
 export async function listCities() {
   const rows = await prisma.garden.findMany({
     where: { deletedAt: null, customer: { deletedAt: null } },
@@ -157,7 +154,6 @@ export async function updateCustomer(actorId, id, body) {
   return getCustomer(id);
 }
 
-// Soft delete: zákazník zmizne zo zoznamov, ale história ostáva dohľadateľná.
 export async function deleteCustomer(actorId, id) {
   const existing = await prisma.customer.findFirst({ where: { id, deletedAt: null } });
   if (!existing) throw notFound("Zákazník sa nenašiel.");

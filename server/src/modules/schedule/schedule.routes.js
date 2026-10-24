@@ -4,7 +4,6 @@ import * as settingsService from "./settings.service.js";
 import * as capacityService from "./capacity.service.js";
 import * as appointmentsService from "./appointments.service.js";
 
-// Plánovanie: kapacita dní, nastavenia, plánovač sezóny.
 export const scheduleRouter = Router();
 
 scheduleRouter.get("/settings", async (req, res) => {
@@ -36,7 +35,6 @@ scheduleRouter.post("/plan-day", async (req, res) => {
   res.json(await appointmentsService.planDay(req.user, req.body));
 });
 
-// Termíny (výjazdy).
 export const appointmentsRouter = Router();
 
 appointmentsRouter.get("/", async (req, res) => {

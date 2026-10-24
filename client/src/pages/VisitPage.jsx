@@ -25,7 +25,6 @@ import { IRRIGATION_LABELS, REQUEST_TYPE_LABELS, WATER_SOURCE_LABELS, ZONE_AREA_
 import { capitalize, formatDate, formatDayLong, formatTime, fullName, mapsUrl, toDayKey } from "../utils/format";
 import styles from "../styles/neumorphic.module.css";
 
-// Odškrtnutý checklist si pamätá prehliadač, aby sa nestratil, keď technik v teréne zavrie appku.
 const storageKey = (id) => `checklist:${id}`;
 const loadChecked = (id) => {
   try {
@@ -35,7 +34,6 @@ const loadChecked = (id) => {
   }
 };
 
-// Výjazd pre technika: pred príchodom karta záhrady a checklist, po zásahu zápis práce a materiálu.
 export const VisitPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -63,7 +61,6 @@ export const VisitPage = () => {
       .getVisit(token, id)
       .then((d) => {
         setVisit(d);
-        // Predvyplníme spotrebu podľa checklistu, technik len opraví, čo naozaj minul.
         setUsed(d.checklist.map((c) => ({ materialId: c.materialId, quantity: String(c.quantity) })));
       })
       .catch((err) => setError(err.message));

@@ -26,7 +26,6 @@ const DEVICE_BADGE = {
 const statusBadge = (status) =>
   status === "NEW" ? styles.badgeBrand : status === "DONE" || status === "CLOSED" ? styles.badgeGreen : status === "CANCELLED" ? styles.badgeMuted : styles.badge;
 
-// Formulár zákazníka: porucha alebo objednávka servisu, bez telefonovania na súkromný mobil.
 const NewRequestModal = ({ gardens, onClose, onCreated }) => {
   const { token } = useAuth();
   const [form, setForm] = useState({ ...EMPTY_REQUEST, gardenId: gardens[0]?.id || "" });
@@ -73,7 +72,6 @@ const NewRequestModal = ({ gardens, onClose, onCreated }) => {
   );
 };
 
-// Zákaznícky portál: moje záhrady, senzory, termíny, požiadavky a história servisu.
 export const PortalPage = () => {
   const { token } = useAuth();
   const [overview, setOverview] = useState(null);
@@ -142,7 +140,6 @@ export const PortalPage = () => {
   }
 
   const { customer, gardens, appointments } = overview;
-  // Záhrady a ich senzory v jednom zozname: najprv záhrada, pod ňou jej zariadenia.
   const gardenRows = gardens.flatMap((g) => [{ kind: "garden", id: g.id, garden: g }, ...g.devices.map((d) => ({ kind: "device", id: d.id, device: d }))]);
   const problems = gardens.flatMap((g) => g.devices.filter((d) => d.status.level === "alert" || d.status.level === "warning"));
 

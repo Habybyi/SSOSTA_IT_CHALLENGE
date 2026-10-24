@@ -1,7 +1,3 @@
-/* AI asistent Custodia: Google Gemini + hlasové ovládanie (Web Speech API).
-   Bez kľúča alebo pri výpadku odpovedá z pripravených otázok (FAQ), takže nikdy "nezamrzne". */
-
-// ---------- Čo asistent vie (systémové inštrukcie pre Gemini) ----------
 const AI_SYSTEM = `Si priateľský asistent firmy ${CFG.brand} na jej webe. Odpovedáš vždy po slovensky, stručne (najviac 3 až 4 vety), vecne a zdvorilo, vykáš.
 O firme: ${CFG.brand} navrhuje a inštaluje smart závlahu ovládanú mobilom, robí sezónny servis (jarné spustenie v apríli, jesenné zazimovanie v októbri pred prvými mrazmi) a pravidelnú starostlivosť o trávnik (kosenie, vertikutácia, hnojenie). Hodnoty: kvalita, smart, plne autonómne, bez starostí. Firma má 5 rokov skúseností a pôsobí v Poprade, Svite, Kežmarku, Vysokých Tatrách, Spišskej Belej a okolí.
 Kontakt: Milan Kováč, konateľ, telefón +421 900 123 456, e-mail custodia.sk@gmail.com, Instagram @custodia_sk, Facebook custodia.sk, sídlo Ul. 29. augusta 4812, 058 01 Poprad.
@@ -10,7 +6,6 @@ Ceny: nikdy nevymýšľaj konkrétne sumy. Orientačnú cenu ukáže kalkulačka
 Akcie: keď to pomôže, pridaj na koniec odpovede značku, z ktorej web urobí tlačidlo: [[kalkulacka]] (výpočet ceny), [[porucha]] (nahlásenie poruchy), [[spustenie]] (objednať jarné spustenie), [[zazimovanie]] (objednať zazimovanie), [[kontakt]] (kontakty a mapa), [[sluzby]] (prehľad služieb). Najviac dve značky.
 Nepýtaj si osobné údaje v chate, na to slúžia formuláre na webe. Na otázky mimo záhrad, závlahy a firmy zdvorilo odpovedz, že pomáhaš len s témami firmy. Ak niečo nevieš, odporuč zavolať alebo napísať firme.`;
 
-// ---------- Záložné odpovede (bez AI) ----------
 const FAQ = [
   [
     ["cena", "stoj", "kolko", "koľko", "rozpočet", "drahé", "eur"],
@@ -84,7 +79,6 @@ function faqAnswer(text) {
   );
 }
 
-// ---------- Akcie (tlačidlá z odpovedí) ----------
 const ACTIONS = {
   kalkulacka: ["Otvoriť kalkulačku", () => goTo("kalkulacka")],
   porucha: ["Nahlásiť poruchu", () => openService("porucha")],
@@ -100,7 +94,6 @@ function openService(type) {
   goTo("servis");
 }
 
-// ---------- Rozhranie ----------
 const chat = { history: [], busy: false, speak: st.get("chat_speak") !== false };
 const box = $("#ai-msgs");
 
@@ -119,7 +112,6 @@ document.addEventListener("keydown", (e) => {
 });
 
 function format(text) {
-  // bezpečné HTML: escapovanie, **tučné**, nové riadky
   return esc(text)
     .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
     .replace(/\n/g, "<br>");
@@ -166,7 +158,6 @@ function typing(on) {
   } else if (!on && t) t.remove();
 }
 
-// ---------- Volanie Gemini ----------
 async function askGemini() {
   const body = {
     system_instruction: { parts: [{ text: AI_SYSTEM }] },
@@ -179,7 +170,7 @@ async function askGemini() {
   else if (CFG.ai.key) {
     url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(CFG.ai.model)}:generateContent`;
     headers["x-goog-api-key"] = CFG.ai.key;
-  } else return null; // bez kľúča: záložné odpovede
+  } else return null;
   const r = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
   if (!r.ok) throw new Error("Gemini " + r.status);
   const d = await r.json();
@@ -214,7 +205,6 @@ async function send(text, fromVoice) {
   chat.busy = false;
   if (fromVoice) {
     if (chat.speak) speak(clean);
-    // hlasový príkaz typu "otvor kalkulačku": vykonaj jedinú navrhnutú akciu
     if (acts.length === 1 && /otvor|ukáž|ukaz|choď|chod|prejdi|objednaj|nahlás|nahlas/i.test(text))
       ACTIONS[acts[0]][1]();
   }
@@ -226,7 +216,6 @@ $("#ai-form").onsubmit = (e) => {
 };
 $$("#ai-chips button").forEach((b) => (b.onclick = () => send(b.textContent, false)));
 
-// ---------- Hlas: čítanie odpovedí ----------
 const synth = window.speechSynthesis;
 function skVoice() {
   return (
@@ -264,7 +253,6 @@ if (synth) {
   paintSpeak();
 } else $("#ai-spk").classList.add("hide");
 
-// ---------- Hlas: rozpoznávanie reči (Chrome, Edge, Safari) ----------
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null,
   listening = false;
@@ -313,10 +301,9 @@ if (SR) {
     } catch (e) {}
   };
 } else {
-  $("#ai-mic").classList.add("hide"); // napr. Firefox nepodporuje rozpoznávanie reči
+  $("#ai-mic").classList.add("hide");
 }
 
-// ---------- Úvodná správa ----------
 addMsg(
   "bot",
   `Dobrý deň, som asistent ${CFG.brand}. Poradím so závlahou, servisom aj starostlivosťou o trávnik.` +

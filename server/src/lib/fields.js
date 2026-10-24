@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-// Spoločné typy polí pre formuláre. Prázdny reťazec z formulára = null v DB,
-// undefined = pole sa nemení (dôležité pri PATCH).
 
 const emptyToNull = (v) => (v === "" ? null : v);
 

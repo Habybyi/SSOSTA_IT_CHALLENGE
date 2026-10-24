@@ -1,5 +1,3 @@
-# Render Blueprint: databáza + API server jedným klikom (New > Blueprint).
-# Frontend (web + CRM) beží na Verceli, ten posiela /api sem (client/vercel.json).
 databases:
   - name: custodia-db
     plan: free
@@ -15,7 +13,6 @@ services:
     region: frankfurt
     rootDir: server
     buildCommand: npm install && npx prisma generate
-    # Migrácie, prvý účet majiteľa a demo (len do prázdnej databázy), potom server.
     startCommand: npm run start:render
     healthCheckPath: /api/v1/health
     envVars:
@@ -35,14 +32,11 @@ services:
         value: "true"
       - key: SEED_OWNER_EMAIL
         value: milan.kovac@custodia.sk
-      # Heslo majiteľa zadáš pri vytváraní (nie je v repe). Pri prvom prihlásení si ho zmeníš.
       - key: SEED_OWNER_PASSWORD
         sync: false
-      # Adresa z Vercelu (odkazy v e-mailoch).
       - key: APP_URL
         sync: false
       - key: CLIENT_ORIGIN
         sync: false
-      # Nepovinné: AI asistent na webe.
       - key: GEMINI_API_KEY
         sync: false

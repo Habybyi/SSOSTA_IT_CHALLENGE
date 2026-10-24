@@ -5,7 +5,6 @@ const paginationSchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(100).default(25),
 });
 
-// Stránkovanie od prvého endpointu: so stovkami zákazníkov netreba nič prepisovať.
 export function getPagination(query) {
   const { page, pageSize } = paginationSchema.parse(query);
   return { page, pageSize, skip: (page - 1) * pageSize, take: pageSize };

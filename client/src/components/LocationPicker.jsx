@@ -7,7 +7,6 @@ import styles from "../styles/neumorphic.module.css";
 
 const toNumber = (value) => (value === "" || value == null ? null : Number(value));
 
-// GPS záhrady kliknutím na mapu, aby ich Milan nemusel hľadať a prepisovať.
 export const LocationPicker = ({ form, setForm }) => {
   const [isOpen, setIsOpen] = useState(false);
   const current = toNumber(form.latitude) != null && toNumber(form.longitude) != null ? [toNumber(form.latitude), toNumber(form.longitude)] : null;

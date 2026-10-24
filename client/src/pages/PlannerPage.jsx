@@ -15,7 +15,6 @@ import styles from "../styles/neumorphic.module.css";
 
 const SEASON_TYPES = ["WINTERIZATION", "SPRING_START", "LAWN_CARE", "FAULT", "INSPECTION", "INSTALLATION", "OTHER"];
 
-// Jeseň = zazimovanie, jar = spustenie, inak starostlivosť o trávnik.
 const defaultType = () => {
   const month = new Date().getMonth() + 1;
   if (month >= 8 && month <= 12) return "WINTERIZATION";
@@ -23,8 +22,6 @@ const defaultType = () => {
   return "LAWN_CARE";
 };
 
-// Riešenie jarnej a jesennej špičky: požiadavky zoskupené podľa obce,
-// Milan vyberie, kam ide v jeden deň, a systém rozloží časy za sebou.
 export const PlannerPage = () => {
   const { token } = useAuth();
   const [type, setType] = useState(defaultType);
@@ -37,7 +34,6 @@ export const PlannerPage = () => {
   const [result, setResult] = useState(null);
   const [showReminders, setShowReminders] = useState(false);
   const [showPlanForm, setShowPlanForm] = useState(false);
-  // V úzkom okne je formulár za tlačidlom, aby mal zoznam miesto.
   const narrow = useMediaQuery("(max-width: 1100px), (max-height: 780px)");
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -63,7 +59,6 @@ export const PlannerPage = () => {
     api.getCapacity(token, plan.date, plan.date).then((d) => setDayInfo(d.days[0])).catch(() => setDayInfo(null));
   }, [token, plan.date, result]);
 
-  // Poradie = podľa obce a ulice, teda rozumná trasa.
   const allItems = useMemo(() => groups.flatMap((g) => g.items.map((i) => ({ ...i, city: g.city }))), [groups]);
   const items = city ? allItems.filter((i) => i.city === city) : allItems;
   const plannable = items.filter((i) => i.garden);

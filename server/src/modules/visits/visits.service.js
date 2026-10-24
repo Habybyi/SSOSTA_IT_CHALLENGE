@@ -9,8 +9,6 @@ import { enqueueNotification } from "../notifications/notifications.service.js";
 import { buildChecklist } from "../materials/materials.service.js";
 import { changeStatus } from "../requests/requests.service.js";
 
-// Výjazd z pohľadu technika: všetko o záhrade pred príchodom a zápis po zásahu.
-
 export async function getVisit(appointmentId) {
   const appointment = await prisma.appointment.findUnique({
     where: { id: appointmentId },
@@ -56,7 +54,6 @@ const completeSchema = z.object({
     )
     .max(100)
     .default([]),
-  // DONE = vybavené, FOLLOW_UP = treba ešte prísť (napr. chýba diel).
   outcome: z.enum(["DONE", "FOLLOW_UP"]).default("DONE"),
   notifyCustomer: z.boolean().default(true),
 });
@@ -76,7 +73,6 @@ export async function completeVisit(actor, appointmentId, body) {
   const byId = new Map(materials.map((m) => [m.id, m]));
   if (byId.size !== new Set(used.map((m) => m.materialId)).size) throw badRequest("Niektorý materiál neexistuje.");
 
-  // Zápis práce, odpis zo skladu a uzavretie výjazdu naraz: buď všetko, alebo nič.
   const workLog = await prisma.$transaction(async (tx) => {
     const log = await tx.workLog.create({
       data: {
@@ -86,7 +82,6 @@ export async function completeVisit(actor, appointmentId, body) {
         technicianId: actor.id,
         durationMin: data.durationMin,
         description: data.description,
-        // Cena v čase použitia, staré výkazy sa nezmenia so zmenou cenníka.
         materials: {
           create: used.map((m) => ({ materialId: m.materialId, quantity: m.quantity, unitPrice: byId.get(m.materialId).unitPrice })),
         },
@@ -122,7 +117,6 @@ export async function completeVisit(actor, appointmentId, body) {
   return { workLog, materialCost: Math.round(materialCost * 100) / 100 };
 }
 
-// Keď materiál klesne pod minimum, majiteľ dostane jeden e-mail za deň a materiál.
 async function warnLowStock(materialIds) {
   if (!materialIds.length) return;
   const low = (await prisma.material.findMany({ where: { id: { in: materialIds } } })).filter(

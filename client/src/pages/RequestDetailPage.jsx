@@ -42,7 +42,6 @@ import {
 import { capitalize, formatDateTime, formatDayLong, formatTime, fullName, gardenAddress, mapsUrl, timeAgo, toDayKey } from "../utils/format";
 import styles from "../styles/neumorphic.module.css";
 
-// Ďalšie logické kroky podľa aktuálneho stavu, aby Milan nemusel premýšľať nad zoznamom stavov.
 const NEXT_STEPS = {
   NEW: [
     { status: "SCHEDULED", label: "Naplánované" },
@@ -150,12 +149,10 @@ export const RequestDetailPage = () => {
 
   const r = request;
   const steps = NEXT_STEPS[r.status] || [];
-  // Známe polia kalkulačky v logickom poradí, neznáme na koniec.
   const payloadOrder = Object.keys(PAYLOAD_LABELS);
   const rank = (key) => (payloadOrder.includes(key) ? payloadOrder.indexOf(key) : payloadOrder.length);
   const payloadEntries = r.payload ? Object.entries(r.payload).sort(([a], [b]) => rank(a) - rank(b)) : [];
 
-  // Jedna časová os: zmeny stavu aj odoslané e-maily.
   const timeline = [
     ...r.statusChanges.map((c) => ({ kind: "status", date: c.createdAt, ...c })),
     ...r.notifications.map((n) => ({ kind: "mail", date: n.createdAt, ...n })),

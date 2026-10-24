@@ -16,7 +16,6 @@ export const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Heslo sa ukáže až po zadaní e-mailu, aby pole nebolo stále na očiach.
   const [isPasswordStep, setIsPasswordStep] = useState(false);
   const passwordRef = useRef(null);
 

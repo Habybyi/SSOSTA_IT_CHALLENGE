@@ -1,5 +1,3 @@
-// Prvé spustenie jedným príkazom: npm run setup
-// Pripraví .env, spustí databázu v Dockeri, nainštaluje balíčky, vytvorí tabuľky a ukážkové dáta.
 import { execSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import crypto from "node:crypto";

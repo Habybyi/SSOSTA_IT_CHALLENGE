@@ -5,7 +5,6 @@ import { api } from "../api/client";
 import { REQUEST_TYPE_LABELS, WEEKDAY_LABELS } from "../utils/labels";
 import styles from "../styles/neumorphic.module.css";
 
-// Nastavenia plánovania (len majiteľ): pracovný čas, dni, kapacita, trvanie zásahov.
 export const ScheduleSettingsPanel = ({ onClose, onSaved }) => {
   const { token } = useAuth();
   const [form, setForm] = useState(null);

@@ -7,13 +7,11 @@ export const formatDate = (value) =>
 
 export const gardenAddress = (g) => [g.street, [g.postalCode, g.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
 
-// Odkaz do máp: GPS ak je vyplnené, inak adresa. Funguje na mobile aj PC.
 export const mapsUrl = (g) => {
   const query = g.latitude != null && g.longitude != null ? `${g.latitude},${g.longitude}` : gardenAddress(g);
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 };
 
-// Prázdne polia z API (null) na prázdne reťazce pre formulár.
 export const toFormValues = (source, defaults) =>
   Object.fromEntries(
     Object.entries(defaults).map(([key, fallback]) => {
@@ -27,7 +25,6 @@ export const formatDateTime = (value) =>
     ? new Date(value).toLocaleString("sk-SK", { day: "numeric", month: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
     : "";
 
-// "pred 5 min", "pred 3 h", "pred 2 dňami": Milan hneď vidí, ako dlho niekto čaká.
 export const timeAgo = (value) => {
   const minutes = Math.round((Date.now() - new Date(value).getTime()) / 60000);
   if (minutes < 1) return "práve teraz";
@@ -38,7 +35,6 @@ export const timeAgo = (value) => {
   return days === 1 ? "včera" : `pred ${days} dňami`;
 };
 
-// Dni v kalendári: "YYYY-MM-DD" v lokálnom čase prehliadača.
 export const toDayKey = (date) => {
   const d = new Date(date);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;

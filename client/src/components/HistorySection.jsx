@@ -11,8 +11,6 @@ import styles from "../styles/neumorphic.module.css";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-// História zásahov: vykonaná práca aj požiadavky v jednej časovej osi.
-// Ručný záznam slúži hlavne na prepis starej histórie zo zošita.
 export const HistorySection = ({ gardenId }) => {
   const { token } = useAuth();
   const [items, setItems] = useState([]);

@@ -1,6 +1,3 @@
-// Simulátor senzorov pre prezentáciu: demo zariadenia posielajú hodnoty cez to isté API ako Packet Tracer.
-//   npm run iot:simulate            každých 5 s nové hodnoty
-//   npm run iot:simulate -- --leak  po 15 s nahlási únik vody v prvej záhrade (vznikne požiadavka)
 import "dotenv/config";
 import crypto from "node:crypto";
 import { prisma } from "../src/lib/prisma.js";
@@ -12,7 +9,6 @@ const LEAK = process.argv.includes("--leak");
 const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
 const drift = (value, step, min, max) => Math.min(max, Math.max(min, value + (Math.random() - 0.5) * step));
 
-// Ďalšia hodnota podľa typu, nadväzuje na poslednú.
 const NEXT = {
   HUMIDITY_SENSOR: (v) => drift(v ?? 40, 3, 5, 90),
   WATER_LEVEL_SENSOR: (v) => drift(v ?? 60, 2, 0, 100),
@@ -23,8 +19,6 @@ const NEXT = {
   OTHER: (v) => drift(v ?? 0, 1, -100, 100),
 };
 
-// Kľúče sa ukladajú len ako hash, preto simulátor demo zariadeniam pridelí nové a drží ich v pamäti.
-// Skutočné zariadenia (bez "demo-" v externom ID) nechá na pokoji.
 const devices = await prisma.device.findMany({
   where: { externalId: { startsWith: "demo-" }, garden: { deletedAt: null } },
   include: { garden: { select: { street: true, city: true } } },

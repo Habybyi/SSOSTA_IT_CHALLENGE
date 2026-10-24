@@ -12,7 +12,6 @@ materialsRouter.get("/templates", async (req, res) => {
   res.json({ templates: await materialsService.listTemplates() });
 });
 
-// Cenník a checklisty mení len majiteľ, príjem tovaru aj technik (nakúpil vo veľkoobchode).
 materialsRouter.post("/templates", requireRole("OWNER"), async (req, res) => {
   res.status(201).json({ template: await materialsService.upsertTemplate(req.user.id, req.body) });
 });

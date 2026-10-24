@@ -29,7 +29,6 @@ const gardenFields = {
   notes: optionalText(5000),
 };
 
-// "label" má v DB predvolenú hodnotu, null by ju prepísal.
 const dropNullLabel = ({ label, ...rest }) => (label ? { label, ...rest } : rest);
 
 export const gardenCreateSchema = z.object(gardenFields).transform(dropNullLabel);
@@ -62,7 +61,6 @@ async function findGarden(id) {
   return garden;
 }
 
-// Technická karta: všetko, čo technik potrebuje vedieť pred výjazdom.
 export async function getGarden(id) {
   await findGarden(id);
   return prisma.garden.findUnique({
@@ -104,8 +102,6 @@ export async function deleteGarden(actorId, id) {
   await logAudit({ userId: actorId, action: "GARDEN_DELETED", entityType: "Garden", entityId: id });
 }
 
-// ---- Zóny ----
-
 export async function createZone(actorId, gardenId, body) {
   const data = parse(zoneSchema, body);
   await findGarden(gardenId);
@@ -140,9 +136,6 @@ export async function deleteZone(actorId, gardenId, zoneId) {
   await logAudit({ userId: actorId, action: "ZONE_DELETED", entityType: "Zone", entityId: zoneId, details: { gardenId } });
 }
 
-// ---- História zásahov ----
-
-// Spojí vykonanú prácu a požiadavky do jednej časovej osi (najnovšie hore).
 export async function getHistory(gardenId) {
   await findGarden(gardenId);
   const [workLogs, requests] = await Promise.all([
@@ -168,7 +161,6 @@ export async function getHistory(gardenId) {
   return items.sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 
-// Ručný záznam do histórie, napr. prepis starých zásahov zo zošita.
 export async function addWorkLog(actor, gardenId, body) {
   const data = parse(workLogSchema, body);
   await findGarden(gardenId);

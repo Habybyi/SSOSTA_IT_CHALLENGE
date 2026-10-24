@@ -31,7 +31,6 @@ const TYPE_ICONS = {
   OTHER: FiMoreHorizontal,
 };
 
-// Ručné zadanie požiadavky, typicky počas telefonátu: zákazník → čo treba → uložiť.
 export const NewRequestPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -57,7 +56,6 @@ export const NewRequestPage = () => {
     api.listAssignees(token).then((d) => setAssignees(d.users)).catch(() => {});
   }, [token]);
 
-  // Otvorené z karty zákazníka: zákazník je už vybraný.
   useEffect(() => {
     const customerId = searchParams.get("customerId");
     if (customerId) api.getCustomer(token, customerId).then((d) => setCustomer(d.customer)).catch(() => {});
@@ -71,7 +69,6 @@ export const NewRequestPage = () => {
       setForm((f) => ({ ...f, gardenId: gardenFromUrl || d.customer.gardens[0]?.id || "" }));
       setCustomer(d.customer);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer?.id, token]);
 
   const handleSubmit = async (e) => {

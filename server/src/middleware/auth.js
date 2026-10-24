@@ -3,8 +3,6 @@ import { config } from "../config.js";
 import { prisma } from "../lib/prisma.js";
 import { HttpError, forbidden, unauthorized } from "../lib/httpError.js";
 
-// Používateľa načíta z DB pri každej požiadavke (nie len z JWT),
-// aby zmena roly alebo deaktivácia platila hneď.
 export async function requireAuth(req, res, next) {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : null;
@@ -27,10 +25,8 @@ export async function requireAuth(req, res, next) {
   next();
 }
 
-// Kým si používateľ nezmení dočasné heslo, môže len zmeniť heslo a zistiť, kto je.
 export function requirePasswordChanged(req, res, next) {
   if (req.user.mustChangePassword) {
-    // Kód pre klienta: majiteľ mohol medzitým resetnúť heslo, klient používateľa odhlási.
     throw new HttpError(403, "Najprv si zmeň dočasné heslo.", { code: "PASSWORD_CHANGE_REQUIRED" });
   }
   next();

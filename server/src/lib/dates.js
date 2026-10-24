@@ -1,5 +1,3 @@
-// Práca s dňami v čase firmy (process.env.TZ nastavuje config.js).
-// Deň sa medzi klientom a serverom posiela ako "YYYY-MM-DD", čas ako "HH:MM".
 
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -37,7 +35,6 @@ export const timeOf = (date) => {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 };
 
-// Stĺpec @db.Date v Postgrese: polnoc UTC daného dňa.
 export function dbDate(day) {
   const [y, m, d] = day.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d));
@@ -45,7 +42,6 @@ export function dbDate(day) {
 
 export const dbDateToDay = (date) => new Date(date).toISOString().slice(0, 10);
 
-// 1 = pondelok ... 7 = nedeľa
 export const isoWeekday = (day) => ((dayStart(day).getDay() + 6) % 7) + 1;
 
 export const addMinutes = (date, minutes) => new Date(new Date(date).getTime() + minutes * 60_000);

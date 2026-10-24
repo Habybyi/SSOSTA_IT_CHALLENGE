@@ -9,7 +9,6 @@ import { logAudit } from "../audit/audit.service.js";
 
 const captionSchema = z.object({ caption: optionalText(300) });
 
-// Fotky z mobilu majú pokojne 5 MB, zmenšíme ich, nech sa karta načíta rýchlo aj v teréne.
 async function normalizeImage(buffer) {
   try {
     return await sharp(buffer)

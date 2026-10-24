@@ -2,7 +2,6 @@ import { Router } from "express";
 import { requireRole } from "../../middleware/auth.js";
 import * as usersService from "./users.service.js";
 
-// Správa tímu: len majiteľ.
 export const usersRouter = Router();
 usersRouter.use(requireRole("OWNER"));
 

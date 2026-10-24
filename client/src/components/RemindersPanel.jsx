@@ -8,7 +8,6 @@ import styles from "../styles/neumorphic.module.css";
 
 const MONTHS = ["január", "február", "marec", "apríl", "máj", "jún", "júl", "august", "september", "október", "november", "december"];
 
-// Sezónne pripomienky (zazimovanie na jeseň, spustenie na jar) a pripomienky deň pred termínom.
 export const RemindersPanel = () => {
   const { token, user } = useAuth();
   const isOwner = user.role === "OWNER";

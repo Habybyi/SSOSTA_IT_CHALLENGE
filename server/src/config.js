@@ -1,6 +1,5 @@
 import "dotenv/config";
 
-// Všetky dni a časy (kapacita, sloty, e-maily) sa počítajú v čase firmy, nie servera.
 process.env.TZ = process.env.APP_TIMEZONE || "Europe/Bratislava";
 
 const required = (name) => {
@@ -16,7 +15,6 @@ export const config = {
   jwtSecret: required("JWT_SECRET"),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "12h",
   clientOrigin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
-  // Web firmy volá verejné API (/public) z inej domény.
   websiteOrigins: (process.env.WEBSITE_ORIGINS || "").split(",").map((o) => o.trim()).filter(Boolean),
   appUrl: process.env.APP_URL || process.env.CLIENT_ORIGIN || "http://localhost:5173",
   smtp: {
@@ -28,11 +26,9 @@ export const config = {
   },
   mailFrom: process.env.MAIL_FROM || "Custodia <servis@custodia.sk>",
   inboundEmailSecret: process.env.INBOUND_EMAIL_SECRET || "",
-  // AI asistent na webe (kľúč zadarmo: https://aistudio.google.com/apikey).
   gemini: {
     apiKey: process.env.GEMINI_API_KEY || "",
     model: process.env.GEMINI_MODEL || "gemini-3.5-flash-lite",
   },
-  // Vypnutie workera napr. pri testoch alebo keď beží samostatne.
   notificationsWorker: process.env.NOTIFICATIONS_WORKER !== "false",
 };

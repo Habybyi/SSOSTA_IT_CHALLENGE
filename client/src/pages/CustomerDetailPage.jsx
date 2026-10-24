@@ -59,7 +59,6 @@ export const CustomerDetailPage = () => {
     load();
   }, [load]);
 
-  // GDPR: export všetkých údajov (čl. 15 a 20) ako súbor JSON.
   const handleExport = async () => {
     try {
       const blob = await api.exportCustomer(token, id);
@@ -74,7 +73,6 @@ export const CustomerDetailPage = () => {
     }
   };
 
-  // GDPR: právo na vymazanie. Osobné údaje zmiznú, servisná história ostane anonymne.
   const handleAnonymize = async () => {
     const expected = customer.lastName;
     const typed = window.prompt(

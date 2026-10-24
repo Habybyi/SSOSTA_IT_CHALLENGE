@@ -28,7 +28,6 @@ const EMPTY_CUSTOMER = {
   serviceReminders: true,
 };
 
-// Nový zákazník (aj s prvou záhradou) alebo úprava existujúceho.
 export const CustomerFormPage = () => {
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -63,7 +62,6 @@ export const CustomerFormPage = () => {
     } catch (err) {
       setError(err.message);
       setErrors(err.fields || {});
-      // Prepni na prvý krok, kde je chyba.
       const fields = Object.keys(err.fields || {});
       const firstBad = steps.find((st) => fields.some((f) => st.fields(f)));
       if (firstBad) setStep(firstBad.key);

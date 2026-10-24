@@ -13,14 +13,12 @@ const upload = multer({
   },
 });
 
-// Nahranie fotiek ku konkrétnej záhrade (pripája sa pod /gardens).
 export const gardenPhotosRouter = Router({ mergeParams: true });
 
 gardenPhotosRouter.post("/", upload.array("photos", 10), async (req, res) => {
   res.status(201).json({ photos: await photosService.addGardenPhotos(req.user, req.params.id, req.files, req.body) });
 });
 
-// Práca s jednou fotkou.
 export const photosRouter = Router();
 
 photosRouter.get("/:id/file", async (req, res) => {

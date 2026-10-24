@@ -17,7 +17,6 @@ import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import styles from "../styles/neumorphic.module.css";
 
-// enabled: false = funkcia príde v ďalšej fáze, v menu je už vidno, kam aplikácia smeruje.
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Prehľad", short: "Prehľad", icon: FiHome, enabled: true },
   { to: "/customers", label: "Zákazníci", short: "Zákazníci", icon: FiUsers, enabled: true },
@@ -28,25 +27,20 @@ const NAV_ITEMS = [
   { to: "/audit", label: "Logy", short: "Logy", icon: FiActivity, enabled: true, requireRole: "OWNER", desktopOnly: true },
 ];
 
-// Zákazník vidí len svoj portál.
 const CUSTOMER_NAV_ITEMS = [{ to: "/portal", label: "Môj portál", short: "Portál", icon: FiHome, enabled: true }];
 
-// Technická karta záhrady patrí pod Zákazníkov.
 const isItemActive = (item, pathname) =>
   pathname.startsWith(item.to) ||
   (item.to === "/customers" && pathname.startsWith("/gardens")) ||
   (item.to === "/calendar" && pathname.startsWith("/visits"));
 
-// Spoločný rám pre všetky obrazovky po prihlásení.
 export const AppShell = ({ children }) => {
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  // Zbalené/rozbalené menu si pamätá aj po prekliknutí na inú stránku a obnovení.
   const [collapsed, setCollapsed] = useStoredState("sidebarCollapsed", false);
   const [counts, setCounts] = useState(null);
 
-  // Počet nových požiadaviek v menu, obnoví sa pri každej zmene stránky.
   useEffect(() => {
     if (user?.role === "CUSTOMER") return;
     api.getRequestStats(token).then(setCounts).catch(() => {});
@@ -121,7 +115,6 @@ export const AppShell = ({ children }) => {
 
         <nav className={styles.bottomNav}>
           {visibleItems
-            // Spodná lišta má miesto len na najdôležitejšie položky.
             .filter((item) => item.enabled && !item.desktopOnly)
             .map((item) => {
               const Icon = item.icon;

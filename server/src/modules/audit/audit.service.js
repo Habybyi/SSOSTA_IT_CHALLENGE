@@ -1,7 +1,6 @@
 import { prisma } from "../../lib/prisma.js";
 import { getPagination, paginated } from "../../lib/pagination.js";
 
-// Kto čo kedy zmenil. Zápis do auditu nikdy nesmie zhodiť hlavnú akciu.
 export async function logAudit({ userId, action, entityType, entityId, details }) {
   try {
     await prisma.auditLog.create({
@@ -12,7 +11,6 @@ export async function logAudit({ userId, action, entityType, entityId, details }
   }
 }
 
-// Posledné záznamy pre stránku Logy (len majiteľ).
 export async function listAudit(query) {
   const pagination = getPagination(query);
   const [items, total] = await prisma.$transaction([

@@ -7,7 +7,6 @@ import { addDays, dayEnd, dayKey, dayStart, dbDate, dbDateToDay, eachDay, isDay,
 import { logAudit } from "../audit/audit.service.js";
 import { getScheduleSettings } from "./settings.service.js";
 
-// Výjazdy, ktoré zaberajú kapacitu dňa (aj rezervácie zo webu).
 export const ACTIVE_APPOINTMENT_STATUSES = ["RESERVED", "CONFIRMED", "DONE"];
 
 const MAX_RANGE_DAYS = 92;
@@ -19,7 +18,6 @@ export function parseRange(query) {
   return { from, to };
 }
 
-// Kapacita po dňoch: koľko výjazdov sa zmestí, koľko je obsadených a či je deň pracovný.
 export async function getCapacity(from, to, { excludeAppointmentId } = {}) {
   const settings = await getScheduleSettings();
   const [overrides, appointments] = await Promise.all([
@@ -60,7 +58,6 @@ const overrideSchema = z.object({
   note: optionalText(200),
 });
 
-// Výnimka pre konkrétny deň: jarná špička (viac), dovolenka (0).
 export async function setDayCapacity(actorId, day, body) {
   if (!isDay(day)) throw badRequest("Neplatný dátum.");
   const data = parse(overrideSchema, body);
@@ -80,7 +77,6 @@ export async function resetDayCapacity(actorId, day) {
   return getDayCapacity(day);
 }
 
-// Voľné dni pre rezerváciu zo webu (bez osobných údajov), od zajtra.
 export async function getPublicAvailability(days = 30) {
   const from = addDays(dayKey(new Date()), 1);
   const to = addDays(from, Math.min(Math.max(days, 1), 60) - 1);

@@ -53,7 +53,6 @@ export const DashboardPage = () => {
 
   useEffect(() => {
     api.getRequestStats(token).then(setStats).catch(() => {});
-    // Technik vidí svoje dnešné výjazdy, majiteľ všetky.
     const day = toDayKey(new Date());
     api
       .listAppointments(token, day, day, isTechnician ? user.id : undefined)

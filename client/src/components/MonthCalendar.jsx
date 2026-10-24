@@ -9,18 +9,15 @@ import styles from "../styles/neumorphic.module.css";
 
 const WEEKDAYS = ["Po", "Ut", "St", "Št", "Pi", "So", "Ne"];
 const MAX_DOTS = 3;
-// Bodky v poradí dôležitosti: havárie vždy viditeľné.
 const PRIORITY_ORDER = { EMERGENCY: 0, HIGH: 1, NORMAL: 2, LOW: 3 };
 
-// Mesačný kalendár: bodka = výjazd vo farbe priority, klik na deň otvorí týždeň v Kalendári.
 export const MonthCalendar = ({ technicianId }) => {
   const { token } = useAuth();
   const navigate = useNavigate();
   const today = toDayKey(new Date());
-  const [month, setMonth] = useState(() => today.slice(0, 7)); // "RRRR-MM"
+  const [month, setMonth] = useState(() => today.slice(0, 7));
   const [appointments, setAppointments] = useState([]);
 
-  // Mriežka vždy od pondelka do nedele (5 alebo 6 týždňov).
   const days = useMemo(() => {
     const first = `${month}-01`;
     const start = mondayOf(first);
