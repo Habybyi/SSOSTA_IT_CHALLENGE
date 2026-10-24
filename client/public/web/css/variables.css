@@ -12,6 +12,8 @@
   --line: #d8e6d9;
   --on: #ffffff;
   --wm-text: #0a2e0f;
+  --logo-crown: #0a2e0f;
+  --logo-green: #28861c;
   --warn: #fff4d6;
   --r: 18px;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -33,5 +35,7 @@
   --line: #1d3322;
   --on: #06200a;
   --wm-text: #fafeff;
+  --logo-crown: #97c677;
+  --logo-green: #28861c;
   --warn: #3a3114;
 }
