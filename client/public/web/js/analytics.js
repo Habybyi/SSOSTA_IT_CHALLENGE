@@ -56,7 +56,18 @@ function loadGA() {
   document.head.appendChild(s);
 }
 
+const CRM_EVENTS = ["page_view", "calc_start", "calc_complete", "lead_submit", "service_submit", "chat_message"];
+function crmEvent(ev) {
+  if (!CFG.crm || !CRM_EVENTS.includes(ev)) return;
+  const body = JSON.stringify({ type: ev, source: srcLabel });
+  try {
+    if (navigator.sendBeacon) navigator.sendBeacon(CFG.crm + "/events", new Blob([body], { type: "application/json" }));
+    else fetch(CFG.crm + "/events", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true });
+  } catch (e) {}
+}
+
 function track(ev, d) {
+  if (ev !== "page_view") crmEvent(ev);
   if (!can("analytics")) return;
   const s = st.get("stats") || { events: {}, sources: {} };
   s.events[ev] = (s.events[ev] || 0) + 1;
@@ -131,6 +142,7 @@ $("#stats-link").onclick = (e) => {
   showStats();
 };
 
+crmEvent("page_view");
 if (consent === null) openCookies(false);
 else applyConsent();
 if (q.has("stats")) showStats();
