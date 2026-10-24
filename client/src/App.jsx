@@ -6,6 +6,7 @@ import { ChangePasswordPage } from "./pages/ChangePasswordPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { TeamPage } from "./pages/TeamPage";
 import { AuditPage } from "./pages/AuditPage";
+import { WebStatsPage } from "./pages/WebStatsPage";
 import { CustomersPage } from "./pages/CustomersPage";
 import { CustomerFormPage } from "./pages/CustomerFormPage";
 import { CustomerDetailPage } from "./pages/CustomerDetailPage";
@@ -75,6 +76,14 @@ export const App = () => {
             element={
               <ProtectedRoute requireRole="OWNER">
                 <TeamPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/stats"
+            element={
+              <ProtectedRoute requireRole="OWNER">
+                <WebStatsPage />
               </ProtectedRoute>
             }
           />

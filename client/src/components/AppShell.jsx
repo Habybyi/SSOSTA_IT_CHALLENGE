@@ -12,6 +12,7 @@ import {
   FiUserCheck,
   FiLogOut,
   FiActivity,
+  FiBarChart2,
 } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { to: "/calendar", label: "Kalendár", short: "Kalendár", icon: FiCalendar, enabled: true },
   { to: "/materials", label: "Materiál a sklad", short: "Sklad", icon: FiPackage, enabled: true },
   { to: "/team", label: "Tím", short: "Tím", icon: FiUserCheck, enabled: true, requireRole: "OWNER" },
+  { to: "/stats", label: "Web a dopyty", short: "Web", icon: FiBarChart2, enabled: true, requireRole: "OWNER", desktopOnly: true },
   { to: "/audit", label: "Logy", short: "Logy", icon: FiActivity, enabled: true, requireRole: "OWNER", desktopOnly: true },
 ];
 

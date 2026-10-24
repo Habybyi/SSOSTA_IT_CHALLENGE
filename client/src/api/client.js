@@ -63,6 +63,7 @@ export const api = {
 
   listUsers: (token, query) => request("/users", { token, query }),
   listAudit: (token, query) => request("/audit", { token, query }),
+  getWebStats: (token, days) => request("/stats/web", { token, query: { days } }),
   createUser: (token, data) => request("/users", { method: "POST", token, body: data }),
   updateUser: (token, id, data) => request(`/users/${id}`, { method: "PATCH", token, body: data }),
   resetPassword: (token, id) => request(`/users/${id}/reset-password`, { method: "POST", token }),
