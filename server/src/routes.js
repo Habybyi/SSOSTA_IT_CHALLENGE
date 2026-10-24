@@ -15,6 +15,7 @@ import { auditRouter } from "./modules/audit/audit.routes.js";
 import { devicesRouter, gardenDevicesRouter, iotIngestRouter } from "./modules/iot/iot.routes.js";
 import { portalAccountRouter, portalRouter } from "./modules/portal/portal.routes.js";
 import { assistantRouter } from "./modules/assistant/assistant.routes.js";
+import { publicEventsRouter, statsRouter } from "./modules/webstats/webstats.routes.js";
 
 export const apiRouter = Router();
 
@@ -22,6 +23,7 @@ apiRouter.get("/health", (req, res) => res.json({ status: "ok" }));
 apiRouter.use("/auth", authRouter);
 
 apiRouter.use("/public/assistant", assistantRouter);
+apiRouter.use("/public/events", publicEventsRouter);
 apiRouter.use("/public", publicRouter);
 apiRouter.use("/inbound", inboundRouter);
 apiRouter.use("/iot", iotIngestRouter);
@@ -29,6 +31,7 @@ apiRouter.use("/iot", iotIngestRouter);
 apiRouter.use(requireAuth, requirePasswordChanged);
 apiRouter.use("/users", usersRouter);
 apiRouter.use("/audit", auditRouter);
+apiRouter.use("/stats", statsRouter);
 apiRouter.use("/portal", portalRouter);
 
 const staffOnly = requireRole("OWNER", "TECHNICIAN");
